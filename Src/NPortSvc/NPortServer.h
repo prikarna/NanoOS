@@ -45,6 +45,10 @@ private:
 	volatile LONG m_lRelCnt;
 };
 
+
+#define NPORTSVR_IO_READ		0
+#define NPORTSVR_IO_WRITE		1
+
 class NPortServer
 {
 public:
@@ -64,7 +68,7 @@ public:
 
 private:
 	static volatile bool	m_bStopAcceptIo;
-	volatile HANDLE			m_hAcceptIoTh;
+	volatile HANDLE			m_hAcceptIoTh[2];
 	volatile DWORD			m_dwErr;
 
 	const TCHAR *			m_szPortName;
@@ -77,6 +81,8 @@ private:
 	ServerFileMapping		m_MapFile;
 	NStateLock				m_StateLock;
 	NSvcLog					m_Log;
+
+	DWORD					m_dwIoTID[2];
 
 	DWORD					m_dwReadRes;
 	DWORD					m_dwReadLen;

@@ -667,6 +667,14 @@ bool ServerSynch::ReleaseDevEvent(LONG lNumberOfEvents, PLONG pPrevNumberOfEvent
 	return ((fRes) ? true : false);
 }
 
+bool ServerSynch::WaitForReadRequest(DWORD dwMSecTimeOut)
+{
+	DWORD	dwRes = WAIT_FAILED;
+
+	dwRes = WaitForSingleObject(m_hEvents[NPROTO_EVT_ID__READ_REQ], dwMSecTimeOut);
+	return ((dwRes == WAIT_OBJECT_0) ? true : false);
+}
+
 bool ServerSynch::SetReadCompletion()
 {
 	BOOL fRes = FALSE;
@@ -677,6 +685,14 @@ bool ServerSynch::SetReadCompletion()
 		return false;
 	}
 	return true;
+}
+
+bool ServerSynch::WaitForWriteRequest(DWORD dwMSecTimeOut)
+{
+	DWORD	dwRes = WAIT_FAILED;
+
+	dwRes = WaitForSingleObject(m_hEvents[NPROTO_EVT_ID__WRITE_REQ], dwMSecTimeOut);
+	return ((dwRes == WAIT_OBJECT_0) ? true : false);
 }
 
 bool ServerSynch::SetWriteCompletion()

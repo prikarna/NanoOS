@@ -5,6 +5,7 @@
  * Begin version resource
  */
 #include "NPortSvcVer.h"
+#include "NSvcName.h"
 
 #define DKVER_FILEVERSION					NPORTSVCVER
 #define DKVER_FILEVERSION_STR				NPORTSVCVER_STR
@@ -13,7 +14,7 @@
 #define DKVER_PRODUCTVERSION_STR			NPORTSVCVER_STR
 
 #define DKVER_COMPANYNAME_STR				_T("Mapagan")
-#define DKVER_FILEDESCRIPTION_STR			_T("Simple service to access NanoOS Port (USB)")
+#define DKVER_FILEDESCRIPTION_STR			NSVC_DEF_DESC
 #define DKVER_INTERNALNAME_STR				_T("NPortSvc")
 #define DKVER_LEGALCOPYRIGHT_STR			_T("\xA9 2020 Deka Prikarna A")
 #define DKVER_LEGALTRADEMARKS1_STR			_T("\xA9 2020 Deka Prikarna A")

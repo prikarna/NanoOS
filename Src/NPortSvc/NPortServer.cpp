@@ -133,11 +133,12 @@ void NStateLock::ResetAndWait(PNSTATE_LOCK pLock)
 volatile bool NPortServer::m_bStopAcceptIo	= true;
 
 NPortServer::NPortServer():
-	m_hAcceptIoTh(NULL),
 	m_dwErr(0),
 	m_hNPort(INVALID_HANDLE_VALUE),
 	m_bIsNPortOpened(false)
 {
+	m_hAcceptIoTh[0] = NULL;
+	m_hAcceptIoTh[1] = NULL;
 	m_szPortName = NPORT_DEVICE_NAME;
 	m_StateLock.Initialize();
 }
@@ -171,7 +172,10 @@ bool NPortServer::_Stop()
 	if (!m_bStopAcceptIo) 
 		m_bStopAcceptIo = true;
 
-	_TerminateThread((PLONG)&m_hAcceptIoTh, 2000);
+	for (int i = 0; i < 2; i++)
+	{
+		_TerminateThread((PLONG) &(m_hAcceptIoTh[i]), 2000);
+	}
 
 	m_MapFile.Destroy();
 	m_Synch.Destroy();
@@ -210,11 +214,13 @@ bool NPortServer::Start()
 	bool	bRes = false;
 	ULONG	ulInitEvent = 0;
 	ULONG	ulReqEvt = 0;
+	DWORD	dwRet = 0;
 
 	bRes = _IsPortExist();
 	m_bConnected = bRes;
 	ulInitEvent = ((bRes) ? NPROTO_EVENT__DEV_ARRIVAL : NPROTO_EVENT__DEV_REMOVAL);
 
+	m_dwErr = ERROR_SUCCESS;
 	do {
 		bRes = m_Synch.Create();
 		if (!bRes) {
@@ -244,19 +250,31 @@ bool NPortServer::Start()
 		if (m_dwErr != ERROR_SUCCESS) break;
 
 		m_bStopAcceptIo = false;
-		m_hAcceptIoTh = CreateThread(
-							NULL, 
-							0, 
-							reinterpret_cast<LPTHREAD_START_ROUTINE>(&NPortServer::_AcceptIo), 
-							reinterpret_cast<LPVOID>(this), 
-							0, 
-							NULL
-							);
-		if (!m_hAcceptIoTh) {
-			m_bStopAcceptIo = false;
-			m_dwErr = GetLastError();
-			break;
+		for (int i = 0; i < 2; i++) {
+			m_hAcceptIoTh[i] = CreateThread(
+									NULL,
+									0,
+									reinterpret_cast<LPTHREAD_START_ROUTINE>(&NPortServer::_AcceptIo),
+									reinterpret_cast<LPVOID>(this),
+									CREATE_SUSPENDED,
+									&(m_dwIoTID[i])
+									);
+			if (!m_hAcceptIoTh[i]) {
+				m_dwErr = GetLastError();
+				break;
+			}
 		}
+		if (m_dwErr != ERROR_SUCCESS) break;
+
+		Sleep(100);
+		for (int i = 0; i < 2; i++) {
+			dwRet = ResumeThread(m_hAcceptIoTh[i]);
+			if (dwRet == (DWORD) -1) {
+				m_dwErr = GetLastError();
+				break;
+			}
+		}
+		if (m_dwErr != ERROR_SUCCESS) break;
 
 		m_dwErr = ERROR_SUCCESS;
 	} while (FALSE);
@@ -326,49 +344,71 @@ DWORD CALLBACK NPortServer::_AcceptIo(LPVOID pDat)
 	DWORD				dwRet = 0;
 	HANDLE				hTh = NULL;
 	bool				bRes = false;
-	ServerSynch::Request	Req;
+	DWORD				dwCurTID = 0;
+	LPVOID				p = NULL;
+
+	dwCurTID = GetCurrentThreadId();
 
 	if (!pThis) {
 		dwRet = ERROR_INVALID_DATA;
 		goto EndThread;
 	}
 
-	DBG_PRINTF(_T("%s: Start.\r\n"), FUNCT_NAME_STR);
+#ifdef _DEBUG
+	if (dwCurTID == pThis->m_dwIoTID[NPORTSVR_IO_READ]) {
+		DbgPrintf(_T("%s: Start accept read request. (TID=%d)\r\n"), FUNCT_NAME_STR, dwCurTID);
+	} else {
+		DbgPrintf(_T("%s: Start accept write request. (TID=%d)\r\n"), FUNCT_NAME_STR, dwCurTID);
+	}
+#endif
 
 	while (!m_bStopAcceptIo)
 	{
-		bRes = pThis->m_Synch.WaitForReadWriteRequest(500, Req);
-		if (!bRes) {
-			continue;
-		}
-
-		switch (Req)
+		if (pThis->m_dwIoTID[NPORTSVR_IO_READ] == dwCurTID)
 		{
-		case ServerSynch::Req_Read:
-			pThis->_HandleReadRequest();
-			break;
-
-		case ServerSynch::Req_Write:
-			pThis->_HandleWriteRequest();
-			break;
-
-		default:
-			DBG_PRINTF(_T("%s: Unknown request %d\r\n"), FUNCT_NAME_STR, Req);
-			pThis->m_Log.Report(NSvcLog::Typ_Warning, _T("Unknown request from client."));
-			break;
+			bRes = pThis->m_Synch.WaitForReadRequest(500);
+			if (!bRes) 
+			{
+				continue;
+			}
+			else
+			{
+				pThis->_HandleReadRequest();
+			}
+		}
+		else
+		{
+			bRes = pThis->m_Synch.WaitForWriteRequest(500);
+			if (!bRes) 
+			{
+				continue;
+			}
+			else
+			{
+				pThis->_HandleWriteRequest();
+			}
 		}
 	}
 
 EndThread:
 	if (pThis) {
-		LPVOID p = InterlockedExchangePointer((PLONG) &(pThis->m_hAcceptIoTh), NULL);
+		if (pThis->m_dwIoTID[NPORTSVR_IO_READ] == dwCurTID)
+		{
+			p = InterlockedExchangePointer(&(pThis->m_hAcceptIoTh[NPORTSVR_IO_READ]), NULL);
+		}
+		else
+		{
+			p = InterlockedExchangePointer(&(pThis->m_hAcceptIoTh[NPORTSVR_IO_WRITE]), NULL);
+		}
 		hTh = reinterpret_cast<HANDLE>(p);
 		if (hTh) {
 			CloseHandle(hTh);
 		}
 	}
 
-	DBG_PRINTF(_T("%s: Terminate.\r\n"), FUNCT_NAME_STR);
+#ifdef _DEBUG
+	DbgPrintf(_T("%s: Terminate. (TID=%d)\r\n"), FUNCT_NAME_STR, dwCurTID);
+#endif
 
 	ExitThread(dwRet);
 	return dwRet;
@@ -725,6 +765,10 @@ DWORD CALLBACK NPortServer::_OpenNPort(LPVOID pContext)
 			break;
 		}
 
+		/* 
+		SetCommState() often fail, still figure out why.
+		Can be from the cable, device, NanoOS or driver.
+		*/
 		dcb.DCBlength		= sizeof(DCB);
 		dcb.ByteSize		= 8;
 		dcb.BaudRate		= 921600;

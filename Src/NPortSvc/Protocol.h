@@ -196,8 +196,10 @@ public:
 
 	bool ReleaseDevEvent(LONG lNumberOfEvents, PLONG pPrevNumberOfEvents);
 
+	bool WaitForReadRequest(DWORD dwMSecTimeOut);
 	bool SetReadCompletion();
 
+	bool WaitForWriteRequest(DWORD dwMSecTimeOut);
 	bool SetWriteCompletion();
 
 	bool WaitForReadWriteRequest(DWORD dwMSecTimeOut, ServerSynch::Request & RequestResult);	
