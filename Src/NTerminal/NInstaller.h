@@ -43,7 +43,7 @@ public:
 /*
 	Prop.		: IsInstalling
 	Var. type	: bool
-	Direction	: set and get.
+	Direction	: get.
 	Desc.		: Installation process status, true if still installing or otherwise false.
 */
 	Property<NInstaller, bool>	IsInstalling;
