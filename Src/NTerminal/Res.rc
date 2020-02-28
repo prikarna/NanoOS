@@ -1,0 +1,141 @@
+/*
+ * File    : Res.rc
+ * Remark  : Resources for NanoOS Terminal.
+ *
+ */
+
+#include "TChar.h"
+#include "Windows.h"
+#include "ResId.h"
+
+/*
+ * Icons resources
+ */
+DKICON_APP			ICON		"..\..\..\Icons\NTermImg.ico"
+DKICON_NTERM		ICON		"..\..\..\Icons\NIOTerm.ico"
+DKICON_VDISP		ICON		"..\..\..\Icons\VDisp.ico"
+
+/*
+ * Begin menu resource
+ */
+MainMenu	MENU
+{
+	POPUP	_T("&Application")
+	BEGIN
+		POPUP	_T("&Console")
+		BEGIN
+			MENUITEM	SEPARATOR
+		END
+		MENUITEM	_T("&Update menu"),					DKM_APP_UPDATE_CONS_MENU
+		MENUITEM	SEPARATOR
+		MENUITEM	_T("&Install App. ...\tCTRL+I"),	DKM_APP_INSTALL
+		MENUITEM	_T("&Re-Install App.\tCTRL+R"),		DKM_APP_REINSTALL
+		MENUITEM	_T("Cance&l install\tCTRL+L"),		DKM_APP_CANCEL_INSTALL
+		MENUITEM	SEPARATOR
+		MENUITEM	_T("&Exit\tCTRL+E"),				DKM_APP_EXIT
+	END
+
+	POPUP	_T("&View")
+	BEGIN
+		MENUITEM	_T("&Default"),						DKM_VIEW_DEFAULT_ARRANGEMENT
+		MENUITEM	SEPARATOR
+
+		POPUP	_T("C&lear")
+		BEGIN
+			MENUITEM	_T("Co&nsole\tCTRL+N"),			DKM_VIEW_CLEAR_CONSOLE
+			MENUITEM	_T("USB Serial I&O\tCTRL+O"),	DKM_VIEW_CLEAR_USB_SERIAL_IO
+		END
+		
+		MENUITEM	_T("Clear All\tCTRL+X"),			DKM_VIEW_CLEAR_ALL
+	END
+
+	POPUP	_T("&Options")
+	BEGIN
+		MENUITEM	_T("Enable VDisplay\tCTRL+V"),		DKM_OPT_ENABLE_VDISPLAY
+	END
+
+	POPUP	_T("&Help")
+	BEGIN
+		MENUITEM	SEPARATOR
+		MENUITEM	_T("&About"),						DKM_HELP_ABOUT
+	END
+}
+
+MenuAccel ACCELERATORS
+{
+	"I",	DKM_APP_INSTALL,				CONTROL,	VIRTKEY
+	"R",	DKM_APP_REINSTALL,				CONTROL,	VIRTKEY
+	"L",	DKM_APP_CANCEL_INSTALL,			CONTROL,	VIRTKEY
+	"E",	DKM_APP_EXIT,					CONTROL,	VIRTKEY
+	"X",	DKM_VIEW_CLEAR_ALL,				CONTROL,	VIRTKEY
+	"N",	DKM_VIEW_CLEAR_CONSOLE,			CONTROL,	VIRTKEY
+	"O",	DKM_VIEW_CLEAR_USB_SERIAL_IO,	CONTROL,	VIRTKEY
+	"V",	DKM_OPT_ENABLE_VDISPLAY,		CONTROL,	VIRTKEY
+}
+/*
+ * End of menu resource
+ */
+
+/*
+ * Begin version resource
+ */
+#define DKVER_NUMB							1,0,1,1
+#define DKVER_STRING						_T("1.0.1.1")
+
+#define DKVER_FILEVERSION					DKVER_NUMB
+#define DKVER_FILEVERSION_STR				DKVER_STRING
+
+#define DKVER_PRODUCTVERSION				DKVER_NUMB
+#define DKVER_PRODUCTVERSION_STR			DKVER_STRING
+
+#define DKVER_COMPANYNAME_STR				_T("Mapagan")
+#define DKVER_FILEDESCRIPTION_STR			_T("Terminal to control NanoOS and display its output")
+#define DKVER_INTERNALNAME_STR				_T("NTerminal")
+#define DKVER_LEGALCOPYRIGHT_STR			_T("\xA9 2020 Deka Prikarna A")
+#define DKVER_LEGALTRADEMARKS1_STR			_T("\xA9 2020 Deka Prikarna A")
+#define DKVER_LEGALTRADEMARKS2_STR			_T("\xA9 2020 Deka Prikarna A")
+#define DKVER_ORIGINALFILENAME_STR			_T("NTerminal")
+#define DKVER_PRODUCTNAME_STR				_T("NTerminal")
+
+#ifdef _DEBUG
+# define DKVER_FILE_FLAGS						(VS_FF_DEBUG | VS_FF_PRERELEASE | VS_FF_PRIVATEBUILD)
+#else
+# define DKVER_FILE_FLAGS						0
+#endif
+
+1 VERSIONINFO
+FILEVERSION    	DKVER_FILEVERSION
+PRODUCTVERSION 	DKVER_PRODUCTVERSION
+FILEFLAGSMASK  	VS_FFI_FILEFLAGSMASK
+FILEFLAGS      	DKVER_FILE_FLAGS
+FILEOS         	VOS_NT_WINDOWS32
+FILETYPE       	VFT_APP
+FILESUBTYPE    	VFT2_UNKNOWN
+BEGIN
+    BLOCK _T("StringFileInfo")
+    BEGIN
+        BLOCK _T("040904E4")
+        BEGIN
+            VALUE _T("CompanyName"),      DKVER_COMPANYNAME_STR
+            VALUE _T("FileDescription"),  DKVER_FILEDESCRIPTION_STR
+            VALUE _T("FileVersion"),      DKVER_FILEVERSION_STR
+            VALUE _T("InternalName"),     DKVER_INTERNALNAME_STR
+            VALUE _T("LegalCopyright"),   DKVER_LEGALCOPYRIGHT_STR
+            VALUE _T("LegalTrademarks1"), DKVER_LEGALTRADEMARKS1_STR
+            VALUE _T("LegalTrademarks2"), DKVER_LEGALTRADEMARKS2_STR
+            VALUE _T("OriginalFilename"), DKVER_ORIGINALFILENAME_STR
+            VALUE _T("ProductName"),      DKVER_PRODUCTNAME_STR
+            VALUE _T("ProductVersion"),   DKVER_PRODUCTVERSION_STR
+        END
+    END
+
+    BLOCK _T("VarFileInfo")
+    BEGIN
+
+		VALUE _T("Translation"), 0x409, 1252
+
+    END
+END
+/*
+ * End of version resource
+ */

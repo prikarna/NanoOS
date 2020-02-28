@@ -1,0 +1,72 @@
+;/*++
+;
+; Copyrigth (c) Mapagan. All rights reserved.
+;
+; Module name:
+;		NanoOSPort.inf
+;
+; Abstract:
+;		NanoOS Port (NanoOS Console Port)
+;
+;--*/
+
+[Version] 
+Signature	= "$Windows NT$"
+Provider	= %MFGNAME%
+DriverVer	= 24/19/2019,1.0.0.12
+
+Class		= Ports
+ClassGuid	= {4D36E978-E325-11CE-BFC1-08002BE10318}
+
+[Manufacturer] 
+%MFGNAME%		= Devices,NT,NTamd64
+
+;--------------------------------------------------------------------------
+; Files
+;--------------------------------------------------------------------------
+
+[DestinationDirs]
+DefaultDestDir	= 12
+
+;--------------------------------------------------------------------------
+; Device driver
+;--------------------------------------------------------------------------
+
+[NanoOSPort.NT]
+AddReg			= NanoOSPort.NT.AddReg
+
+[NanoOsPort.NT.AddReg]
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+[NanoOSPort.NT.Services]
+AddService		= usbser, 0x00000002, DriverService
+
+;--------------------------------------------------------------------------
+; Services
+;--------------------------------------------------------------------------
+
+[DriverService]
+DisplayName		= %SERVICE%
+ServiceType		= 1
+StartType		= 3
+ErrorControl	= 1
+ServiceBinary	= %12%\usbser.sys 
+
+;--------------------------------------------------------------------------
+; Devices
+;--------------------------------------------------------------------------
+
+[Devices.NT]
+%DESCRIPTION%	= NanoOSPort.NT, USB\VID_6A16&PID_0230
+
+[Devices.NTamd64]
+%DESCRIPTION%	= NanoOSPort.NT, USB\VID_6A16&PID_0230
+
+;--------------------------------------------------------------------------
+; Strings
+;--------------------------------------------------------------------------
+
+[Strings] 
+MFGNAME			= "Mapagan"
+DESCRIPTION		= "Deka's NanoOS Port"
+SERVICE			= "NanoOS Port Service"

@@ -1,0 +1,92 @@
+=====
+BUILD
+-----
+
+Currently this distribution can only be built with Microsoft Visual Studio 2008 
+Express Edition. In addition you need GCC for ARM cortex-m toolchain for windows, 
+can be found here: 
+[site to GCC ARM Cortex-m toolchain - will update soon] 
+to compile NanoOS. Not all of the files in that packect needed by the building process. 
+Here's the list of files needed by the building process:
+cc1.exe     -> needed by gcc.exe
+as.exe      -> to compile assembly code, internally called by cc1.exe and/or gcc.exe
+gcc.exe     -> to compile or produce object files
+ld.exe      -> to generate elf file
+objcopy.exe -> to generate binary file
+objdump.exe -> to generate assembly file from elf, usefull to see some assembly code
+NanoOS uses some gcc characteristics in how it compiles the code which may be 
+different from other compiler thus make NanoOS sources may not portable across 
+the compilers and further more: application source may not portable too. 
+Here's some of gcc characteristics used by NanoOS:
+- gcc uses R0 (register 0) to pass first parameter of function before it call the function.
+- gcc uses R0 as storage of return value of function that has return value.
+- gcc uses R7 (register 7) as base frame of a function.
+
+Bulding:
+1. Create a new directory in a drive, for example D:\Dev. The bulding process will 
+   use this directory as root of build process.
+2. Download the sources from this site [link to this site - will update soon] in that directory. 
+   If you are using git, change to newly created directory and you can use clone 
+   'sub command' like this:
+   -------------------------------------------------------------
+   git clone https://github.com/prikarna/NanoOS.git <directory>
+   -------------------------------------------------------------
+   Above command will create a directory named <directory>, in this example we use 
+   'NanoOS' as <directory>, and download necessary files to it and also you can skip
+   step 3 ('git clone' command will download per files, no need for extraction).
+3. Extract the packect to a directory, for example: D:\Dev\NanoOS. This directory
+   will contain three directories: 
+   - Build : contain build environment to build NanoOS, NanoOS application and NTerminal.
+   - Icons : contain icons of NTerminal.
+   - Src   : contain the source code.
+4. Open NanoOS solution file (NanoOS.sln) with Visual Studio. In above root directory
+   example this fle should be in the directory of D:\Dev\NanoOS\Build\MSVS2K8
+5. In Visual Studio find Makefile.inc and edit this file. In this example change
+   ROOT_DIR = D:\DevDevel\NanoOS to ROOT_DIR = D:\Dev\NanoOS.
+6. Create a new directory, if it doen't already exist, inside root directory and
+   name it with gcc. In this example D:\Dev\gcc. Copy files needed by the build 
+   process (cc1.exe, as.exe, gcc.exe, ld.exe, objcopy.exe and objdump.exe) to 
+   this directory.
+7. Now you are ready to build, just right click a project you want and then click 
+   'build'. If building process success, it will produce elf and binary file in
+   the directory above <root build dir> with new directory name 'NanoOSOut', in 
+   this example; build root directory is D:\Dev\NanoOS and the output directory 
+   will be D:\Dev\NanoOSOut. If you build all projects and success, then it will 
+   produce three kinds of ouput:
+   a. NanoOS binary (NanoOS.bin and NanoOS.elf).
+      This is NanoOS binary. In this example this file is located in 
+      D:\Dev\NanoOSOut\Bin\NanoOS directory.
+   b. Nano OS application.
+      For example: NApplication.bin, LockedPrin.bin etc. and this files can be installed 
+      to NanoOS as application. In this example this files should be in 
+      D:\Dev\NanoOSOut\Bin\Application directory
+   c. NTerminal.exe (for now only tested on Window XP). 
+      A terminal program specifically to access or interract with NanoOS. In this example 
+      this file should be in 
+      D:\Dev\NanoOSOut\Bin\NTerminal\Debug directory for Visual Studio's debug target 
+      or in D:\Dev\NanoOSOut\Bin\NTerminal\Release directory for release target.
+      
+
+=======
+INSTALL
+-------
+
+A. NanoOS
+   You need a 'firmware downloader' or 'flash downloader' or something like that to install
+   NanoOS.bin to target device. In this case the target device is STM32F103C8 chipset based
+   device. I use ST-Link debugger device (available on the market) and ST-Link Utility software,
+   available from here [site to ST-Link utility - will update soon], to install NanoOS to the device.
+   Use the manual provided by ST-Link utility software to install a 'firmware' or 'program' and
+   make sure you choose NanoOS.bin as 'program' to be installed and choose 0x08000000 as address to 
+   be writen to chipset flash memory.
+   
+B. NanoOS application
+   For NanoOS application, you can use either ST-Link debugger and its software or NTerminal program.
+   If you use ST-Link make sure you choose 0x08008000 as address to be writen to flash memory and choose
+   NanoOS application you want, e.g. NApplication.bin in the build process output directory. Otherwise
+   if you use NTerminal program, you only need to specify NanoOS application file and NanoOS will take
+   care the rest.
+   
+C. NTerminal
+   No special installation procedure, just run from NTerminal.exe in containing directory.
+   

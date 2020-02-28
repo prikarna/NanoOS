@@ -1,0 +1,165 @@
+================
+Built-in Console
+----------------
+Built-in Console uses USART3 on STM32F103XXX board. To access it you need a USB to Serial TTL converter 
+and connect to the board as below:
+
+  .----------------------.                                              .------------------------.
+  | STM32F103XX board    |             .-------------------.            |     PC or Computer     |
+  | -------------------- |             | USB to Serial TTL |            | ---------------------- |
+  |                      |             |     converter     |            |                        |
+  |                      |             | ----------------- |            |                        |
+  |                      |             |                   |            |                        |
+  |   PB 10 (Serial 3 TX)+-------------+ RX pin        USB +------------+ USB (COMx)             |
+  |                      |             |                   |            |                        |
+  |   PB 11 (Serial 3 RX)+-------------+ TX pin            |            |                        |
+  |                      |             |                   |            |                        |
+  |                      |             `-------------------'            |                        |
+  |                      |                                              |                        |
+  `----------------------'                                              `------------------------'
+  
+Note the crossover connection between STM32F103XXX board and USB to Serial TTL.
+PC recognizes USB to Serial TTL converter as serial port or COM port. Make sure USB to Serial 
+TTL driver is installed to Windows if not already install. 
+After physical connection established, you need a terminal program to to access console, e.g 
+hyperterminal and Putty. Open that program and from the program open appropriate serial (COM) port. 
+On Windows system the serial port name is COM1, COM2 and so on. Open it with parameters below:
+
+1. Bits per seconds (baud rate)    : 921600 (This baud rate may not available for some USB-Serial 
+                                     TTL converter)
+2. Data bits                       : 8
+3. Parity                          : None
+4. Stop bits                       : 1
+5. Flow control                    : None
+
+If the port has successfully opened then press <Enter> and 
+the terminal program should display:
+--------------------------------------------
+
+NanoOS Version 1.2 on Stm32f10XXX chipset.
+System running at 72000000 Hz (72 MHz).
+#>
+
+--------------------------------------------
+Note that NanoOS console is very simple console, don't provide AAA (Authorization, Authentication and
+Accounting) and do not have 'command auto complete' on command line.
+
+Here's the available commands on the console:
+ ver                      to display version of NanoOS and console.
+ help                     to display this help.
+ exit                     to exit from console.
+ led                      to run test LED.
+ run [flash|sram]         to run application in flash or sram, the default is run in flash. Note that 
+                          NanoOS application should be installed first, use ST-Link debugger and its 
+                          utility software or use NTerminal to install it.
+ thread [0|1|2|...]       to display thread(s) status.
+ term [0|1|2|...]         to terminate thread id of 0, 1 and so on.
+ suspend [0|1|2|...]      to suspend thread id of 0, 1 and so on.
+ resume [0|1|2|...]       to resume thread id of 0, 1 and so on.
+ stress                   to run simple stress test.
+ lock_stress              to run simple stress test with lock.
+ dump                     to display application binary data in flash.
+ reset                    to reset this system.
+ config [save|show|load]  to show, load and save NanoOS configuration. This is very limited configuration.
+ auto_run [ena|dis]       to enable or disable application auto run. This mean application is loaded or 
+                          executed or started right after system start up. Don't forget to save this config 
+                          via 'config save' command.
+ app_priv [priv|unpriv]   to set application control: privileged or unprivileged. Setup application as 
+                          privileged or unprivileged mode or control when it is running.
+ debug                    to enter debug console (no switch back to current console).
+ 
+Note that the built-in console can be used by NanoOS application to output a debug message which can be 
+usefull for debugging the application, specially when building a graphical user interface.
+
+
+============================
+USB Serial I/O (NanoOS Port)
+----------------------------
+NanoOS has USB Serial I/O interface to communicate to the outside world. To a PC this is virtual serial port.
+This interface is designed for NanoOS application to communicate with a program on PC. On Windows system it 
+uses usbser.sys so no need to write a special driver for it. When plugged to Windows on PC for the first time 
+you will be asked to provide a driver for it. You can use NanoOSPort.inf (included in this distribution) and 
+direct the installation process to this file and everything should be OK.
+
+!!!! WARNING !!!!
+   This USB Serial I/O use 'anonymous' or 'unregistered' PID and VID, thus could conflict with other USB device 
+   that uses the same PID and VID in the system.
+   
+If the installation success Window will give the name of the device with COM1 or COM2 or COM3 and so on. Check 
+with device manager on Windows it should show Deka's NanoOS Port (COM5). Note that COM number may be different
+from one computer to another computer. When a program want to use this port, it open this with with given name
+above and with parameters below:
+
+1. Bits per seconds (baud rate)    : 921600 (This baud rate may not available for some USB-Serial 
+                                     TTL converter)
+2. Data bits                       : 8
+3. Parity                          : None
+4. Stop bits                       : 1
+5. Flow control                    : None
+
+NanoOS itself doesn't realy care about the parameters above but since this serial port use usbser.sys of 
+Window it require you to provide the parameters above when you want to access it. This port can be accessed 
+with terminal progam such as hyperterminal or putty and from those programs you can get input-ouput of 
+NanoOS application which run on NanoOS. You can also use your own program on PC to communicate with NanoOS 
+application via this port too.
+
+
+===========================
+NanoOS Terminal (NTerminal)
+---------------------------
+NTerminal is a program specifically to access some NanoOS resources. It has:
+- Simple terminal to access Built-in console of NanoOS.
+- Simple terminal to communicate with NanoOS application.
+- Simple virtual display that simulate LCD touch screen or similar device.
+- Facility to install NanoOS application.
+Currently only run on Windows XP.
+
+To use NTerminal establish a physical connection like this:
+
+  .----------------------.                                              .------------------------.
+  | STM32F103XX board    |             .-------------------.            |     PC or Computer     |
+  | -------------------- |             | USB to Serial TTL |            | ---------------------- |
+  |                      |             |     converter     |            |                        |
+  |                      |             | ----------------- |            |                        |
+  |                      |             |                   |            |                        |
+  |   PB 10 (Serial 3 TX)+-------------+ RX pin        USB +------------+ USB (COMx)             |
+  |                      |             |                   |            |                        |
+  |   PB 11 (Serial 3 RX)+-------------+ TX pin            |            |                        |
+  |                      |             |                   |            |                        |
+  |                      |             `-------------------'            |                        |
+  |     USB (Micro-B)    |                                              |           USB          |
+  `----------+-----------'                                              `------------+-----------'
+             |                                                                       |
+             |                                                                       |
+             `--------------------------- USB Cable ---------------------------------'
+
+This is the same as connecting to console above but use additional USB connection from board to PC
+as additional connection.
+
+To connect to built-in console, on the menu, click Application - Console - COMx. Note that COMx is
+the name of USB-Serial TTL on PC. If success then press <Enter> as the Built-in console section 
+mentioned above. If error, console window will tell what the error is. Check the connection and try 
+to unplug and plug USB-Serial TTL and then try to open it again. If still error, well you probably
+need to change USB-Serial TTL product to another USB-Serial TTL product.
+
+For the NanoOSs USB Serial I/O, NTerminal will 'auto detect' it. Window text of USB Serial IO window
+will tell you whether the NanoOSs USB Serial IO device is connected. Try to unplug and plug the board
+from PC and let see if USB Serial IO's window text change from connected to disconnected and then 
+connected again when you plug USB Serial IO.
+
+If you want to use virtual display, on the menu click Options - Enable VDisplay. Checkbox should be 
+displayed in the Enable VDisplay menu item. And also VDisplay window will turn to black. If NanoOSs 
+USB Serial IO connected the window of VDisplay will tell you that the device is connected.
+
+NTerminal can be used to install NanoOS application, on the menu click Application - Install App... and 
+then a dialog box should shows up and let you choose what application file to be installed. Click OK when
+you have choosen the file and if everything work well, the console window will show the progress of 
+installation process. If you want to cancel the installation process, on the menu just click 
+Application - Cancel install. Note that application can't be 'uninstalled' but if need to 'uninstalled'
+it just write a dummy application and then install it to NanoOS.
+
+
+==========================
+Writing NanoOS application
+--------------------------
+[Work on progress]
