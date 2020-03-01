@@ -70,6 +70,22 @@ Here's the available commands on the console:
  
 Note that the built-in console can be used by NanoOS application to output a debug message which can be 
 usefull for debugging the application, specially when building a graphical user interface.
+NanoOS also has built-in debug console but with very minimum facility and it is just a viewer only. This
+may usefull for debugging the NanoOS itself or the application. 
+Here's the available debug commands:
+ last_stack               to view 16 stacks of the last debug stack pointer if any. Exception handlers like 
+                          system tick exception record this stack pointer.
+ last_frame               to view last frame address, just like last debug stack pointer, this is recorded
+                          byte exception handler.
+ thread [0|1|2|...]       to view thread slot and its parameters such as thread id and status.
+ stack [0|1|2|...]        to view stack slot (memory to be used as stack) of a thread from start to last stack
+                          pointer of thread stack.
+ mem_cfg                  to view memory usage, but for now only view system SRAM usage and system stack size 
+                          (available SRAM to used as system stack).
+ reset                    to reset the chip.
+ param                    to view trap code when NanoOS encounter unhandled exception or unexpected processor's
+                          execution in debug mode.
+ exc_prio                 to view exception and interrupt priority of current system.
 
 
 ============================
@@ -90,8 +106,7 @@ with device manager on Windows it should show Deka's NanoOS Port (COM5). Note th
 from one computer to another computer. When a program want to use this port, it open this with with given name
 above and with parameters below:
 
-1. Bits per seconds (baud rate)    : 921600 (This baud rate may not available for some USB-Serial 
-                                     TTL converter)
+1. Bits per seconds (baud rate)    : 921600
 2. Data bits                       : 8
 3. Parity                          : None
 4. Stop bits                       : 1
@@ -162,4 +177,91 @@ it just write a dummy application and then install it to NanoOS.
 ==========================
 Writing NanoOS application
 --------------------------
-[Work on progress]
+In NanoOS application you can safely think that you are in single process with one or more thread. A thread
+can run on privileged or unprivileged mode, on privileged mode you can can access Cortex-M processor peripheral
+like SCB, SYSTICK and so on. Note that when you change those peripherals you may change NanoOS characteristic
+thus NanoOS may not run correctly. On unprivileged mode you don't have that access.
+
+This manual using Visual Studio 2008 Express Edition to write a simple application and here's step by step
+how to start a simple Hello world program in NanoOS;
+
+1. From Visual C++ create new `Makefile Project` on a directory and name the project and its solution as
+   you want, for example, the project directory is D:\Dev and the project/solution name is Hello. Click OK
+   and then accept the default option when dialog box wizzard appears and then click finish. Visual C++ will 
+   create a directory named D:\Dev and in that directory will contain Hello.sln (solution file) and
+   Hello directory. Hello directory will contain Hello.vcproj (project file).
+   
+2. Add new source file, in this example add a new file named Hello.c and write code like this:
+   (or you can copy this codes to Hello.c in NanoOS source tree).
+   ----------------------------------
+   #include "NanoOSApi.h"
+   
+   int main(int argc, char * argv[])
+   {
+       Printf("Hello world.\r\n", 0);
+       return 0;
+   }
+   ----------------------------------
+   In this example we will create a hello world program and using NanoOS API, when using NanoOS API you need
+   to include NanoOSApi.h. Note that arguments in main() is 0 or null, for now they are just 'accessories'.
+   
+3. Copy Makefile file from <directory where NanoOS packect is extracted>\Src\Application\Hello to current project
+   directory, in this example <directory where NanoOS packect extracted> is D:\Dev\NanoOS and current project
+   directory is D:\Dev\Hello\Hello, so in this example, copy Makefile file from D:\Dev\NanoOS\Src\Application\Hello 
+   to D:\Dev\Hello\Hello.
+   
+4. Copy NanoApp.ld file from <directory where NanoOS packect extracted>\Src\Application to current project 
+   directory, in this example <directory where NanoOS packect extracted> is D:\Dev\NanoOS and current project 
+   directory is D:\Dev\Hello\Hello, so in this example, copy NanoApp.ld file from D:\Dev\NanoOS\Src\Application to 
+   D:\Dev\Hello\Hello.
+   
+5. Add those 2 files (Makefile and NanoApp.ld) to current project.
+
+6. Open or edit Makefile and then adjust some macros, (note that in this example the NanoOS packect is 
+   extracted to directory D:\Dev\NanoOS and the project directory is D:\Dev\Hello\Hello).
+   Set macro OUT_DIR to D:\Dev\Hello\Hello\Bin :
+      OUT_DIR = D:\Dev\Hello\Hello\Bin
+   Set macro SRCS_DIR to D:\Dev\Hello\Hello :
+      SRCS_DIR = D:\Dev\Hello\Hello
+   Set macro INCLUDE to D:\Dev\NanoOS\Src\Application :
+      INCLUDE = D:\Dev\NanoOS\Src\Application
+   Set macro GCC_BIN_DIR to D:\Dev\gcc (note that in this example gcc.exe, cc1.exe etc. in D:\Dev\gcc directory) :
+      GCC_BIN_DIR = D:\Dev\gcc
+   And then save this file.
+   Note that in the Makefile file there is additional NanoApi.c to compile, this because we use NanoOS API.
+   
+7. Setup project build command: right click Hello project and then click `Properties`, in the 
+   `Configuration Properties` choose `NMake` and then setup these parameters:
+   Build Command Line       : nmake /nologo _DEBUG=1 all
+   Rebuild All Command Line : nmake /nologo _DEBUG=1 rebuild
+   Clean Command Line       : nmake /nologo _DEBUG=1 clean
+   Note that the above comands is for debug target, for release target remove the _DEBUG=1 from that line.
+   
+8. Now we're ready to build the project, just right the `Hello' project then click Build. If success it will produce
+   Hello.bin and Hello.elf to directory D:\Dev\Hello\Hello\Bin and you can install Hello.bin file to NanoOS. You 
+   can use NTerminal for this (please see NTerminal above) or you can use STLink debugger and its utility (please 
+   see BUILD_INSTALL.txt).
+   
+Alternatively you can start from the included project in NanoOS directory called Hello. This is more or less the 
+same as the above example.
+
+If you want to run this application in SRAM, use NanoAppSRAM.ld instead of NanoApp.ld in step 4 and also please see
+the sample project named RinInSRAM. Note that the binary files may not fits in SRAM because SRAM size is only 10K 
+bytes for application to use and that include global variables defined by application if any.
+
+If you need to use NanoOS functions directly, include NanoOS.h from NanoOS source directory into your source and use 
+NanoOS.elf as 'some short of library' by adding switch -R in the LINK_OPTS macro of Makefile, in the above example 
+it should look like:
+-----------------------------------------
+...
+LINK_OPTS			= \
+                      -RNanoOS.elf\
+					  --gc-sections\
+					  -TNanoApp.ld\
+					  -o$(OUT_DIR)\$(ELF)
+...
+-----------------------------------------
+The NanoOS.elf is produced when building NanoOS (please see BUID_INSTALL.txt) and copy this file to your current
+project directory. This is usefull when you want to handle an interrupt from some I/O controller in the chip since
+NanoOS API doesn't support to be called in exception or interrupt handler. Note that not all function in the 
+NanoOS.h is suitable for the application.
