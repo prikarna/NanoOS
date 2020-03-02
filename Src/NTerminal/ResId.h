@@ -26,5 +26,9 @@
 #define DKICON_NTERM					12
 #define DKICON_VDISP					13
 
-#endif	// End of RESID_H
+#define DKD_ABOUTBOX					21
+#define DKC_STATIC_1					22
+#define DKC_STATIC_2					23
+#define DKC_STATIC_3					24
 
+#endif	// End of RESID_H

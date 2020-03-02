@@ -67,6 +67,7 @@ private:
 	VDisplay			m_VDisp;
 
 	static LRESULT CALLBACK _WindProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm);
+	static INT_PTR CALLBACK _AboutDlgProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm);
 
 	void _UpdateConsoleMenu();
 	void _HandleCommand(WPARAM wParm, LPARAM lParm);

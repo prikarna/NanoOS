@@ -77,6 +77,23 @@ MenuAccel ACCELERATORS
  */
 
 /*
+ * Begin about box
+ */
+DKD_ABOUTBOX DIALOGEX 0, 0, 170, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About NTerminal"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	ICON			DKICON_APP, DKC_STATIC_1, 10, 10, 48, 48, SS_REALSIZEIMAGE
+	LTEXT			"NTerminal, Version 1.0.1.1", DKC_STATIC_2, 52, 12, 114, 8, SS_NOPREFIX
+	LTEXT			"\xA9 2020 Deka Prikarna A.", DKC_STATIC_3, 52, 24, 114, 8
+    DEFPUSHBUTTON	"OK", IDOK, 113, 41, 50, 14, WS_GROUP
+END
+/*
+ * End about box
+ */
+
+/*
  * Begin version resource
  */
 #define DKVER_NUMB							1,0,1,1

@@ -476,6 +476,10 @@ void NWind::_HandleCommand(WPARAM wParm, LPARAM lParm)
 		_ChangeUsbIoMode(true);
 		break;
 
+	case DKM_HELP_ABOUT:
+		DialogBoxParam(m_hInst, MAKEINTRESOURCE(DKD_ABOUTBOX), m_hWnd, _AboutDlgProc, 0);
+		break;
+
 	default:
 		break;
 	}
@@ -831,4 +835,43 @@ void NWind::_HandleOnInstallError(const TCHAR *szErrMsg)
 	m_Console.AppendText(_T("\r\n"));
 
 	SetWindowText(m_hWnd, _T("NanoOS Terminal"));
+}
+
+INT_PTR CALLBACK NWind::_AboutDlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM lParm)
+{
+	HWND	hWnd;
+	RECT	rcPar, rcDlg, rc;
+
+	switch (uMsg)
+	{
+	case WM_INITDIALOG:
+		hWnd = GetParent(hDlg);
+		if (hWnd) {
+			GetWindowRect(hWnd, &rcPar);
+			GetWindowRect(hDlg, &rcDlg);
+			CopyRect(&rc, &rcPar);
+			OffsetRect(&rcDlg, -rcDlg.left, -rcDlg.top);
+			OffsetRect(&rc, -rc.left, -rc.top);
+			OffsetRect(&rc, -rcDlg.right, -rcDlg.bottom);
+			SetWindowPos(
+						hDlg,
+						HWND_TOP,
+						(rcPar.left + (rc.right / 2)),
+						(rcPar.top + (rc.bottom / 2)),
+						0,
+						0,
+						SWP_NOSIZE
+						);
+		}
+		return (INT_PTR)TRUE;
+
+	case WM_COMMAND:
+		if (LOWORD(wParm) == IDOK || LOWORD(wParm) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParm));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
 }
