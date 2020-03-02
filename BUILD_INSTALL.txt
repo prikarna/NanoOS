@@ -4,8 +4,10 @@ BUILD
 
 Currently this distribution can only be built with Microsoft Visual Studio 2008 
 Express Edition. In addition you need GCC for ARM cortex-m toolchain for windows, 
-can be found here: 
-[site to GCC ARM Cortex-m toolchain - will update soon] 
+can be found here:
+--------------------------
+https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q3-update
+-------------------------- 
 to compile NanoOS. Not all of the files in that packect needed by the building process. 
 Here's the list of files needed by the building process:
 cc1.exe     -> needed by gcc.exe
@@ -75,7 +77,11 @@ A. NanoOS
    You need a 'firmware downloader' or 'flash downloader' or something like that to install
    NanoOS.bin to target device. In this case the target device is STM32F103C8 chipset based
    device. I use ST-Link debugger device (available on the market) and ST-Link Utility software,
-   available from here [site to ST-Link utility - will update soon], to install NanoOS to the device.
+   available from here:
+   -----------------------
+   https://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-programmers/stsw-link004.html
+   -----------------------
+   to install NanoOS to the device.
    Use the manual provided by ST-Link utility software to install a 'firmware' or 'program' and
    make sure you choose NanoOS.bin as 'program' to be installed and choose 0x08000000 as address to 
    be writen to chipset flash memory.
