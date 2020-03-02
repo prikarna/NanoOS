@@ -27,4 +27,6 @@
 *\.suo
 *\.elf
 *\.bin
+*\.asm
+*\.map
 
