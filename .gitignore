@@ -29,4 +29,12 @@
 *\.bin
 *\.asm
 *\.map
+*\.tlb
+*\.tli
+*\.tlh
+*\.tmp
+*\.rsp
+*\.pgc
+*\.pgd
+*\.meta
 
