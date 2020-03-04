@@ -27,7 +27,11 @@ Here's some of gcc characteristics used by NanoOS:
 Bulding:
 1. Create a new directory in a drive, for example D:\Dev. The bulding process will 
    use this directory as root of build process.
-2. Download the sources from this site [link to this site - will update soon] in that directory. 
+2. Download the sources from this link:
+   -----------------------------------------------------
+   https://github.com/prikarna/NanoOS/archive/master.zip
+   -----------------------------------------------------
+   in that directory. 
    If you are using git, change to newly created directory and you can use clone 
    'sub command' like this:
    -------------------------------------------------------------
