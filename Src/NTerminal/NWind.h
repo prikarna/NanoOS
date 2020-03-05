@@ -26,9 +26,9 @@ class NWind:
 {
 public:
 	enum UsbIoMode {
-		None = 0,
-		SerialIo,
-		VDisplayIo
+		UsbIoMod_None = 0,
+		UsbIoMod_SerialIo,
+		UsbIoMod_VDisplayIo
 	};
 
 private:
@@ -91,7 +91,7 @@ private:
 	void _HandleOnVDisplayInput(VDisplay::InputData * pDat);
 
 	void _ArrangeChilds();
-	void _ChangeUsbIoMode(bool fUpdateMenu);
+	void _ChangeUsbIoMode(NWind::UsbIoMode mode);
 
 public:
 	NWind();	// C'tor

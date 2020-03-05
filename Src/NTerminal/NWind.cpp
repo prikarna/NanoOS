@@ -21,7 +21,7 @@ NWind::NWind():
 	m_fNeedUpdateMenu(false),
 	m_hConsNotif(NULL),
 	m_szNanoOSPortName(_T("\\\\?\\USB#Vid_6a16&Pid_0230#09092019#{a5dcbf10-6530-11d2-901f-00c04fb951ed}")),
-	m_IoMode(NWind::SerialIo)
+	m_IoMode(NWind::UsbIoMod_None)
 {
 	RtlZeroMemory(&m_OFN, sizeof(OPENFILENAME));
 	RtlZeroMemory(m_szAppFullFileName, sizeof(m_szAppFullFileName));
@@ -160,27 +160,12 @@ bool NWind::Create(HINSTANCE hInst)
 		new EventHandler<bool>(this, &NWind::_HandleOnNanoOSPortDeviceChange);
 	m_NanoOSPort.ReadDataSize = (USB_DATA_SIZE - 2);
 	m_NanoOSPort.TimeOut = 1;
-	m_NanoOSPort.EnableAutoDetection(m_szNanoOSPortName, 921600, NPort::ByteSize_8, NPort::Parity_None, NPort::StopBits_1);
 
-	if (m_NanoOSPort.IsOpen) {
-		if (m_IoMode == NWind::SerialIo) {
-			m_UsbSerIo.Create(hInst, m_hClientWnd, _T("USB Serial IO - Connected"));
-			m_VDisp.Create(hInst, m_hClientWnd, _T("USB VDisplay IO [Inactive]"), 40, 40, 240, 320);
-			m_VDisp.FillRectangle(NULL, RGB(255,255,255));
-		} else {
-			m_UsbSerIo.Create(hInst, m_hClientWnd, _T("USB Serial IO [Inactive]"));
-			m_VDisp.Create(hInst, m_hClientWnd, _T("USB VDisplay IO - Connected"), 40, 40, 240, 320);
-		}
-	} else {
-		if (m_IoMode == NWind::SerialIo) {
-			m_UsbSerIo.Create(hInst, m_hClientWnd, _T("USB Serial IO - Disconnected"));
-			m_VDisp.Create(hInst, m_hClientWnd, _T("USB VDisplay [Inactive]"), 40, 40, 240, 320);
-			m_VDisp.FillRectangle(NULL, RGB(255,255,255));
-		} else {
-			m_UsbSerIo.Create(hInst, m_hClientWnd, _T("USB Serial IO [Inactive]"));
-			m_VDisp.Create(hInst, m_hClientWnd, _T("USB VDisplay - Disconnected"), 40, 40, 240, 320);
-		}
-	}
+	m_UsbSerIo.Create(hInst, m_hClientWnd, _T("USB Serial IO [Inactive]"));
+	m_VDisp.Create(hInst, m_hClientWnd, _T("USB VDisplay IO [Inactive]"), 40, 40, 240, 320);
+	m_VDisp.FillRectangle(NULL, RGB(255,255,255));
+
+	_ChangeUsbIoMode(NWind::UsbIoMod_SerialIo);
 
 	m_VDisp.OnInput = new EventHandler<VDisplay::InputData *>(this, &NWind::_HandleOnVDisplayInput);
 
@@ -472,8 +457,16 @@ void NWind::_HandleCommand(WPARAM wParm, LPARAM lParm)
 		m_UsbSerIo.ClearText();
 		break;
 
-	case DKM_OPT_ENABLE_VDISPLAY:
-		_ChangeUsbIoMode(true);
+	case DKM_OPT_NPORT_DISABLE:
+		_ChangeUsbIoMode(NWind::UsbIoMod_None);
+		break;
+
+	case DKM_OPT_NPORT_SEL_SERIAL:
+		_ChangeUsbIoMode(NWind::UsbIoMod_SerialIo);
+		break;
+
+	case DKM_OPT_NPORT_SEL_VDISPLAY:
+		_ChangeUsbIoMode(NWind::UsbIoMod_VDisplayIo);
 		break;
 
 	case DKM_HELP_ABOUT:
@@ -607,9 +600,12 @@ void NWind::_HandleOnNanoOSPortDataReceived(char *pDat)
 {
 	PVDISP_OUT_DATA		pDisp = NULL;
 
-	if (m_IoMode == NWind::SerialIo) {
+	if (m_IoMode == NWind::UsbIoMod_SerialIo) 
+	{
 		m_UsbSerIo.AppendMultiByteText(pDat);
-	} else {
+	} 
+	else if (m_IoMode == NWind::UsbIoMod_VDisplayIo) 
+	{
 		pDisp = reinterpret_cast<PVDISP_OUT_DATA>(pDat);
 		switch (pDisp->Type)
 		{
@@ -636,6 +632,10 @@ void NWind::_HandleOnNanoOSPortDataReceived(char *pDat)
 			break;
 		}
 	}
+	else
+	{
+		// Do nothing
+	}
 }
 
 void NWind::_HandleOnConsChar(CHAR ch)
@@ -651,21 +651,38 @@ void NWind::_HandleOnUsbSerIoChar(CHAR ch)
 void NWind::_HandleOnNanoOSPortDeviceChange(bool isConected)
 {
 	RECT	rc;
-	if (isConected) {
-		if (m_IoMode == NWind::SerialIo) {
+	if (isConected) 
+	{
+		if (m_IoMode == NWind::UsbIoMod_SerialIo) 
+		{
 			m_UsbSerIo.Title = _T("USB Serial IO - Connected");
-		} else {
+		} 
+		else if (m_IoMode == NWind::UsbIoMod_VDisplayIo) 
+		{
 			m_VDisp.Title = _T("USB VDisplay - Connected");
 			SetRect(&rc, 0, 0, VDISP_WIDTH, VDISP_HEIGHT);
 			m_VDisp.FillRectangle(&rc, RGB(0, 0, 0));
 		}
-	} else {
-		if (m_IoMode == NWind::SerialIo) {
+		else
+		{
+			// Do nothing
+		}
+	} 
+	else 
+	{
+		if (m_IoMode == NWind::UsbIoMod_SerialIo) 
+		{
 			m_UsbSerIo.Title = _T("USB Serial IO - Disconnected");
-		} else {
+		} 
+		else if (m_IoMode == NWind::UsbIoMod_VDisplayIo) 
+		{
 			m_VDisp.Title = _T("USB VDisplay - Disconnected");
 			SetRect(&rc, 0, 0, VDISP_WIDTH, VDISP_HEIGHT);
 			m_VDisp.FillRectangle(&rc, RGB(255, 255, 255));
+		}
+		else
+		{
+			// Do nothing
 		}
 	}
 }
@@ -744,61 +761,6 @@ void NWind::_ArrangeChilds()
 	MoveWindow(m_VDisp.Handle, iTermWidth, 0, (rcDisp.right - rcDisp.left), (rcDisp.bottom - rcDisp.top), TRUE);
 }
 
-void NWind::_ChangeUsbIoMode(bool fUpdateMenu)
-{
-	MENUITEMINFO			mii = {0};
-	BOOL					fRes = FALSE;
-	RECT					rc = {0};
-
-	if (fUpdateMenu) {
-		mii.cbSize = sizeof(MENUITEMINFO);
-		mii.fMask = MIIM_STATE;
-		mii.wID = DKM_OPT_ENABLE_VDISPLAY;
-		fRes = GetMenuItemInfo(m_hMenu, DKM_OPT_ENABLE_VDISPLAY, FALSE, &mii);
-		if (!fRes) return;
-
-		if (mii.fState & MFS_CHECKED)
-		{
-			mii.fMask = MIIM_STATE;
-			mii.fState &= ~(MFS_CHECKED);
-			fRes = SetMenuItemInfo(m_hMenu, DKM_OPT_ENABLE_VDISPLAY, FALSE, &mii);
-			if (fRes) {
-				m_IoMode = NWind::SerialIo;
-			}
-		}
-		else
-		{
-			mii.fMask = MIIM_STATE;
-			mii.fState |= MFS_CHECKED;
-			fRes = SetMenuItemInfo(m_hMenu, DKM_OPT_ENABLE_VDISPLAY, FALSE, &mii);
-			if (fRes) {
-				m_IoMode = NWind::VDisplayIo;
-			}
-		}
-	}
-
-	SetRect(&rc, 0, 0, VDISP_WIDTH, VDISP_HEIGHT);
-	if (m_IoMode == NWind::SerialIo) {
-		if (m_NanoOSPort.IsOpen) {
-			m_UsbSerIo.Title = _T("USB Serial IO - Connected");
-		} else {
-			m_UsbSerIo.Title = _T("USB Serial IO - Disconnected");
-		}
-		m_VDisp.Title = _T("USB VDisplay [Inactive]");
-		m_VDisp.FillRectangle(&rc, RGB(255,255,255));
-	} else if (m_IoMode == NWind::VDisplayIo) {
-		if (m_NanoOSPort.IsOpen) {
-			m_VDisp.Title = _T("USB VDisplay - Connected");
-		} else {
-			m_VDisp.Title = _T("USB VDisplay - Disconnected");
-		}
-		m_VDisp.FillRectangle(&rc, RGB(0,0,0));
-		m_UsbSerIo.Title = _T("USB Serial IO [Inactive]");
-	} else {
-		MessageBox(m_hWnd, _T("Invalid USB IO mode"), _T("Error"), MB_OK | MB_ICONERROR);
-	}
-}
-
 void NWind::_HandleOnVDisplayInput(VDisplay::InputData *pDat)
 {
 	VDISP_IN_DATA	Input = {0};
@@ -874,4 +836,122 @@ INT_PTR CALLBACK NWind::_AboutDlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM
 		break;
 	}
 	return (INT_PTR)FALSE;
+}
+
+void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode)
+{
+	MENUITEMINFO			mii = {0};
+	BOOL					fRes = FALSE;
+	RECT					rc = {0};
+	UINT					uMenuItem;
+
+	if (m_IoMode == mode) return;
+
+	mii.cbSize = sizeof(MENUITEMINFO);
+	mii.fMask = MIIM_STATE;
+
+	switch (m_IoMode)
+	{
+	case NWind::UsbIoMod_None:
+		uMenuItem = DKM_OPT_NPORT_DISABLE;
+		break;
+
+	case NWind::UsbIoMod_SerialIo:
+		uMenuItem = DKM_OPT_NPORT_SEL_SERIAL;
+		break;
+
+	case NWind::UsbIoMod_VDisplayIo:
+		uMenuItem = DKM_OPT_NPORT_SEL_VDISPLAY;
+		break;
+
+	default:
+		return;
+	}
+	mii.wID = uMenuItem;
+	fRes = GetMenuItemInfo(m_hMenu, uMenuItem, FALSE, &mii);
+	if (!fRes) return;
+
+	mii.fMask = MIIM_STATE;
+	mii.fState &= ~(MFS_CHECKED);
+	fRes = SetMenuItemInfo(m_hMenu, uMenuItem, FALSE, &mii);
+	if (!fRes) return;
+
+	switch (mode)
+	{
+	case NWind::UsbIoMod_None:
+		uMenuItem = DKM_OPT_NPORT_DISABLE;
+		break;
+
+	case NWind::UsbIoMod_SerialIo:
+		uMenuItem = DKM_OPT_NPORT_SEL_SERIAL;
+		break;
+
+	case NWind::UsbIoMod_VDisplayIo:
+		uMenuItem = DKM_OPT_NPORT_SEL_VDISPLAY;
+		break;
+
+	default:
+		return;
+	}
+	mii.wID = uMenuItem;
+	fRes = GetMenuItemInfo(m_hMenu, uMenuItem, FALSE, &mii);
+	if (!fRes) return;
+
+	mii.fMask = MIIM_STATE;
+	mii.fState |= MFS_CHECKED;
+	fRes = SetMenuItemInfo(m_hMenu, uMenuItem, FALSE, &mii);
+	if (!fRes) return;
+
+	switch (mode)
+	{
+	case NWind::UsbIoMod_None:
+		m_VDisp.Title = _T("USB VDisplay [Inactive]");
+		m_VDisp.FillRectangle(&rc, RGB(255,255,255));
+		m_UsbSerIo.Title = _T("USB Serial IO [Inactive]");
+		m_NanoOSPort.DisableAutoDetection();
+		break;
+
+	case NWind::UsbIoMod_SerialIo:
+		if (m_IoMode == NWind::UsbIoMod_None) {
+			m_NanoOSPort.EnableAutoDetection(
+							m_szNanoOSPortName,
+							921600,
+							NPort::ByteSize_8,
+							NPort::Parity_None,
+							NPort::StopBits_1
+							);
+		}
+		if (m_NanoOSPort.IsOpen) {
+			m_UsbSerIo.Title = _T("USB Serial IO - Connected");
+		} else {
+			m_UsbSerIo.Title = _T("USB Serial IO - Disconnected");
+		}
+		m_VDisp.Title = _T("USB VDisplay [Inactive]");
+		m_VDisp.FillRectangle(&rc, RGB(255,255,255));
+		break;
+
+	case NWind::UsbIoMod_VDisplayIo:
+		if (m_IoMode == NWind::UsbIoMod_None) {
+			m_NanoOSPort.EnableAutoDetection(
+							m_szNanoOSPortName, 
+							921600, 
+							NPort::ByteSize_8, 
+							NPort::Parity_None, 
+							NPort::StopBits_1
+							);
+		}
+		if (m_NanoOSPort.IsOpen) {
+			m_VDisp.Title = _T("USB VDisplay - Connected");
+		} else {
+			m_VDisp.Title = _T("USB VDisplay - Disconnected");
+		}
+		m_VDisp.FillRectangle(&rc, RGB(0,0,0));
+		m_UsbSerIo.Title = _T("USB Serial IO [Inactive]");
+		break;
+
+	default:
+		return;
+	}
+
+	m_IoMode = mode;
 }

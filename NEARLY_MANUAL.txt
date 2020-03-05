@@ -81,7 +81,7 @@ Here's the available debug commands:
  stack [0|1|2|...]        to view stack slot (memory to be used as stack) of a thread from start to last stack
                           pointer of thread stack.
  mem_cfg                  to view memory usage, but for now only view system SRAM usage and system stack size 
-                          (available SRAM to used as system stack).
+                          (available SRAM to be used as system stack).
  reset                    to reset the chip.
  param                    to view trap code when NanoOS encounter unhandled exception or unexpected processor's
                           execution in debug mode.
