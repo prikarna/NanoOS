@@ -58,16 +58,16 @@ VDisplay::~VDisplay()
 
 LRESULT CALLBACK VDisplay::_WindProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm)
 {
-	VDisplay *	pVDisp = VDisplay::m_List[0];
 	bool		bRes = false;
 
 	for (int i = 0; i < MAX_VDISPLAY; i++)
 	{
-		if (pVDisp->m_hWnd == hWnd) {
-			bRes = pVDisp->_Proc(uMsg, wParm, lParm);
-			break;
+		if (VDisplay::m_List[i]) {
+			if (VDisplay::m_List[i]->m_hWnd == hWnd) {
+				bRes = VDisplay::m_List[i]->_Proc(uMsg, wParm, lParm);
+				break;
+			}
 		}
-		pVDisp++;
 	}
 
 	/* Must call DefMDIChildProc() for these 7 messages */

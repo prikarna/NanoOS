@@ -187,14 +187,17 @@ LRESULT CALLBACK NTerminal::_EditHookProc(HWND hWnd, UINT uMsg, WPARAM wParm, LP
 */
 {
 	bool fRes = false;
-	NTerminal *	pTerm = NTerminal::m_List[0];
 
-	for (int i = 0; i < MAX_NTERM; i++) {
-		if (pTerm->m_hCtl == hWnd) {
-			fRes = pTerm->_HookProc(uMsg, wParm, lParm);
-			break;
+	for (int i = 0; i < MAX_NTERM; i++) 
+	{
+		if (NTerminal::m_List[i]) 
+		{
+			if (NTerminal::m_List[i]->m_hCtl == hWnd) 
+			{
+				fRes = NTerminal::m_List[i]->_HookProc(uMsg, wParm, lParm);
+				break;
+			}
 		}
-		pTerm++;
 	}
 
 	if (!fRes) {
@@ -222,7 +225,6 @@ LRESULT CALLBACK NTerminal::_WindProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM
 	static	UINT	uRef = 0;
 	static	HBRUSH	hBrBg = NULL;
 	bool			fRes = false;
-	NTerminal *		pTerm = NTerminal::m_List[0];
 
 	switch (uMsg)
 	{
@@ -251,11 +253,14 @@ LRESULT CALLBACK NTerminal::_WindProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM
 
 	default:
 		for (int i = 0; i < MAX_NTERM; i++) {
-			if (pTerm->m_hWnd == hWnd) {
-				fRes = pTerm->_Proc(uMsg, wParm, lParm);
-				break;
+			if (NTerminal::m_List[i])
+			{
+				if (NTerminal::m_List[i]->m_hWnd == hWnd)
+				{
+					fRes = NTerminal::m_List[i]->_Proc(uMsg, wParm, lParm);
+					break;
+				}
 			}
-			pTerm++;
 		}
 		if (!fRes) {
 			return DefMDIChildProc(hWnd, uMsg, wParm, lParm);
