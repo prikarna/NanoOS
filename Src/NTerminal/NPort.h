@@ -97,6 +97,8 @@ private:
 
 	CRITICAL_SECTION	m_CritSec;
 
+	DWORD				m_dwLastError;
+
 	static NPort *		m_PortList[MAX_NPORT];
 
 	static DWORD CALLBACK	_Read(LPVOID pDat);

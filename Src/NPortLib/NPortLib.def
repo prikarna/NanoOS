@@ -1,0 +1,7 @@
+LIBRARY		NPortLib
+
+EXPORTS
+	NPL_Open	@1
+	NPL_Close	@2
+	NPL_Write	@3
+	NPL_Read	@4

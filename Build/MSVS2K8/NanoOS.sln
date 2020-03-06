@@ -21,6 +21,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NTerminal", "NTerminal\NTer
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hello", "Hello\Hello.vcproj", "{2F276B4B-DB3C-4C9F-BE52-03859592E470}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortLib", "NPortLib\NPortLib.vcproj", "{DB17DFCC-C229-4971-9D4F-447F5C7EF295}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortLibTest", "NPortLibTest\NPortLibTest.vcproj", "{BFD10BA3-4F46-4492-8CDE-2B029050922B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DB17DFCC-C229-4971-9D4F-447F5C7EF295} = {DB17DFCC-C229-4971-9D4F-447F5C7EF295}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -67,6 +74,14 @@ Global
 		{2F276B4B-DB3C-4C9F-BE52-03859592E470}.Debug|Win32.Build.0 = Debug|Win32
 		{2F276B4B-DB3C-4C9F-BE52-03859592E470}.Release|Win32.ActiveCfg = Release|Win32
 		{2F276B4B-DB3C-4C9F-BE52-03859592E470}.Release|Win32.Build.0 = Release|Win32
+		{DB17DFCC-C229-4971-9D4F-447F5C7EF295}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DB17DFCC-C229-4971-9D4F-447F5C7EF295}.Debug|Win32.Build.0 = Debug|Win32
+		{DB17DFCC-C229-4971-9D4F-447F5C7EF295}.Release|Win32.ActiveCfg = Release|Win32
+		{DB17DFCC-C229-4971-9D4F-447F5C7EF295}.Release|Win32.Build.0 = Release|Win32
+		{BFD10BA3-4F46-4492-8CDE-2B029050922B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BFD10BA3-4F46-4492-8CDE-2B029050922B}.Debug|Win32.Build.0 = Debug|Win32
+		{BFD10BA3-4F46-4492-8CDE-2B029050922B}.Release|Win32.ActiveCfg = Release|Win32
+		{BFD10BA3-4F46-4492-8CDE-2B029050922B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

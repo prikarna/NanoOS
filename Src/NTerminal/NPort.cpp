@@ -28,7 +28,8 @@ NPort::NPort(void):
 	m_bReadEvent(true),
 	m_hRdEvtMem(NULL),
 	m_pRdMem(NULL),
-	m_fFormatedReadData(false)
+	m_fFormatedReadData(false),
+	m_dwLastError(0)
 {
 	RtlZeroMemory(&m_WrOvr, sizeof(OVERLAPPED));
 	RtlZeroMemory(&m_RdOvr, sizeof(OVERLAPPED));
@@ -240,6 +241,8 @@ bool NPort::Open(
 	} while (FALSE);
 
 	if (dwErr != ERROR_SUCCESS) {
+		m_dwLastError = dwErr;
+
 		if (m_hDev != INVALID_HANDLE_VALUE) {
 			CloseHandle(m_hDev);
 			m_hDev = INVALID_HANDLE_VALUE;
@@ -319,7 +322,7 @@ bool NPort::Close()
 		m_RdOvr.hEvent = NULL;
 	}
 	if (m_pRdMem) {
-		GlobalUnlock(m_pRdMem);
+		GlobalUnlock(m_hRdEvtMem);
 		m_pRdMem = NULL;
 	}
 	if (m_hRdEvtMem) {
@@ -735,14 +738,16 @@ LRESULT CALLBACK NPort::_DetectProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM l
 */
 {
 	bool	bRes = false;
-	NPort*	pPort = NPort::m_PortList[0];
+	NPort*	pPort;
 
 	for (int i = 0; i < MAX_NPORT; i++) {
+		pPort = NPort::m_PortList[i];
+		if (!pPort) continue;
+
 		if (pPort->m_hDetWnd == hWnd) {
 			bRes = pPort->_Proc(uMsg, wParm, lParm);
 			break;
 		}
-		pPort++;
 	}
 
 	if (uMsg == WM_DEVICECHANGE) {
@@ -910,6 +915,12 @@ bool NPort::EnableAutoDetection(
 	
 	SuppressError = bRes;
 
+	if (m_dwLastError == ERROR_ACCESS_DENIED) {
+		m_fEnableAutoDet = false;
+		_HandleError(_T("Can't open device"), m_dwLastError);
+		return false;
+	}
+
 	RtlZeroMemory(&m_szDevName, sizeof(m_szDevName));
 	StringCbCopy(m_szDevName, sizeof(m_szDevName), szComName);
 
@@ -924,6 +935,10 @@ bool NPort::EnableAutoDetection(
 	if (!m_hDetTh) {
 		m_fEnableAutoDet = false;
 		Close();
+	} else {
+		if (bDevRes) {
+			OnDeviceChange(true);
+		}
 	}
 
 	return m_fEnableAutoDet;
@@ -1261,6 +1276,7 @@ void NPort::_SetReadEvent(bool fEnable)
 		if (m_bReadEvent == false) {
 			m_bReadEvent = true;
 			if (m_hDev != INVALID_HANDLE_VALUE) {
+				m_bStopRead = false;
 				m_hReadThread = CreateThread(
 											NULL, 
 											0, 
@@ -1269,7 +1285,10 @@ void NPort::_SetReadEvent(bool fEnable)
 											0, 
 											NULL
 											);
-				if (!m_hReadThread) m_bReadEvent = false;
+				if (!m_hReadThread) {
+					m_bReadEvent = false;
+					m_bStopRead = true;
+				}
 				//DBG_PRINTF(_T("%s: Enable read event. Handle=0x%X\r\n"), FUNCT_NAME_STR, m_hReadThread);
 			}
 		}
@@ -1278,7 +1297,9 @@ void NPort::_SetReadEvent(bool fEnable)
 			m_bReadEvent = false;
 			if (m_hDev != INVALID_HANDLE_VALUE) {
 				fRes = TerminateThread(m_hReadThread, ERROR_OPERATION_ABORTED);
+				CloseHandle(m_hReadThread);
 				m_hReadThread = NULL;
+				m_bStopRead = true;
 
 				//DBG_PRINTF(_T("%s: Disable read event. fRes=%d\r\n"), FUNCT_NAME_STR, fRes);
 			}
