@@ -23,6 +23,8 @@ extern const UINT8_T	gMfcStr[];
 extern const UINT8_T	gProdStr[];
 extern const UINT8_T	gSerStr[];
 
+BOOL					gfNeedRunApp;
+
 static PUSB_BUFFER		spUsbBuff;
 static LINE_CODING		sLineCoding;
 static USB_SETUP		sStp;
@@ -41,6 +43,8 @@ static UINT8_PTR_T		spTxBuf;
 static UINT8_PTR_T		spRxBuf;
 
 static UINT8_T		suRecvFlags;
+
+static PCONFIG		spCfg;
 
 void UsbShutdown()
 {
@@ -70,6 +74,9 @@ void UsbInitialize()
 	UINT32_T		u;
 
 	RCC_ENA_APB2_CTRL_CLK(ENABLE, RCC_APB2_CTRL__IOPA);
+
+	gfNeedRunApp = FALSE;
+	spCfg = CfgGet();
 
 	spEpBuf = 0;
 	sControlLineState = 0;
@@ -437,6 +444,18 @@ static void HandleEpReg1Int()
 static void HandleEpReg2Int()
 {
 	USB_EP_CTL_EX(USB_EP_REG_2, 2, USB_EP_CTL_EX__BULK_IN_CLEAR);
+
+	if (gfNeedRunApp) {
+		gfNeedRunApp = FALSE;
+		ThdCreate(
+				0,
+				spCfg->Control,
+				FALSE,
+				(THREAD_ENTRY_TYPE) APP_FLASH_RUN_ADDRESS,
+				0,
+				0
+				);
+	}
 }
 
 static void HandleEpReg3Int()

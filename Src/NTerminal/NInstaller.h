@@ -26,6 +26,7 @@ private:
 	NPort *				m_pExtPort;
 	volatile bool		m_bUseExtPort;
 	volatile bool		m_bPrevReadEvent;
+	DWORD				m_dwError;
 
 	void					_TriggerError(const TCHAR * szErrMsg, DWORD dwError);
 	static DWORD CALLBACK	_Install(LPVOID pDat);
@@ -35,6 +36,7 @@ private:
 	static DWORD CALLBACK	_Install2(LPVOID pDat);
 
 	bool				_GetIsInstalling();
+	unsigned long		_GetLastError();
 
 public:
 	NInstaller(void);
@@ -47,6 +49,14 @@ public:
 	Desc.		: Installation process status, true if still installing or otherwise false.
 */
 	Property<NInstaller, bool>	IsInstalling;
+
+/*
+	Prop.		: LastError
+	Var. type	: unsigned long
+	Direction	: get.
+	Desc.		: Install error code.
+*/
+	Property<NInstaller, unsigned long>	LastError;
 
 /*
 	Event			: OnError

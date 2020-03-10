@@ -46,6 +46,7 @@ NPort::NPort(void):
 	DeviceName.Set(this, 0, &NPort::_GetDeviceName);
 	ReadEvent.Set(this, &NPort::_SetReadEvent, &NPort::_GetReadEvent);
 	FormatedReadData.Set(this, &NPort::_SetFormatReadData, &NPort::_GetFormatReadData);
+	LastError.Set(this, 0, &NPort::_GetLastError);
 
 	int i;
 	for (i = 0; i < MAX_NPORT; i++) {
@@ -106,11 +107,17 @@ bool NPort::Open(
 	if (m_hDev != INVALID_HANDLE_VALUE) return true;
 
 	BOOL			fRes = FALSE;
-	DWORD			dwErr = ERROR_SUCCESS;
 	DCB				dcb;
 	COMMTIMEOUTS	cto;
 
+	m_dwLastError = ERROR_SUCCESS;
 	do {
+		if (ReadDataSize < 1) {
+			m_dwLastError = ERROR_BAD_LENGTH;
+			_HandleError(_T("Invalid read data size (min.=1)"), 0);
+			break;
+		}
+
 		m_hDev = CreateFile(
 						szComName, 
 						GENERIC_ALL, 
@@ -121,9 +128,9 @@ bool NPort::Open(
 						NULL
 						);
 		if (m_hDev == INVALID_HANDLE_VALUE) {
-			dwErr = GetLastError();
+			m_dwLastError = GetLastError();
 			_FormatString(_T("Can't open %s"), szComName);
-			_HandleError(m_szGenStrBuff, dwErr);
+			_HandleError(m_szGenStrBuff, m_dwLastError);
 			break;
 		}
 
@@ -134,16 +141,16 @@ bool NPort::Open(
 
 		m_WrOvr.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 		if (!m_WrOvr.hEvent) {
-			dwErr = GetLastError();
-			_HandleError(_T("Can't create event for overlapped operation"), dwErr);
+			m_dwLastError = GetLastError();
+			_HandleError(_T("Can't create event for overlapped operation"), m_dwLastError);
 			break;
 		}
 
 		fRes = SetupComm(m_hDev, m_uiInQueueSize, m_uiOutQueueSize);
 		if (!fRes) {
-			dwErr = GetLastError();
+			m_dwLastError = GetLastError();
 			_FormatString(_T("Can't set queue size on %s"), szComName);
-			_HandleError(m_szGenStrBuff, dwErr);
+			_HandleError(m_szGenStrBuff, m_dwLastError);
 			break;
 		}
 
@@ -151,9 +158,9 @@ bool NPort::Open(
 		dcb.DCBlength = sizeof(DCB);
 		fRes = GetCommState(m_hDev, &dcb);
 		if (!fRes) {
-			dwErr = GetLastError();
+			m_dwLastError = GetLastError();
 			_FormatString(_T("Can't get com state on %s"), szComName);
-			_HandleError(m_szGenStrBuff, dwErr);
+			_HandleError(m_szGenStrBuff, m_dwLastError);
 			break;
 		}
 
@@ -167,9 +174,9 @@ bool NPort::Open(
 		dcb.fBinary = TRUE;
 		fRes = SetCommState(m_hDev, &dcb);
 		if (!fRes) {
-			dwErr = GetLastError();
+			m_dwLastError = GetLastError();
 			_FormatString(_T("Can't set state on %s"), szComName);
-			_HandleError(m_szGenStrBuff, dwErr);
+			_HandleError(m_szGenStrBuff, m_dwLastError);
 			break;
 		}
 
@@ -177,49 +184,34 @@ bool NPort::Open(
 		cto.ReadIntervalTimeout = m_uiReadIntervalTimeOut;
 		fRes = SetCommTimeouts(m_hDev, &cto);
 		if (!fRes) {
-			dwErr = GetLastError();
+			m_dwLastError = GetLastError();
 			_FormatString(_T("Can't set time out on %s"), szComName);
-			_HandleError(m_szGenStrBuff, dwErr);
-			break;
-		}
-
-		fRes = PurgeComm(m_hDev, (PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR));
-		if (!fRes) {
-			dwErr = GetLastError();
-			_FormatString(_T("Can't purge comm on %s"), szComName);
-			_HandleError(m_szGenStrBuff, dwErr);
+			_HandleError(m_szGenStrBuff, m_dwLastError);
 			break;
 		}
 
 		m_RdOvr.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 		if (!m_RdOvr.hEvent) {
-			dwErr = GetLastError();
-			_HandleError(_T("Can't create event for overlapped operation"), dwErr);
-			break;
-		}
-
-		if (ReadDataSize <= 1) {
-			dwErr = ERROR_BAD_LENGTH;
-			_HandleError(_T("Invalid read data size (min.=1)"), 0);
+			m_dwLastError = GetLastError();
+			_HandleError(_T("Can't create event for overlapped operation"), m_dwLastError);
 			break;
 		}
 
 		m_hRdEvtMem = GlobalAlloc(GPTR, (ReadDataSize * 2));
 		if (!m_hRdEvtMem) {
-			dwErr = GetLastError();
-			_HandleError(_T("Can't allocate global memory"), dwErr);
+			m_dwLastError = GetLastError();
+			_HandleError(_T("Can't allocate global memory"), m_dwLastError);
 			break;
 		}
 		m_pRdMem = GlobalLock(m_hRdEvtMem);
 		if (!m_pRdMem) {
-			dwErr = GetLastError();
-			_HandleError(_T("Can't locl global memory"), dwErr);
+			m_dwLastError = GetLastError();
+			_HandleError(_T("Can't locl global memory"), m_dwLastError);
 			break;
 		}
 
 		if (m_bReadEvent)
 		{
-			//m_dwInpThread = GetCurrentThreadId();
 			m_bStopRead = false;
 			m_hReadThread = CreateThread(
 									NULL,
@@ -230,25 +222,24 @@ bool NPort::Open(
 									NULL
 									);
 			if (!m_hReadThread) {
-				dwErr = GetLastError();
+				m_dwLastError = GetLastError();
 				_FormatString(_T("Can't create thread to read %s"), szComName);
-				_HandleError(m_szGenStrBuff, dwErr);
+				_HandleError(m_szGenStrBuff, m_dwLastError);
 				break;
 			}
 		}
 
-		dwErr = ERROR_SUCCESS;
+		m_dwLastError = ERROR_SUCCESS;
 	} while (FALSE);
 
-	if (dwErr != ERROR_SUCCESS) {
-		m_dwLastError = dwErr;
+	if (m_dwLastError != ERROR_SUCCESS) {
 
 		if (m_hDev != INVALID_HANDLE_VALUE) {
 			CloseHandle(m_hDev);
 			m_hDev = INVALID_HANDLE_VALUE;
 		}
 		if (m_hReadThread) {
-			TerminateThread(m_hReadThread, dwErr);
+			TerminateThread(m_hReadThread, m_dwLastError);
 			CloseHandle(m_hReadThread);
 			m_hReadThread = NULL;
 		}
@@ -271,7 +262,7 @@ bool NPort::Open(
 		RtlZeroMemory(&m_szDevName, sizeof(m_szDevName));
 	}
 
-	return ((dwErr == ERROR_SUCCESS) ? true : false);
+	return ((m_dwLastError == ERROR_SUCCESS) ? true : false);
 }
 
 bool NPort::Close()
@@ -293,7 +284,7 @@ bool NPort::Close()
 	}
 	__finally
 	{
-		m_hDev = INVALID_HANDLE_VALUE;
+		// Do nothing;
 	}
 
 	hThread = (HANDLE) InterlockedExchangePointer((LPVOID) &m_hReadThread, NULL);
@@ -311,7 +302,7 @@ bool NPort::Close()
 		}
 	}
 
-	//m_hDev = INVALID_HANDLE_VALUE;
+	m_hDev = INVALID_HANDLE_VALUE;
 
 	if (m_WrOvr.hEvent) {
 		fRes = CloseHandle(m_WrOvr.hEvent);
@@ -364,6 +355,7 @@ DWORD CALLBACK NPort::_Read(LPVOID pDat)
 	Ovr.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (!Ovr.hEvent) {
 		dwErr = GetLastError();
+		pThis->m_dwLastError = dwErr;
 		pThis->_HandleError(_T("Can't create event"), dwErr);
 		goto EndRead;
 	}
@@ -392,9 +384,9 @@ DWORD CALLBACK NPort::_Read(LPVOID pDat)
 									);
 		}
 
-		//DBG_PRINTF(_T("%s:[%d] r=%d, rd=%d, sz=%d\r\n"), FUNCT_NAME_STR, dwCurTID, fRes, dwRead, pThis->ReadDataSize);
 		if (!fRes) {
 			dwErr = GetLastError();
+			pThis->m_dwLastError = dwErr;
 			if (dwErr != ERROR_OPERATION_ABORTED) {
 				pThis->_HandleError(_T("Error while read"), dwErr);
 			}
@@ -467,14 +459,13 @@ void NPort::_HandleError(const TCHAR *szErrorMessage, DWORD dwError)
 		StringCbPrintf(
 					m_szErrorBuffer, 
 					sizeof(m_szErrorBuffer), 
-					_T("%s: %s (Code=%d)"), 
+					_T("%s: %s"), 
 					szErrorMessage, 
-					reinterpret_cast<LPTSTR>(pErrStr), 
-					dwError
+					reinterpret_cast<LPTSTR>(pErrStr)
 					);
 		LocalFree(reinterpret_cast<HLOCAL>(pErrStr));
 	} else {
-		StringCbPrintf(m_szErrorBuffer, sizeof(m_szErrorBuffer), _T("%s. (Code=%d)."), szErrorMessage, dwError);
+		StringCbPrintf(m_szErrorBuffer, sizeof(m_szErrorBuffer), _T("%s"), szErrorMessage);
 	}
 
 	if (!NPort::SuppressError) {
@@ -508,14 +499,13 @@ void NPort::_HandleError(const TCHAR *szErrorMessage, DWORD dwError)
 		StringCbPrintf(
 					m_szErrorBuffer, 
 					sizeof(m_szErrorBuffer), 
-					_T("%s: %s (Code=%d)"), 
+					_T("%s: %s."), 
 					szErrorMessage, 
-					reinterpret_cast<LPTSTR>(pErrStr), 
-					dwError
+					reinterpret_cast<LPTSTR>(pErrStr)
 					);
 		LocalFree(reinterpret_cast<HLOCAL>(pErrStr));
 	} else {
-		StringCbPrintf(m_szErrorBuffer, sizeof(m_szErrorBuffer), _T("%s. (Code=%d)."), szErrorMessage, dwError);
+		StringCbPrintf(m_szErrorBuffer, sizeof(m_szErrorBuffer), _T("%s."), szErrorMessage);
 	}
 
 	OnError(&m_szErrorBuffer[0]);
@@ -535,8 +525,9 @@ bool NPort::Write(unsigned char ucDat)
 	if (m_hDev == INVALID_HANDLE_VALUE) return false;
 
 	BOOL	fRes = TRUE;
-	DWORD	dwRet = 0, dwErr = 0;
+	DWORD	dwRet = 0;
 
+	m_dwLastError = ERROR_SUCCESS;
 	fRes = WriteFile(
 					m_hDev, 
 					reinterpret_cast<LPCVOID>(&ucDat), 
@@ -544,13 +535,13 @@ bool NPort::Write(unsigned char ucDat)
 					&dwRet, 
 					&m_WrOvr
 					);
-	dwErr = GetLastError();
-	if (dwErr == ERROR_IO_PENDING) {
+	m_dwLastError = GetLastError();
+	if (m_dwLastError == ERROR_IO_PENDING) {
 		fRes = GetOverlappedResult(m_hDev, &m_WrOvr, &dwRet, TRUE);
 	}
 	if (!fRes) {
-		dwErr = GetLastError();
-		_HandleError(_T("Write error"), dwErr);
+		m_dwLastError = GetLastError();
+		_HandleError(_T("Write error"), m_dwLastError);
 	}
 
 	return (fRes) ? true : false;
@@ -570,8 +561,9 @@ bool NPort::Write(const unsigned char *pDat, unsigned int uiDataSize)
 	if (m_hDev == INVALID_HANDLE_VALUE) return false;
 
 	BOOL	fRes = TRUE;
-	DWORD	dwRet = 0, dwErr = 0;
+	DWORD	dwRet = 0;
 
+	m_dwLastError = ERROR_SUCCESS;
 	fRes = WriteFile(
 					m_hDev, 
 					reinterpret_cast<LPCVOID>(pDat), 
@@ -579,13 +571,13 @@ bool NPort::Write(const unsigned char *pDat, unsigned int uiDataSize)
 					&dwRet, 
 					&m_WrOvr
 					);
-	dwErr = GetLastError();
-	if (dwErr == ERROR_IO_PENDING) {
+	m_dwLastError = GetLastError();
+	if (m_dwLastError == ERROR_IO_PENDING) {
 		fRes = GetOverlappedResult(m_hDev, &m_WrOvr, &dwRet, TRUE);
 	}
 	if (!fRes) {
-		dwErr = GetLastError();
-		_HandleError(_T("Write error"), dwErr);
+		m_dwLastError = GetLastError();
+		_HandleError(_T("Write error"), m_dwLastError);
 	}
 
 	return (fRes) ? true : false;
@@ -650,8 +642,9 @@ bool NPort::Read(unsigned char *pBuffer, unsigned int uiBufferSize, unsigned int
 	if ((!pBuffer) || (uiBufferSize == 0)) return false;
 
 	BOOL	fRes = TRUE;
-	DWORD	dwRet = 0, dwErr = 0;
+	DWORD	dwRet = 0;
 
+	m_dwLastError = ERROR_SUCCESS;
 	ReadFile(
 			m_hDev, 
 			reinterpret_cast<LPVOID>(pBuffer), 
@@ -659,13 +652,13 @@ bool NPort::Read(unsigned char *pBuffer, unsigned int uiBufferSize, unsigned int
 			&dwRet, 
 			&m_RdOvr
 			);
-	dwErr = GetLastError();
-	if (dwErr == ERROR_IO_PENDING) {
+	m_dwLastError = GetLastError();
+	if (m_dwLastError == ERROR_IO_PENDING) {
 		fRes = GetOverlappedResult(m_hDev, &m_RdOvr, &dwRet, TRUE);
 	}
 	if (!fRes) {
-		dwErr = GetLastError();
-		_HandleError(_T("Read error"), dwErr);
+		m_dwLastError = GetLastError();
+		_HandleError(_T("Read error"), m_dwLastError);
 	} else {
 		uiRead = static_cast<unsigned int>(dwRet);
 	}
@@ -673,60 +666,81 @@ bool NPort::Read(unsigned char *pBuffer, unsigned int uiBufferSize, unsigned int
 	return (fRes) ? true : false;
 }
 
-bool NPort::Purge()
-/*
-	Desc.   : Clear input and output serial port buffer.
-	Params. : None.
-	Return  : true if success or otherwise false.
-*/
+bool NPort::Purge(enum NPort::PurgeOption Option)
 {
-	if (NPort::m_hDev == INVALID_HANDLE_VALUE) return false;
+	DWORD	dwFlags = 0;
 
-	BOOL	fRes = FALSE;
-	fRes = PurgeComm(m_hDev, (PURGE_RXCLEAR | PURGE_TXCLEAR));
-	return ((fRes) ? true : false);
-}
+	if (m_hDev == INVALID_HANDLE_VALUE) return false;
 
-bool NPort::PurgeAll()
-/*
-	Desc.   : 
-		Clear input and output serial port buffer and terminate outstanding overlapped read and 
-		write operation.
-	Params. : None.
-	Return  : true if success or otherwise false.
-*/
-{
-	if (NPort::m_hDev == INVALID_HANDLE_VALUE) return false;
+	switch (Option)
+	{
+	case PurgeOption_RxAbort:
+		dwFlags = PURGE_RXABORT;
+		break;
 
-	BOOL	fRes = FALSE;
-	fRes = PurgeComm(m_hDev, (PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR));
+	case PurgeOption_RxClear:
+		dwFlags = PURGE_RXCLEAR;
+		break;
+
+	case PurgeOption_TxAbort:
+		dwFlags = PURGE_TXABORT;
+		break;
+
+	case PurgeOption_TxClear:
+		dwFlags = PURGE_TXCLEAR;
+		break;
+
+	case PurgeOption_RxTxAbort:
+		dwFlags = PURGE_RXABORT | PURGE_TXABORT;
+		break;
+
+	case PurgeOption_RxTxClear:
+		dwFlags = PURGE_RXCLEAR | PURGE_TXCLEAR;
+		break;
+
+	default:
+		dwFlags = PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR;
+		break;
+	}
+
+	BOOL	fRes = PurgeComm(m_hDev, dwFlags);
 	return ((fRes) ? true : false);
 }
 
 bool NPort::Read(unsigned char * pBuffer)
 /*
-	Desc.   : Read a byte data from serial port. (Not implemented yet)
+	Desc.   : Read a byte data from serial port.
 	Params. : 
 		pBuffer
 			Pointer to byte buffer to receive byte data.
 	Return  : true if success or otherwise false.
 */
 {
-	return false;
-}
+	if (m_hDev == INVALID_HANDLE_VALUE) return false;
+	if (!pBuffer) return false;
 
-bool NPort::ReadAsync(unsigned char *pBuffer)
-/*
-	Desc.   : Read a byte data from serial port asynchronously. (Not implemented yet)
-	Params. : 
-		pBuffer
-			Pointer to byte buffer to receive byte data.
-	Return  : true if success or otherwise false.
-*/
-{
-	return false;
-}
+	BOOL	fRes = TRUE;
+	DWORD	dwRet = 0;
 
+	m_dwLastError = ERROR_SUCCESS;
+	ReadFile(
+			m_hDev, 
+			reinterpret_cast<LPVOID>(pBuffer), 
+			1, 
+			&dwRet, 
+			&m_RdOvr
+			);
+	m_dwLastError = GetLastError();
+	if (m_dwLastError == ERROR_IO_PENDING) {
+		fRes = GetOverlappedResult(m_hDev, &m_RdOvr, &dwRet, TRUE);
+	}
+	if (!fRes) {
+		m_dwLastError = GetLastError();
+		_HandleError(_T("Read error"), m_dwLastError);
+	}
+
+	return (fRes) ? true : false;
+}
 
 LRESULT CALLBACK NPort::_DetectProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm)
 /*
@@ -745,7 +759,7 @@ LRESULT CALLBACK NPort::_DetectProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM l
 		if (!pPort) continue;
 
 		if (pPort->m_hDetWnd == hWnd) {
-			bRes = pPort->_Proc(uMsg, wParm, lParm);
+			bRes = pPort->_HandleDetectProc(uMsg, wParm, lParm);
 			break;
 		}
 	}
@@ -760,7 +774,7 @@ LRESULT CALLBACK NPort::_DetectProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM l
 	return static_cast<LRESULT>(FALSE);
 }
 
-bool NPort::_Proc(UINT uMsg, WPARAM wParm, LPARAM lParm)
+bool NPort::_HandleDetectProc(UINT uMsg, WPARAM wParm, LPARAM lParm)
 /*
 	Desc.   : 
 		Handle _DetectProc window procedure for current instance. This is the part of auto 
@@ -835,8 +849,9 @@ bool NPort::_Proc(UINT uMsg, WPARAM wParm, LPARAM lParm)
 				if (lstrcmpi(m_szDevName, pDevIface->dbcc_name) == 0) 
 				{
 					DBG_PRINTF(_T(" close device %s\r\n"), pDevIface->dbcc_name);
-					Close();
-					OnDeviceChange(false);
+					fDatRes = Close();
+					if (fDatRes)
+						OnDeviceChange(false);
 				}
 			}
 			break;
@@ -915,7 +930,10 @@ bool NPort::EnableAutoDetection(
 	
 	SuppressError = bRes;
 
-	if (m_dwLastError == ERROR_ACCESS_DENIED) {
+	if ((m_dwLastError == ERROR_ACCESS_DENIED) && 
+		(bDevRes == false))
+	{
+		RtlZeroMemory(m_szDevName, sizeof(m_szDevName));
 		m_fEnableAutoDet = false;
 		_HandleError(_T("Can't open device"), m_dwLastError);
 		return false;
@@ -936,9 +954,7 @@ bool NPort::EnableAutoDetection(
 		m_fEnableAutoDet = false;
 		Close();
 	} else {
-		if (bDevRes) {
-			OnDeviceChange(true);
-		}
+		OnDeviceChange(bDevRes);
 	}
 
 	return m_fEnableAutoDet;
@@ -971,6 +987,7 @@ DWORD CALLBACK NPort::_DoDetection(LPVOID pDat)
 	ATOM	at = RegisterClassEx(&wcx);
 	if (at <= 0){
 		dwErr = GetLastError();
+		pThis->m_dwLastError = dwErr;
 		goto EndDetect;
 	}
 
@@ -991,6 +1008,7 @@ DWORD CALLBACK NPort::_DoDetection(LPVOID pDat)
 	if (!pThis->m_hDetWnd) {
 		dwErr = GetLastError();
 		UnregisterClass(pThis->m_szDetWndClassName, NULL);
+		pThis->m_dwLastError = dwErr;
 		goto EndDetect;
 	}
 
@@ -1003,12 +1021,20 @@ DWORD CALLBACK NPort::_DoDetection(LPVOID pDat)
 												(LPVOID) &hdr, 
 												(DEVICE_NOTIFY_WINDOW_HANDLE | DEVICE_NOTIFY_ALL_INTERFACE_CLASSES)
 												);
+	if (pThis->m_hNotif == NULL)
+	{
+		dwErr = GetLastError();
+		DestroyWindow(pThis->m_hDetWnd);
+		pThis->m_dwLastError = dwErr;
+		goto Cleanup;
+	}
 
 	while (GetMessage(&sMsg, NULL, 0, 0) > 0) {
 		TranslateMessage(&sMsg);
 		DispatchMessage(&sMsg);
 	}
 
+Cleanup:
 	UnregisterClass(pThis->m_szDetWndClassName, NULL);
 
 	pThis->m_fEnableAutoDet = false;
@@ -1289,7 +1315,6 @@ void NPort::_SetReadEvent(bool fEnable)
 					m_bReadEvent = false;
 					m_bStopRead = true;
 				}
-				//DBG_PRINTF(_T("%s: Enable read event. Handle=0x%X\r\n"), FUNCT_NAME_STR, m_hReadThread);
 			}
 		}
 	} else {
@@ -1300,8 +1325,6 @@ void NPort::_SetReadEvent(bool fEnable)
 				CloseHandle(m_hReadThread);
 				m_hReadThread = NULL;
 				m_bStopRead = true;
-
-				//DBG_PRINTF(_T("%s: Disable read event. fRes=%d\r\n"), FUNCT_NAME_STR, fRes);
 			}
 		}
 	}
@@ -1333,4 +1356,9 @@ void NPort::_SetFormatReadData(bool fEnable)
 	EnterCriticalSection(&m_CritSec);
 	m_fFormatedReadData = fEnable;
 	LeaveCriticalSection(&m_CritSec);
+}
+
+DWORD NPort::_GetLastError()
+{
+	return m_dwLastError;
 }

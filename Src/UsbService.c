@@ -10,13 +10,15 @@
 #include "UsbData.h"
 #include "UsbSerial.h"
 
+extern BOOL					gfNeedRunApp;
+
 static USB_DATA				sUsbInstDat;
 static USB_INSTALL_RESPONSE	sResp;
 static UINT16_PTR_T			spDst;
+static PUSB_INSTALL_PACKET	spPack = &(sUsbInstDat.u.InstallPacket);
 
 int UsbProgramFlash(UINT8_PTR_T pUsbRecvBuf)
 {
-	PUSB_INSTALL_PACKET		pPacket;
 	UINT32_T				uMax;
 	BOOL					fRes = FALSE;
 	UINT16_PTR_T			pSrc;
@@ -34,9 +36,8 @@ int UsbProgramFlash(UINT8_PTR_T pUsbRecvBuf)
 		}
 
 		NMemCopyFromPaddedBuffer((UINT8_PTR_T) &sUsbInstDat, pUsbRecvBuf, sizeof(USB_DATA));
-		pPacket = &(sUsbInstDat.u.InstallPacket);
 
-		if (pPacket->Index == 0xFFFF)	// Erase flash
+		if (spPack->Index == 0xFFFF)	// Erase flash
 		{
 			fRes = FlsGetPageNoFromAddress((UINT32_PTR_T) APP_FLASH_WRITE_ADDRESS, &uPageNo);
 			if (!fRes) {
@@ -50,7 +51,7 @@ int UsbProgramFlash(UINT8_PTR_T pUsbRecvBuf)
 				break;
 			}
 
-			fRes = FlsErase(uPageNo, pPacket->Length);
+			fRes = FlsErase(uPageNo, spPack->Length);
 			if (!fRes) {
 				sResp.Code = ERR__FAIL_TO_ERASE_FLASH;
 			} else {
@@ -61,7 +62,7 @@ int UsbProgramFlash(UINT8_PTR_T pUsbRecvBuf)
 		} 
 		else	// Progam flash
 		{
-			uMax = pPacket->Length / 2;
+			uMax = spPack->Length / 2;
 
 			fRes = FlsUnlock();
 			if (!fRes) {
@@ -69,7 +70,7 @@ int UsbProgramFlash(UINT8_PTR_T pUsbRecvBuf)
 				break;
 			}
 
-			if (pPacket->Index == 0) {
+			if (spPack->Index == 0) {
 				spDst = (UINT16_PTR_T) APP_FLASH_WRITE_ADDRESS;
 			}
 
@@ -80,10 +81,10 @@ int UsbProgramFlash(UINT8_PTR_T pUsbRecvBuf)
 				break;
 			}
 
-			pSrc = (UINT16_PTR_T) &(pPacket->Data[0]);
+			pSrc = (UINT16_PTR_T) &(spPack->Data[0]);
 
 			fRes = FlsProgram(spDst, pSrc, uMax);
-			//DBG_PRINTF("%s: Index=%d, len.=%d, max=%d\r\n", __FUNCTION__, pPacket->Index, pPacket->Length, uMax);
+			//DBG_PRINTF("%s: Index=%d, len.=%d, max=%d\r\n", __FUNCTION__, spPack->Index, spPack->Length, uMax);
 			if (!fRes) {
 				sResp.Code = ERR__FAIL_TO_PROGRAM_FLASH;
 			} else {
@@ -97,6 +98,12 @@ int UsbProgramFlash(UINT8_PTR_T pUsbRecvBuf)
 	} while (FALSE);
 
 	UsbSend((UINT8_PTR_T) &sResp, sizeof(USB_INSTALL_RESPONSE), FALSE);
+
+	if (fRes) {
+		if (spPack->Index == 0xFFFE) {
+			gfNeedRunApp = TRUE;
+		}
+	}
 
 	return (int) sResp.Code;
 }

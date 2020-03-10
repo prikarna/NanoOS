@@ -64,6 +64,17 @@ public:
 		StopBits_2
 	};
 
+	enum PurgeOption
+	{
+		PurgeOption_RxAbort,
+		PurgeOption_RxClear,
+		PurgeOption_TxAbort,
+		PurgeOption_TxClear,
+		PurgeOption_RxTxAbort,
+		PurgeOption_RxTxClear,
+		PurgeOption_All
+	};
+
 private:
 	HANDLE				m_hDev;
 	HANDLE				m_hReadThread;
@@ -73,7 +84,6 @@ private:
 	OVERLAPPED			m_WrOvr;
 	OVERLAPPED			m_RdOvr;
 	volatile bool		m_bStopRead;
-	DWORD				m_dwInpThread;
 	bool				m_bReadEvent;
 	HGLOBAL				m_hRdEvtMem;
 	LPVOID				m_pRdMem;
@@ -104,7 +114,7 @@ private:
 	static DWORD CALLBACK	_Read(LPVOID pDat);
 
 	static LRESULT CALLBACK	_DetectProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm);
-	bool					_Proc(UINT uMsg, WPARAM wParm, LPARAM lParm);
+	bool					_HandleDetectProc(UINT uMsg, WPARAM wParm, LPARAM lParm);
 
 	static DWORD CALLBACK _DoDetection(LPVOID pDat);
 
@@ -127,6 +137,7 @@ private:
 	void			_SetReadEvent(bool fEnable);
 	bool			_GetFormatReadData();
 	void			_SetFormatReadData(bool fEnable);
+	DWORD			_GetLastError();
 
 public:
 	NPort(void);
@@ -246,6 +257,15 @@ public:
 	Property<NPort, bool>			FormatedReadData;
 
 /*
+	Prop.		: LastError.
+	Var. type	: DWORD (unsigned long).
+	Direction	: get.
+	Desc.		: Return error code when an error occured from this class instance. This is
+				  Windows API error code.
+*/
+	Property<NPort, DWORD>			LastError;
+
+/*
 	Funct.	: Open
 	Desc.   : Open a Serial (COM) port.
 	Params. :
@@ -307,23 +327,13 @@ public:
 
 /*
 	Funct.	: Read
-	Desc.   : Read a byte data from serial port. (Not implemented yet)
+	Desc.   : Read a byte data from serial port.
 	Params. : 
 		pBuffer
 			Pointer to byte buffer to receive byte data.
 	Return  : true if success or otherwise false.
 */
 	bool Read(unsigned char * pBuffer);
-
-/*
-	Funct.	: ReadAsync
-	Desc.   : Read a byte data from serial port asynchronously. (Not implemented yet)
-	Params. : 
-		pBuffer
-			Pointer to byte buffer to receive byte data.
-	Return  : true if success or otherwise false.
-*/
-	bool ReadAsync(unsigned char *pBuffer);
 
 /*
 	Funct.	: Read
@@ -342,21 +352,21 @@ public:
 
 /*
 	Funct.	: Purge
-	Desc.   : Clear input and output serial port buffer.
-	Params. : None.
-	Return  : true if success or otherwise false.
-*/
-	bool Purge();
-
-/*
-	Funct.	: PurgeAll
 	Desc.   : 
-		Clear input and output serial port buffer and terminate outstanding overlapped read and 
-		write operation.
-	Params. : None.
+		Discard input and output buffer and terminate read write pending operation.
+	Params. : 
+		PurgeOption
+			Can be one of the following:
+				PurgeOption_RxAbort		: Termnated all outstanding overlapped read operation.
+				PurgeOption_RxClear		: Clear input buffer.
+				PurgeOption_TxAbort		: Terminate all outstanding overlapped write operation.
+				PurgeOption_TxClear		: Clear output buffer.
+				PurgeOption_RxTxAbort	: Combination of PurgeOption_RxAbort and PurgeOption_TxAbort.
+				PurgeOption_RxTxClear	: Combination of PurgeOption_RxClear and PurgeOption_TxClear.
+				PurgeOption_All			: All of the above combinations.
 	Return  : true if success or otherwise false.
 */
-	bool PurgeAll();
+	bool Purge(enum NPort::PurgeOption PurgeOption);
 
 /*
 	Funct.	: EnumComm
@@ -371,14 +381,15 @@ public:
 /*
 	Funct.	: EnableAutoDetection
 	Desc.   : 
-		Enable auto detection mode. When connected this class will open automatically the specified serial port in
-		m_szDevName buffer and when disconnected this mechanism will close it automatically. This only usefull when
-		serial (COM) port device is a dynamic device like USB Serial converter.
+		Enable auto detection mode. When connected this class instance will open automatically the specified serial 
+		port in m_szDevName buffer and when disconnected this mechanism will close it automatically. This only 
+		usefull when serial (COM) port device is a dynamic device like USB Serial converter.
 	Params. : 
 		szComName
 			Serial (COM) port name to be detected. This name should be something like : 
-			\\\\?\\USB#Vid_XXX&Pid_YYYY#<SerialNumber>#{a5dcbf10-6530-11d2-901f-00c04fb951ed} where
-			XXXX is VID and YYYY is PID and <SerialNumber> is USB device serial number.
+			\\\\?\\USB#Vid_XXX&Pid_YYYY#<SerialNumber>#{a5dcbf10-6530-11d2-901f-00c04fb951ed} where XXXX is VID,
+			YYYY is PID and <SerialNumber> is serial number of USB device. These three parameters can be found in 
+			the device manager or WDK's USBView program.
 		uiBaudRate
 			Serial (COM) port baud rate.
 		eByteSize

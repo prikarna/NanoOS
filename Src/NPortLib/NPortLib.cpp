@@ -1,15 +1,32 @@
+/*
+ * File    : NPortLib.cpp
+ * Remark  : NPortLib implementation.
+ *
+ */
+
 #include "TChar.h"
 #include "Windows.h"
 #include "StrSafe.h"
 
 #include "..\NTerminal\NPort.h"
+#include "..\NTerminal\NInstaller.h"
 #include "NPortLib.h"
 
+#ifdef _DEBUG
+# define DBG_PRINTF(szFormat, ...)			DbgPrintf(szFormat, __VA_ARGS__)
+#else
+# define DBG_PRINTF(szFormat, ...)
+#endif
+
 static NPort			sPort;
+static NInstaller		sInstaller;
+static bool				sfInstalling = false;
 static const TCHAR *	sszPortName = _T("\\\\?\\USB#Vid_6a16&Pid_0230#09092019#{a5dcbf10-6530-11d2-901f-00c04fb951ed}");
+
 static NPL_CONNECTION_CHANGE_CALLBACK		sConnChangeCallback = 0;
 static NPL_DATA_RECEIVED_CALLBACK			sDatRecvCallback = 0;
 static NPL_ERROR_CALLBACK					sErrorCallback = 0;
+static NPL_INSTALLING_CALLBACK				sInstallCallback = 0;
 
 int __stdcall DllMain(HMODULE hModule, DWORD dwReason, LPVOID )
 {
@@ -53,7 +70,8 @@ void HandleFormattedReadData(NPort::ReadDataFormat * pReadData)
 
 void HandleError(const TCHAR * szErrMsg)
 {
-	char * szErrorMessage;
+	char *			szErrorMessage;
+	unsigned long	ulErrCode;
 
 	if (sErrorCallback == 0) return;
 
@@ -77,7 +95,24 @@ void HandleError(const TCHAR * szErrMsg)
 	szErrorMessage = const_cast<char *>(szErrMsg);
 #endif
 
-	(* sErrorCallback)(szErrorMessage);
+	if (sfInstalling) {
+		ulErrCode = sInstaller.LastError;
+		sfInstalling = false;
+	} else {
+		ulErrCode = sPort.LastError;
+	}
+
+	(* sErrorCallback)(szErrorMessage, ulErrCode);
+}
+
+void HandleInstalling(int iProgress)
+{
+	if (sInstallCallback) {
+		if (iProgress == 100)
+			sfInstalling = false;
+
+		(* sInstallCallback)(iProgress);
+	}
 }
 
 #ifdef __cplusplus
@@ -159,6 +194,81 @@ int NPL_Read(unsigned char * pBuffer, int iBufferLength, int * piRead)
 
 	if (piRead) *piRead = static_cast<int>(uiRead);
 	return 1;
+}
+
+NPORTLIB
+int NPL_IsOpen()
+{
+	bool bRes = sPort.IsOpen;
+
+	return ((bRes) ? 1 : 0);
+}
+
+NPORTLIB
+unsigned long NPL_GetErrorCode()
+{
+	DWORD	dw = 0;
+	if (sfInstalling) {
+		dw = sInstaller.LastError;
+	} else {
+		dw = sPort.LastError;
+	}
+	return dw;
+}
+
+NPORTLIB
+int NPL_InstallNApplication(
+		const char * szApplicationFile,
+		NPL_INSTALLING_CALLBACK InstallingCallback
+		)
+{
+#ifdef UNICODE
+	WCHAR *	szFileName = NULL;
+	int	iRes;
+	WCHAR buf[1024] = {0};
+
+	iRes = MultiByteToWideChar(
+							CP_ACP, 
+							MB_COMPOSITE,
+							szApplicationFile,
+							-1,
+							buf,
+							(sizeof(buf) / sizeof(WCHAR))
+							);
+	if (iRes <= 0) return 0;
+	szFileName = &buf[0];
+#else
+	char * szFileName = NULL;
+	szFileName = szApplicationFile;
+#endif
+
+	sInstallCallback = InstallingCallback;
+	sInstaller.OnInstalling = HandleInstalling;
+	sInstaller.OnError = HandleError;
+
+	sfInstalling = true;
+	bool	bRes = sInstaller.Install(&sPort, szFileName);
+	if (!bRes) sfInstalling = false;
+
+	return ((bRes) ? 1 : 0);
+}
+
+NPORTLIB
+int NPL_IsInstalling()
+{
+	bool	bRes = sInstaller.IsInstalling;
+	if (bRes != sfInstalling) sfInstalling = bRes;
+
+	return ((bRes) ? 1 : 0);
+}
+
+NPORTLIB
+int NPL_CancelInstall()
+{
+	bool	bRes = sInstaller.Cancel();
+	if (bRes) sfInstalling = false;
+
+	return ((bRes) ? 1 : 0);
 }
 
 #ifdef __cplusplus

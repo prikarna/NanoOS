@@ -381,7 +381,7 @@ void NWind::_HandleCommand(WPARAM wParm, LPARAM lParm)
 				m_Installer.Cancel();
 			}
 
-			m_NanoOSPort.PurgeAll();
+			m_NanoOSPort.Purge(NPort::PurgeOption_All);
 
 			SetWindowText(m_hWnd, _T("NanoOS Terminal - Installing"));
 
@@ -414,7 +414,7 @@ void NWind::_HandleCommand(WPARAM wParm, LPARAM lParm)
 
 			SetWindowText(m_hWnd, _T("NanoOS Terminal - Installing"));
 
-			m_NanoOSPort.PurgeAll();
+			m_NanoOSPort.Purge(NPort::PurgeOption_All);
 
 			m_Console.Printf(_T("Re-Install %s to NanoOS... "), m_szAppFileName);
 			m_Installer.ReInstall();
@@ -876,6 +876,28 @@ void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode)
 	fRes = SetMenuItemInfo(m_hMenu, uMenuItem, FALSE, &mii);
 	if (!fRes) return;
 
+	bool	bDevRes = false;
+	if ((mode == NWind::UsbIoMod_SerialIo) ||
+		(mode == NWind::UsbIoMod_VDisplayIo))
+	{
+		if (m_IoMode == NWind::UsbIoMod_None)
+		{
+			m_NanoOSPort.ReadEvent = true;
+			m_NanoOSPort.FormatedReadData = false;
+			bDevRes = m_NanoOSPort.EnableAutoDetection(
+										m_szNanoOSPortName,
+										921600,
+										NPort::ByteSize_8,
+										NPort::Parity_None,
+										NPort::StopBits_1
+										);
+			if (bDevRes == false)
+			{
+				mode = NWind::UsbIoMod_None;
+			}
+		}
+	}
+
 	switch (mode)
 	{
 	case NWind::UsbIoMod_None:
@@ -902,6 +924,8 @@ void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode)
 	fRes = SetMenuItemInfo(m_hMenu, uMenuItem, FALSE, &mii);
 	if (!fRes) return;
 
+	SetRect(&rc, 0, 0, VDISP_WIDTH, VDISP_HEIGHT);
+
 	switch (mode)
 	{
 	case NWind::UsbIoMod_None:
@@ -912,15 +936,6 @@ void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode)
 		break;
 
 	case NWind::UsbIoMod_SerialIo:
-		if (m_IoMode == NWind::UsbIoMod_None) {
-			m_NanoOSPort.EnableAutoDetection(
-							m_szNanoOSPortName,
-							921600,
-							NPort::ByteSize_8,
-							NPort::Parity_None,
-							NPort::StopBits_1
-							);
-		}
 		if (m_NanoOSPort.IsOpen) {
 			m_UsbSerIo.Title = _T("USB Serial IO - Connected");
 		} else {
@@ -931,15 +946,6 @@ void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode)
 		break;
 
 	case NWind::UsbIoMod_VDisplayIo:
-		if (m_IoMode == NWind::UsbIoMod_None) {
-			m_NanoOSPort.EnableAutoDetection(
-							m_szNanoOSPortName, 
-							921600, 
-							NPort::ByteSize_8, 
-							NPort::Parity_None, 
-							NPort::StopBits_1
-							);
-		}
 		if (m_NanoOSPort.IsOpen) {
 			m_VDisp.Title = _T("USB VDisplay - Connected");
 		} else {

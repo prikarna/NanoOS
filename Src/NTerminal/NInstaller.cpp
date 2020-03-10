@@ -13,9 +13,12 @@ NInstaller::NInstaller(void):
 	m_hInstThread(NULL),
 	m_bUseExtPort(false),
 	m_pExtPort(NULL),
-	m_bPrevReadEvent(false)
+	m_bPrevReadEvent(false),
+	m_dwError(0)
 {
 	IsInstalling.Set(this, 0, &NInstaller::_GetIsInstalling);
+	LastError.Set(this, 0, &NInstaller::_GetLastError);
+
 	RtlZeroMemory(m_szAppFileName, sizeof(m_szAppFileName));
 }
 
@@ -39,14 +42,14 @@ bool NInstaller::Install(const TCHAR * szNanoOSIoName, const TCHAR *szAppFileNam
 */
 {
 	if (m_hInstThread) {
-		_TriggerError(_T("Install already in progress."), 0);
+		_TriggerError(_T("Install already on progress."), ERROR_BUSY);
 		return false;
 	}
 
 	if ((szNanoOSIoName == NULL) ||
 		(szAppFileName == NULL))
 	{
-		_TriggerError(_T("Can't install: Invalid IO name and/or app. file name."), 0);
+		_TriggerError(_T("Can't install: Invalid IO name and/or app. file name."), ERROR_INVALID_PARAMETER);
 		return false;
 	}
 
@@ -57,7 +60,7 @@ bool NInstaller::Install(const TCHAR * szNanoOSIoName, const TCHAR *szAppFileNam
 		int	iLen = lstrlen(szAppFileName);
 		if ((iLen * sizeof(TCHAR)) >= (sizeof(m_szAppFileName) - 2))
 		{
-			_TriggerError(_T("Can't install: File name too long."), 0);
+			_TriggerError(_T("Can't install: File name too long."), ERROR_FILENAME_EXCED_RANGE);
 			return false;
 		}
 
@@ -70,7 +73,7 @@ bool NInstaller::Install(const TCHAR * szNanoOSIoName, const TCHAR *szAppFileNam
 
 		if (lstrlen(m_szAppFileName) <= 0)
 		{
-			_TriggerError(_T("Can't reinstall: file buffer empty."), 0);
+			_TriggerError(_T("Can't reinstall: file buffer empty."), ERROR_EMPTY);
 			return false;
 		}
 	}
@@ -87,7 +90,8 @@ bool NInstaller::Install(const TCHAR * szNanoOSIoName, const TCHAR *szAppFileNam
 						NPort::RTSControl_Enable
 						)) 
 		{
-			_TriggerError(_T("Can't open device."), 0);
+			DWORD dwErr = m_Port.LastError;
+			_TriggerError(_T("Can't open device."), dwErr);
 			return false;
 		}
 	}
@@ -102,8 +106,7 @@ bool NInstaller::Install(const TCHAR * szNanoOSIoName, const TCHAR *szAppFileNam
 								NULL
 								);
 	if (!m_hInstThread) {
-		DWORD	dwErr = GetLastError();
-		_TriggerError(_T("Can't create install thread."), dwErr);
+		_TriggerError(_T("Can't create install thread."), GetLastError());
 	}
 
 	return ((m_hInstThread) ? true : false);
@@ -121,7 +124,7 @@ bool NInstaller::ReInstall(const TCHAR *szNanoOSIoName)
 	m_fReInstall = true;
 
 	if (lstrlen(m_szAppFileName) == 0) {
-		_TriggerError(_T("Can't reinstall: No previously install application."), 0);
+		_TriggerError(_T("Can't reinstall: No previously install application."), ERROR_EMPTY);
 		m_fReInstall = false;
 		return false;
 	}
@@ -204,16 +207,16 @@ void NInstaller::_TriggerError(const TCHAR *szErrMsg, DWORD dwError)
 		StringCbPrintf(
 					m_szErrorBuffer, 
 					sizeof(m_szErrorBuffer), 
-					_T("%s: %s (Code=%d)"), 
+					_T("%s: %s"), 
 					szErrMsg, 
-					reinterpret_cast<LPTSTR>(pErrStr), 
-					dwError
+					reinterpret_cast<LPTSTR>(pErrStr)
 					);
 		LocalFree(reinterpret_cast<HLOCAL>(pErrStr));
 	} else {
-		StringCbPrintf(m_szErrorBuffer, sizeof(m_szErrorBuffer), _T("%s. (Code=%d)"), szErrMsg, dwError);
+		StringCbPrintf(m_szErrorBuffer, sizeof(m_szErrorBuffer), _T("%s"), szErrMsg);
 	}
 
+	m_dwError = dwError;
 	OnError(&m_szErrorBuffer[0]);
 
 	DBG_PRINTF(_T("%s\r\n"), m_szErrorBuffer);
@@ -244,17 +247,25 @@ bool NInstaller::_GetResponse(DWORD *pdwErr)
 							sizeof(uResp),
 							uiRead
 							);
+		if (!b) {
+			if (pdwErr) *pdwErr = m_pExtPort->LastError;
+		}
 	} else {
 		b = m_Port.Read(
 						reinterpret_cast<unsigned char *>(&uResp),
 						sizeof(uResp),
 						uiRead
 						);
+		if (!b) {
+			if (pdwErr) *pdwErr = m_Port.LastError;
+		}
 	}
 
 	//DBG_PRINTF(_T("%s: res.=%d, uiRead=%d, code=%d\r\n"), FUNCT_NAME_STR, b, uiRead, uResp.Code);
 	
 	if (!b) return false;
+
+	if (pdwErr) *pdwErr = ERROR_GEN_FAILURE;
 
 	b = false;
 	switch (uResp.Code)
@@ -266,65 +277,65 @@ bool NInstaller::_GetResponse(DWORD *pdwErr)
 		break;
 
 	case USB_INST_RESP__NONE:
-		_TriggerError(_T("Invalid response."), 0);
+		_TriggerError(_T("Invalid response."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__INVALID_FLASH_PAGE_NO:
-		_TriggerError(_T("Invalid page number."), 0);
+		_TriggerError(_T("Invalid page number."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__NO_FLASH_PAGE_FOUND:
-		_TriggerError(_T("No flash page found."), 0);
+		_TriggerError(_T("No flash page found."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__FLASH_OPERATION:
-		_TriggerError(_T("Flash operation."), 0);
+		_TriggerError(_T("Flash operation."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__FLASH_PROGRAMMING:
-		_TriggerError(_T("Flash programming."), 0);
+		_TriggerError(_T("Flash programming."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__FLASH_WRITE_PROTECTION:
-		_TriggerError(_T("Flash write protection."), 0);
+		_TriggerError(_T("Flash write protection."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__INVALID_FLASH_OPERATION_STATE:
-		_TriggerError(_T("Invalid operation state."), 0);
+		_TriggerError(_T("Invalid operation state."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__INVALID_FLASH_NUMBER_OF_OPERATION:
-		_TriggerError(_T("Invalid flash number of operation."), 0);
+		_TriggerError(_T("Invalid flash number of operation."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__FAIL_TO_UNLOCK_FLASH:
-		_TriggerError(_T("Fail to unlock."), 0);
+		_TriggerError(_T("Fail to unlock."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__FAIL_TO_LOCK_FLASH:
-		_TriggerError(_T("Fail to lock."), 0);
+		_TriggerError(_T("Fail to lock."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__APP_SIZE_TOO_BIG:
-		_TriggerError(_T("Application size is too big."), 0);
+		_TriggerError(_T("Application size is too big."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__FAIL_TO_ERASE_FLASH:
-		_TriggerError(_T("Fail to erase flash."), 0);
+		_TriggerError(_T("Fail to erase flash."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__FAIL_TO_PROGRAM_FLASH:
-		_TriggerError(_T("Fail to program flash."), 0);
+		_TriggerError(_T("Fail to program flash."), ERROR_GEN_FAILURE);
 		break;
 
 	case ERR__INVALID_DEVICE_MODE:
-		_TriggerError(_T("Invalid mode."), 0);
+		_TriggerError(_T("Invalid mode."), ERROR_GEN_FAILURE);
 		break;
 
 	default:
 		RtlZeroMemory(szErrCode, sizeof(szErrCode));
 		StringCbPrintf(szErrCode, sizeof(szErrCode), _T("%d."), uResp.Code);
-		_TriggerError(szErrCode, 0);
+		_TriggerError(szErrCode, ERROR_GEN_FAILURE);
 		DBG_PRINTF(_T("%s: Error 0x%X\r\n"), FUNCT_NAME_STR, uResp.Code);
 		break;
 	}
@@ -392,8 +403,8 @@ DWORD CALLBACK NInstaller::_Install(LPVOID pDat)
 		}
 
 		if (liFileSize.QuadPart == 0) {
-			dwErr = ERROR_GEN_FAILURE;
-			pThis->_TriggerError(_T("Can't install empty application file (file size = 0 bytes)."), 0);
+			dwErr = ERROR_EMPTY;
+			pThis->_TriggerError(_T("Can't install empty application file (file size = 0 bytes)."), dwErr);
 			break;
 		}
 
@@ -408,7 +419,7 @@ DWORD CALLBACK NInstaller::_Install(LPVOID pDat)
 
 		bDevRes = pThis->m_Port.Write((const unsigned char *) &UsbDat, sizeof(USB_DATA));
 		if (!bDevRes) {
-			dwErr = ERROR_IO_DEVICE;
+			dwErr = pThis->m_Port.LastError;
 			pThis->_TriggerError(_T("Can't write command to erase flash."), dwErr);
 			break;
 		}
@@ -423,8 +434,9 @@ DWORD CALLBACK NInstaller::_Install(LPVOID pDat)
 	}
 
 	if (pThis->m_bCancel) {
-		pThis->_TriggerError(_T("Operation cancelled."), 0);
-		dwRet = ERROR_OPERATION_ABORTED;
+		dwErr = ERROR_OPERATION_ABORTED;
+		pThis->_TriggerError(_T("Operation cancelled."), dwErr);
+		dwRet = dwErr;
 		goto Cleanup;
 	}
 
@@ -488,7 +500,7 @@ DWORD CALLBACK NInstaller::_Install(LPVOID pDat)
 
 		bDevRes = pThis->m_Port.Write((const unsigned char *) &UsbDat, sizeof(USB_DATA));
 		if (!bDevRes) {
-			dwErr = ERROR_IO_DEVICE;
+			dwErr = pThis->m_Port.LastError;
 			pThis->_TriggerError(_T("Can't write application to NanoOS."), dwErr);
 			dwRet = dwErr;
 			break;
@@ -502,7 +514,7 @@ DWORD CALLBACK NInstaller::_Install(LPVOID pDat)
 
 		if (pThis->m_bCancel) {
 			dwRet = ERROR_OPERATION_ABORTED;
-			pThis->_TriggerError(_T("Operation cancelled."), 0);
+			pThis->_TriggerError(_T("Operation cancelled."), dwRet);
 			break;
 		} else {
 			liBytesRead.QuadPart = dwBytesRead;
@@ -543,7 +555,7 @@ bool NInstaller::_EraseFlash(HANDLE hAppFile, PLARGE_INTEGER pliFileSize, DWORD 
 {
 	LARGE_INTEGER	liFileSize = {0};
 	BOOL			fRes = FALSE;
-	DWORD			dwErr = 0;
+	DWORD			dwErr = ERROR_SUCCESS;
 	USB_DATA		UsbDat = {0};
 	bool			bRes = false;
 
@@ -575,11 +587,12 @@ bool NInstaller::_EraseFlash(HANDLE hAppFile, PLARGE_INTEGER pliFileSize, DWORD 
 
 	if (m_bUseExtPort) {
 		bRes = m_pExtPort->Write(reinterpret_cast<const unsigned char *>(&UsbDat), sizeof(USB_DATA));
+		if (!bRes) dwErr = m_pExtPort->LastError;
 	} else {
 		bRes = m_Port.Write(reinterpret_cast<const unsigned char *>(&UsbDat), sizeof(USB_DATA));
+		if (!bRes) dwErr = m_Port.LastError;
 	}
 	if (!bRes) {
-		dwErr = GetLastError();
 		if (pdwErr) *pdwErr = dwErr;
 		_TriggerError(_T("Can't write port."), dwErr);
 		return false;
@@ -660,14 +673,19 @@ bool NInstaller::_ProgramFlash(HANDLE hAppFile, LARGE_INTEGER liFileSize, DWORD 
 
 		if ((fIsFinish) && (iIter == 0)) break;
 
-		if (iIndex == 0xFFFF) {
+		if ((iIndex == 0xFFFF) || (iIndex == 0xFFFE))
+		{
 			dwErr = ERROR_INVALID_INDEX;
 			if (pdwErr) *pdwErr = dwErr;
 			_TriggerError(_T("Can't write application file to NanoOS."), dwErr);
 			break;
 		}
 
-		pPack->Index = iIndex;
+		if (fIsFinish) {
+			pPack->Index = 0xFFFE;
+		} else {
+			pPack->Index = static_cast<unsigned short>(iIndex);
+		}
 		iIndex++;
 		pPack->Length = static_cast<unsigned short>(iIter);
 
@@ -676,11 +694,12 @@ bool NInstaller::_ProgramFlash(HANDLE hAppFile, LARGE_INTEGER liFileSize, DWORD 
 
 		if (m_bUseExtPort) {
 			bRes = m_pExtPort->Write(reinterpret_cast<const unsigned char *>(&UsbDat), sizeof(USB_DATA));
+			if (!bRes) dwErr = m_pExtPort->LastError;
 		} else {
 			bRes = m_Port.Write(reinterpret_cast<const unsigned char *>(&UsbDat), sizeof(USB_DATA));
+			if (!bRes) dwErr = m_Port.LastError;
 		}
 		if (!bRes) {
-			dwErr = GetLastError();
 			if (pdwErr) *pdwErr = dwErr;
 			_TriggerError(_T("Can't write application file to NanoOS."), dwErr);
 			break;
@@ -695,7 +714,7 @@ bool NInstaller::_ProgramFlash(HANDLE hAppFile, LARGE_INTEGER liFileSize, DWORD 
 		if (m_bCancel) {
 			dwErr = ERROR_OPERATION_ABORTED;
 			if (pdwErr) *pdwErr = dwErr;
-			_TriggerError(_T("Operation cancelled."), 0);
+			_TriggerError(_T("Operation cancelled."), dwErr);
 			break;
 		} else {
 			liBytesRead.QuadPart = dwBytesRead;
@@ -795,23 +814,23 @@ bool NInstaller::Install(NPort * pPort, const TCHAR *szAppFileName)
 	DWORD	dwErr = 0;
 
 	if (m_hInstThread) {
-		_TriggerError(_T("Install in progress."), 0);
+		_TriggerError(_T("Install in progress."), ERROR_BUSY);
 		return false;
 	}
 
 	if (m_fReInstall) {
 		m_fReInstall = false;
 		if ((lstrlen(m_szAppFileName) == 0) || (m_pExtPort == NULL)) {
-			_TriggerError(_T("No previously application program being installed."), 0);
+			_TriggerError(_T("No previously application program being installed."), ERROR_INVALID_PARAMETER);
 			return false;
 		}
 	} else {
 		if (!szAppFileName) {
-			_TriggerError(_T("No application file name specified."), 0);
+			_TriggerError(_T("No application file name specified."), ERROR_EMPTY);
 			return false;
 		}
 		if (!pPort) {
-			_TriggerError(_T("No external NPort specified."), 0);
+			_TriggerError(_T("No external NPort specified."), ERROR_INVALID_PARAMETER);
 			return false;
 		}
 		if (lstrlen(szAppFileName) >= ((sizeof(m_szAppFileName) / sizeof(TCHAR)) - sizeof(TCHAR)))
@@ -826,7 +845,7 @@ bool NInstaller::Install(NPort * pPort, const TCHAR *szAppFileName)
 	}
 
 	if (!m_pExtPort->IsOpen) {
-		_TriggerError(_T("NPort is not opened."), 0);
+		_TriggerError(_T("NPort is not opened."), ERROR_INVALID_STATE);
 		return false;
 	}
 
@@ -888,4 +907,9 @@ bool NInstaller::_GetIsInstalling()
 		// Do nothing.
 	}
 	return bRes;
+}
+
+unsigned long NInstaller::_GetLastError()
+{
+	return m_dwError;
 }

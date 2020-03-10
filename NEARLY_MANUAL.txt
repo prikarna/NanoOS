@@ -63,7 +63,8 @@ Here's the available commands on the console:
  config [save|show|load]  to show, load and save NanoOS configuration. This is very limited configuration.
  auto_run [ena|dis]       to enable or disable application auto run. This mean application is loaded or 
                           executed or started right after system start up. Don't forget to save this config 
-                          via 'config save' command.
+                          via 'config save' command. This configuration also tell NanoOS to automatically
+                          run the application right after NanoOS application installation complete and success.
  app_priv [priv|unpriv]   to set application control: privileged or unprivileged. Setup application as 
                           privileged or unprivileged mode or control when it is running.
  debug                    to enter debug console (no switch back to current console).
@@ -162,22 +163,28 @@ will tell you whether the NanoOSs USB Serial IO device is connected. Try to unpl
 from PC and let see if USB Serial IO's window text change from connected to disconnected and then 
 connected again when you plug USB Serial IO.
 
-If you want to use virtual display, on the menu click Options - Enable VDisplay. Checkbox should be 
-displayed in the Enable VDisplay menu item. And also VDisplay window will turn to black. If NanoOSs 
-USB Serial IO connected the window of VDisplay will tell you that the device is connected.
+If you want to use virtual display, on the menu click 'Options' - 'NanoOS Port' - 'Virtual Display'. 
+Checkbox should be displayed in the Enable VDisplay menu item. And also VDisplay window will turn to 
+black. If NanoOSs USB Serial IO connected the window of VDisplay will tell you that the device is 
+connected.
 
-NTerminal can be used to install NanoOS application, on the menu click Application - Install App... and 
-then a dialog box should shows up and let you choose what application file to be installed. Click OK when
-you have choosen the file and if everything work well, the console window will show the progress of 
+NTerminal can be used to install NanoOS application, on the menu click 'Application' - 'Install App...' 
+and then a dialog box should shows up and let you choose what application file to be installed. Click OK 
+when you have choosen the file and if everything work well, the console window will show the progress of 
 installation process. If you want to cancel the installation process, on the menu just click 
-Application - Cancel install. Note that application can't be 'uninstalled' but if need to 'uninstalled'
+'Application' - 'Cancel install'. Note that application can't be 'uninstalled' but if need to 'uninstalled'
 it just write a dummy application and then install it to NanoOS.
+
+In the NTerminal NanoOS Port or USB Serial IO can be disabled and let the PC application who use the NanoOS 
+Port library can use it. Note that USB Serial IO can only be accessed only one PC application (or process) at 
+a time because it is basically a serial (COM) port device. To disable the NanoOS Port in the NTerminal, on
+the menu click 'Options' - 'NanoOS Port' - Disable.
 
 
 ==========================
 Writing NanoOS application
 --------------------------
-In NanoOS application you can safely think that you are in single process with one or more thread. A thread
+In NanoOS application you can safely think that you are in a single process with one or more thread. A thread
 can run on privileged or unprivileged mode, on privileged mode you can can access Cortex-M processor peripheral
 like SCB, SYSTICK and so on. Note that when you change those peripherals you may change NanoOS characteristic
 thus NanoOS may not run correctly. On unprivileged mode you don't have that access.
@@ -264,4 +271,40 @@ LINK_OPTS			= \
 The NanoOS.elf is produced when building NanoOS (please see BUID_INSTALL.txt) and copy this file to your current
 project directory. This is usefull when you want to handle an interrupt from some I/O controller in the chip since
 NanoOS API doesn't support to be called in exception or interrupt handler. Note that not all function in the 
-NanoOS.h is suitable for the application.
+NanoOS.h suitable for the application.
+
+
+============================================================
+Using NanoOS Port Library (NPortLib.lib and/or NPortLib.dll)
+------------------------------------------------------------
+Actually PC application or program can access NanoOS Port directly through COM or serial port provided by operating 
+system but NPortLib provide an easier way to do that and offer callback mechanism for system or programming language
+which support callback mechanism.
+To use NPortLib:
+1. Include NPortLib.h in you source code.
+2. Call the function provided by NPortLib.h.
+3. Compile and link against the NPortLib.lib.
+If your system and/or programming language support dynamic library loading, e.g. LoadLibrary()/FreeLibrary(), you 
+can skip the step 3 above. Note that in run time, you still need NPortLib.dll in both cases, make sure your binary 
+can access this dll. 
+
+In the source code call NPL_Open() and provide callback parameters if required to start using NanoOS Port and then 
+later on call NPL_Close() when you have finished using it. The NPL_Open() will active NanoOS Port detection, when 
+NanoOS Port is connected it will automatically open NanoOS Port and when disconnected it will automatically close 
+NanoOS Port. When you provide 'data received callback' parameter in the call to NPL_Open() the library will call
+this callback when it receive a data from NanoOS Port, if not you have to read from NanoOS Port 'manually' via 
+NPL_Read() if required. Note that NPL_Read() will always fail if 'data receive callback' is set. Please see 
+NPortLibTest project included in this distribution for more. Also note that NPL_Open() can fail too if other PC 
+application (or process), such as NTerminal, already open the NanoOS Port.
+
+NPortLib also provide installer function to install NanoOS application on NanoOS port. Make sure NanoOS port is 
+connected and opened before you call NPL_InstallNApplication(), call NPL_IsOpened() to do this if you don't provide 
+'connection change callback' when you call NPL_Open(). NPL_InstallNApplication() is asynchronous call, it will run 
+in the 'backgroud' or another thread. If you don't provide 'progress callback' when you call it, you can call 
+NPL_IsInstalling() to query or check if installer is running. You can also cancel currently running installer by 
+using NPL_CancelInstall(). Note that cancelling currently running installer will leave application segment on NanoOS 
+unexecutable (can't be executed by NanoOS), and there is no 'roll-back' operation. If you want to handle error in 
+a callback, provide a 'error callback' when you call NPL_Open(), this callback will be triggered when error occured 
+on NanoOS port. If you want to run the NanoOS application right after the installation complete and success, set the
+'auto_run' to 'ena' and then save the configuration in the NanoOS Built-in console, please see 'Built-in Console' 
+section above.

@@ -1,7 +1,13 @@
 LIBRARY		NPortLib
 
 EXPORTS
-	NPL_Open	@1
-	NPL_Close	@2
-	NPL_Write	@3
-	NPL_Read	@4
+	NPL_Open
+	NPL_Close
+	NPL_Write
+	NPL_Read
+	NPL_IsOpen
+	NPL_GetErrorCode
+	NPL_InstallNApplication
+	NPL_IsInstalling
+	NPL_CancelInstall
+	

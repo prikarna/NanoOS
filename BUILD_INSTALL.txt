@@ -46,7 +46,7 @@ Bulding:
    - Icons : contain icons of NTerminal.
    - Src   : contain the source code.
 4. Open NanoOS solution file (NanoOS.sln) with Visual Studio. In above root directory
-   example this fle should be in the directory of D:\Dev\NanoOS\Build\MSVS2K8
+   example this file should be in the directory of D:\Dev\NanoOS\Build\MSVS2K8
 5. In Visual Studio find Makefile.inc and edit this file. In this example change
    ROOT_DIR = D:\DevDevel\NanoOS to ROOT_DIR = D:\Dev\NanoOS.
 6. Create a new directory, if it doen't already exist, inside root directory and
@@ -58,7 +58,7 @@ Bulding:
    the directory above <root build dir> with new directory name 'NanoOSOut', in 
    this example; build root directory is D:\Dev\NanoOS and the output directory 
    will be D:\Dev\NanoOSOut. If you build all projects and success, then it will 
-   produce three kinds of ouput:
+   produce four kinds of ouput:
    a. NanoOS binary (NanoOS.bin and NanoOS.elf).
       This is NanoOS binary. In this example this file is located in 
       D:\Dev\NanoOSOut\Bin\NanoOS directory.
@@ -71,6 +71,10 @@ Bulding:
       this file should be in 
       D:\Dev\NanoOSOut\Bin\NTerminal\Debug directory for Visual Studio's debug target 
       or in D:\Dev\NanoOSOut\Bin\NTerminal\Release directory for release target.
+   d. NPortLib (NPortLib.dll, NPortLib.lib and NPortLibTest.exe).
+      A simple library to access NanoOS Port, as serial (COM) port on PC for several 
+      progamming language. NPortLibTest.exe is a simple application demonstrate how to
+      use NPortLib (NanoOS port library).
       
 
 =======
@@ -100,3 +104,6 @@ B. NanoOS application
 C. NTerminal
    No special installation procedure, just run from NTerminal.exe in containing directory.
    
+D. NPortLib
+   No special installation procedure, basically PC application who want to use it must 'know' the location
+   of this library.

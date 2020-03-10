@@ -1,3 +1,9 @@
+/*
+ * File    : NPortLibTest.cpp
+ * Remark  : Demonstrate how to use NPortLib library. This is compiled as C++ code but still using 
+ *           C functions in NPortLib.h.
+ */
+
 #include <iostream>
 #include <string>
 
@@ -20,9 +26,18 @@ void __stdcall HandleOnDataReceived(unsigned char * pBuff, int iLength)
 	cout << "Content: " << reinterpret_cast<char *>(pBuff);
 }
 
-void __stdcall HandleOnError(const char * szErrorMessage)
+void __stdcall HandleOnError(const char * szErrorMessage, unsigned long ulErrorCode)
 {
-	cout << "Device error : " << szErrorMessage << endl;
+	cout << "Error " << ulErrorCode << ": " << szErrorMessage << endl;
+}
+
+void __stdcall HandleOnInstall(int iProgress)
+{
+	if (iProgress < 100) {
+		cout << "#";
+	} else {
+		cout << " Completed." << endl;
+	}
 }
 
 int main(int argc, char * argv[])
@@ -31,12 +46,21 @@ int main(int argc, char * argv[])
 
 	int	i;
 	i = NPL_Open(HandleOnConnectionChange, HandleOnDataReceived, HandleOnError);
-	cout << "Press any key to exit..." << endl;
-	
-	char c = cin.get();
 	if (i == 1) {
+		if (NPL_IsOpen() == 1) {
+			string str;
+			cout << "NanoOS application file to install: ";
+			cin >> str;
+			cout << "Install file " << str;
+			i = NPL_InstallNApplication(str.c_str(), HandleOnInstall);
+		}
+	}
+
+	system("PAUSE");
+
+	if (NPL_IsOpen() == 1) {
 		NPL_Close();
 	}
-	
-	return static_cast<int>(c);
+
+	return 0;
 }
