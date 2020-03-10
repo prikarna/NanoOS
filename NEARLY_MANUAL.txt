@@ -178,16 +178,16 @@ it just write a dummy application and then install it to NanoOS.
 In the NTerminal NanoOS Port or USB Serial IO can be disabled and let the PC application who use the NanoOS 
 Port library can use it. Note that USB Serial IO can only be accessed only one PC application (or process) at 
 a time because it is basically a serial (COM) port device. To disable the NanoOS Port in the NTerminal, on
-the menu click 'Options' - 'NanoOS Port' - Disable.
+the menu click 'Options' - 'NanoOS Port' - 'Disable'.
 
 
 ==========================
 Writing NanoOS application
 --------------------------
-In NanoOS application you can safely think that you are in a single process with one or more thread. A thread
-can run on privileged or unprivileged mode, on privileged mode you can can access Cortex-M processor peripheral
-like SCB, SYSTICK and so on. Note that when you change those peripherals you may change NanoOS characteristic
-thus NanoOS may not run correctly. On unprivileged mode you don't have that access.
+In NanoOS you can safely think that you are in a single process with one or more thread. A thread can run on 
+privileged or unprivileged mode, on privileged mode you can can access Cortex-M processor peripheral like SCB, 
+SYSTICK and so on. Note that when you change those peripherals you may change NanoOS characteristic thus NanoOS 
+may not run correctly. On unprivileged mode you don't have that access.
 
 This manual using Visual Studio 2008 Express Edition to write a simple application and here's step by step
 how to start a simple Hello world program in NanoOS;
@@ -253,7 +253,7 @@ Alternatively you can start from the included project in NanoOS directory called
 same as the above example.
 
 If you want to run this application in SRAM, use NanoAppSRAM.ld instead of NanoApp.ld in step 4 and also please see
-the sample project named RinInSRAM. Note that the binary files may not fits in SRAM because SRAM size is only 10K 
+the sample project named RunInSRAM. Note that the binary files may not fits in SRAM because SRAM size is only 10K 
 bytes for application to use and that include global variables defined by application if any.
 
 If you need to use NanoOS functions directly, include NanoOS.h from NanoOS source directory into your source and use 
@@ -279,7 +279,7 @@ Using NanoOS Port Library (NPortLib.lib and/or NPortLib.dll)
 ------------------------------------------------------------
 Actually PC application or program can access NanoOS Port directly through COM or serial port provided by operating 
 system but NPortLib provide an easier way to do that and offer callback mechanism for system or programming language
-which support callback mechanism.
+which support callback mechanism such as C# on Windows.
 To use NPortLib:
 1. Include NPortLib.h in you source code.
 2. Call the function provided by NPortLib.h.
@@ -289,7 +289,7 @@ can skip the step 3 above. Note that in run time, you still need NPortLib.dll in
 can access this dll. 
 
 In the source code call NPL_Open() and provide callback parameters if required to start using NanoOS Port and then 
-later on call NPL_Close() when you have finished using it. The NPL_Open() will active NanoOS Port detection, when 
+later on call NPL_Close() when you have finished using it. The NPL_Open() will activate NanoOS Port detection, when 
 NanoOS Port is connected it will automatically open NanoOS Port and when disconnected it will automatically close 
 NanoOS Port. When you provide 'data received callback' parameter in the call to NPL_Open() the library will call
 this callback when it receive a data from NanoOS Port, if not you have to read from NanoOS Port 'manually' via 
