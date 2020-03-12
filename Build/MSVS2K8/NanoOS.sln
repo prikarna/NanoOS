@@ -28,6 +28,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortLibTest", "NPortLibTes
 		{DB17DFCC-C229-4971-9D4F-447F5C7EF295} = {DB17DFCC-C229-4971-9D4F-447F5C7EF295}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VerGen", "VerGen\VerGen.vcproj", "{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -82,6 +84,10 @@ Global
 		{BFD10BA3-4F46-4492-8CDE-2B029050922B}.Debug|Win32.Build.0 = Debug|Win32
 		{BFD10BA3-4F46-4492-8CDE-2B029050922B}.Release|Win32.ActiveCfg = Release|Win32
 		{BFD10BA3-4F46-4492-8CDE-2B029050922B}.Release|Win32.Build.0 = Release|Win32
+		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}.Debug|Win32.Build.0 = Debug|Win32
+		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}.Release|Win32.ActiveCfg = Release|Win32
+		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,6 +8,7 @@
 #include "NWind.h"
 #include "ResId.h"
 #include "Debug.h"
+#include "NTermVer.h"
 
 /* C'tor */
 NWind::NWind():
@@ -803,10 +804,18 @@ INT_PTR CALLBACK NWind::_AboutDlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM
 {
 	HWND	hWnd;
 	RECT	rcPar, rcDlg, rc;
+	HWND	hStat;
+	TCHAR	szBuf[256];
 
 	switch (uMsg)
 	{
 	case WM_INITDIALOG:
+		RtlZeroMemory(szBuf, sizeof(szBuf));
+		StringCbPrintf(szBuf, sizeof(szBuf), _T("NTerminal, Version %s"), NTERMVER_STR);
+		hStat = GetDlgItem(hDlg, DKC_STATIC_2);
+		if (hStat) {
+			SetWindowText(hStat, szBuf);
+		}
 		hWnd = GetParent(hDlg);
 		if (hWnd) {
 			GetWindowRect(hWnd, &rcPar);

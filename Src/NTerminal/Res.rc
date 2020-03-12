@@ -104,14 +104,13 @@ END
 /*
  * Begin version resource
  */
-#define DKVER_NUMB							1,0,2,1
-#define DKVER_STRING						_T("1.0.2.1")
+#include "NTermVer.h"
 
-#define DKVER_FILEVERSION					DKVER_NUMB
-#define DKVER_FILEVERSION_STR				DKVER_STRING
+#define DKVER_FILEVERSION					NTERMVER
+#define DKVER_FILEVERSION_STR				NTERMVER_STR
 
-#define DKVER_PRODUCTVERSION				DKVER_NUMB
-#define DKVER_PRODUCTVERSION_STR			DKVER_STRING
+#define DKVER_PRODUCTVERSION				NTERMVER
+#define DKVER_PRODUCTVERSION_STR			NTERMVER_STR
 
 #define DKVER_COMPANYNAME_STR				_T("Mapagan")
 #define DKVER_FILEDESCRIPTION_STR			_T("Terminal to control NanoOS and display its output")

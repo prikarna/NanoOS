@@ -287,6 +287,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\NEWS.txt"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\README.md"
 			>
 		</File>

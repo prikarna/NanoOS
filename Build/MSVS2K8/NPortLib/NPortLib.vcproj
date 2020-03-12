@@ -25,6 +25,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Generate version for $(Projectname)... "
+				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortLibVer.h NPORTLIBVER"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -98,6 +100,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Generate version for $(Projectname)... "
+				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortLibVer.h NPORTLIBVER"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -208,6 +212,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Src\NPortLib\NPortLib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NPortLib\NPortLibVer.h"
 				>
 			</File>
 		</Filter>
