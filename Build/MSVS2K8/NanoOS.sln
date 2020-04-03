@@ -18,10 +18,16 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LongJump", "LongJump\LongJump.vcproj", "{BBC37FCA-764F-4175-AC03-A010A2F2723E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NTerminal", "NTerminal\NTerminal.vcproj", "{AA566F43-4FB1-4A0D-80B4-3A5DC7662485}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8} = {D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hello", "Hello\Hello.vcproj", "{2F276B4B-DB3C-4C9F-BE52-03859592E470}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortLib", "NPortLib\NPortLib.vcproj", "{DB17DFCC-C229-4971-9D4F-447F5C7EF295}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8} = {D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortLibTest", "NPortLibTest\NPortLibTest.vcproj", "{BFD10BA3-4F46-4492-8CDE-2B029050922B}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -29,6 +35,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortLibTest", "NPortLibTes
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VerGen", "VerGen\VerGen.vcproj", "{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortSvc", "NPortSvc\NPortSvc.vcproj", "{F4F5C93B-E412-4712-BFB7-838AAD6107DC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8} = {D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortSvcTest", "NPortSvcTest\NPortSvcTest.vcproj", "{95438E0C-A63C-4993-BC41-25130B0A0168}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DB17DFCC-C229-4971-9D4F-447F5C7EF295} = {DB17DFCC-C229-4971-9D4F-447F5C7EF295}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Echo", "Echo\Echo.vcproj", "{CC7206FA-BF47-41F6-8C7A-05F3A1034204}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,6 +106,18 @@ Global
 		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}.Debug|Win32.Build.0 = Debug|Win32
 		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}.Release|Win32.ActiveCfg = Release|Win32
 		{D9ADDAE0-10B0-4F67-BF91-97CB615A79D8}.Release|Win32.Build.0 = Release|Win32
+		{F4F5C93B-E412-4712-BFB7-838AAD6107DC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F4F5C93B-E412-4712-BFB7-838AAD6107DC}.Debug|Win32.Build.0 = Debug|Win32
+		{F4F5C93B-E412-4712-BFB7-838AAD6107DC}.Release|Win32.ActiveCfg = Release|Win32
+		{F4F5C93B-E412-4712-BFB7-838AAD6107DC}.Release|Win32.Build.0 = Release|Win32
+		{95438E0C-A63C-4993-BC41-25130B0A0168}.Debug|Win32.ActiveCfg = Debug|Win32
+		{95438E0C-A63C-4993-BC41-25130B0A0168}.Debug|Win32.Build.0 = Debug|Win32
+		{95438E0C-A63C-4993-BC41-25130B0A0168}.Release|Win32.ActiveCfg = Release|Win32
+		{95438E0C-A63C-4993-BC41-25130B0A0168}.Release|Win32.Build.0 = Release|Win32
+		{CC7206FA-BF47-41F6-8C7A-05F3A1034204}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CC7206FA-BF47-41F6-8C7A-05F3A1034204}.Debug|Win32.Build.0 = Debug|Win32
+		{CC7206FA-BF47-41F6-8C7A-05F3A1034204}.Release|Win32.ActiveCfg = Release|Win32
+		{CC7206FA-BF47-41F6-8C7A-05F3A1034204}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

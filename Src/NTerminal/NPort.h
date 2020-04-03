@@ -415,4 +415,11 @@ public:
 	Return  : None.
 */
 	void DisableAutoDetection();
+
+	bool ReadAsynch(unsigned char * pBuffer, unsigned int uiBufferLength, unsigned int & uiReadLen);
+	bool WriteAsynch(unsigned char * pData, unsigned int uiDataLength);
+	bool GetAsynchReadResult(unsigned char * pBuffer, unsigned int uiBufferLength, unsigned int & uiReadLen);
+	bool GetAsynchWriteResult(unsigned char * pData, unsigned int uiDataLength);
+	bool HasAsynchReadComplete();
+	bool Cancel();
 };

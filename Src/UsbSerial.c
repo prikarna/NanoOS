@@ -330,7 +330,6 @@ static void HandleSetupInt()
 		break;
 
 	case USBCDC__SET_CONTROL_LINE_STATE:
-		sControlLineState = sStp.wValue;
 		spUsbBuff->Ep0TxLength = 0;
 		USB_EP_CTL(USB_EP_REG_0, USB_EP_CTL__CONTROL_IN);
 		break;
@@ -424,6 +423,7 @@ static void HandleEpReg0Int(UINT8_T uDir)
 
 	case USBCDC__SET_CONTROL_LINE_STATE:
 		USB_EP_CTL(USB_EP_REG_0, USB_EP_CTL__CONTROL_IN_END);
+		sControlLineState = sStp.wValue;
 		break;
 
 
@@ -447,6 +447,9 @@ static void HandleEpReg2Int()
 
 	if (gfNeedRunApp) {
 		gfNeedRunApp = FALSE;
+		if (spCfg->AutoRun == FALSE) {
+			return;
+		}
 		ThdCreate(
 				0,
 				spCfg->Control,
@@ -664,6 +667,11 @@ UINT8_T UsbSend(UINT8_PTR_T pBuffer, UINT32_T uiBufferByteLength, BOOL fWait)
 
 BOOL UsbRequestReceive()
 {
+	if (sControlLineState != 0x3) {
+		ThdSetLastError(ERR__USB_IO_IS_NOT_READY);
+		return FALSE;
+	}
+
 	if (suRecvFlags != USB_RECV__NONE) {
 		ThdSetLastError(ERR__USB_IO_IS_BUSY);
 		return FALSE;

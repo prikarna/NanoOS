@@ -137,6 +137,15 @@ int main(int argc, char* argv[])
 
 	fout.clear(ios_base::goodbit);
 
+	fout << "/*" << endl;
+	fout << " * This is generated version file." << endl;
+	fout << " * File    : " << szFileName << "." << endl;
+	fout << " * Desc.   : Version file for " << szDefName << "." << endl;
+	fout << " *" << endl;
+	fout << " */" << endl;
+	fout << endl;
+	fout << endl;
+
 	fout << "#ifndef " << szDefName << "_H" << endl;
 	fout << "#define " << szDefName << "_H" << endl;
 

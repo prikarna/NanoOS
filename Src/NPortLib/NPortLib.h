@@ -3,7 +3,8 @@
  * Remark  : NPortLib function definitions and callbacks.
  *           Provide access to NanoOS port from several languages easier. C and C++ languages
  *           can use this header.
- *           In this header prefix NPL_ mean NanoOS Port Library.
+ *           In this header prefix NPL_ mean NanoOS Port Library and NPLSVC_ prefix mean NanoOS 
+ *			 Port Library on Service.
  *
  */
 
@@ -172,6 +173,128 @@ int NPL_IsInstalling();
 */
 NPORTLIB
 int NPL_CancelInstall();
+
+/*
+	Def.    : Pointer to function which will be called when NanoOS port service detect a connection changed. When 
+			  this callback is called and fIsConnected parameter is 1 this mean NanoOS port is ready for it's 
+			  operations such as read, write.
+	Params. : 
+		fIsConnected
+			1 if NanoOS port is connected and opened or 0 if not connected or closed.
+*/
+typedef void (__stdcall * NPLSVC_CONNECTION_CHANGE_CALLBACK)(int fIsConnected);
+
+/*
+	Funct.	: NPLSVC_Open
+	Desc.   : Open NanoOS Port service.
+	Params. :
+		ConnChangeCallback
+			A callback or pointer to function with the type of NPLSVC_CONNECTION_CHANGE_CALLBACK. This is 
+			optional parameter or can be NULL.
+	Return  : 1 if success otherwise 0.
+*/
+NPORTLIB
+int NPLSVC_Open(NPLSVC_CONNECTION_CHANGE_CALLBACK ConnChangeCallback);
+
+/*
+	Funct.	: NPLSVC_Close
+	Desc.   : Close NanoOS Port service.
+	Params. : None
+	Return  : None.
+*/
+NPORTLIB void NPLSVC_Close();
+
+/*
+	Funct.	: NPLSVC_Write
+	Desc.   : Write data to NanoOS port service with specified length.
+	Params. :
+		pData
+			Pointer to byte data to be writen to NanoOS port service. 
+		iDataLength
+			The length or size of pBuffer above in bytes. Max. data length or size is 64 bytes.
+	Return  : 1 if success otherwise 0.
+*/
+NPORTLIB
+int NPLSVC_Write(const unsigned char * pData, int iDataLength);
+
+/*
+	Funct.	: NPLSVC_Read
+	Desc.   : 
+		Read data from NanoOS port service with specified buffer and it's length.
+	Params. :
+		pBuffer
+			Pointer to byte buffer data to receive data. 
+		iBufferLength
+			The length or size of pBuffer above in bytes.
+		piReadLength
+			Pointer to int that will receive number of bytes data that has been successfully received. This 
+			parameter is optional or can be NULL.
+	Return  : 1 if success otherwise 0.
+*/
+NPORTLIB
+int NPLSVC_Read(unsigned char * pBuffer, int iBufferLength, int * piReadLength);
+
+/*
+	Funct.	: NPLSVC_WriteThenRead
+	Desc.   : 
+		Write data to NanoOS port service and then read it. This is usefull when PC application need to
+		write a data then get response (read) from device in a 'single request session' in multithread and/or 
+		multiprocess environment. A 'single request session' is a request that will not be interrupted by
+		other threads and/or processes which ensure the application getting current response from NanoOS 
+		application inside NanoOS.
+	Params. :
+		pWriteData
+			Pointer to byte data to be written to NanoOS port service.
+		iWriteDataLength
+			The length of data be written to.
+		pReadBuffer
+			Pointer to byte buffer data to receive data. 
+		iReadBufferLength
+			The length or size of pReaduffer above in bytes.
+		piReadLength
+			Pointer to int that will receive number of bytes data that has been successfully received or read. 
+			This parameter is optional or can be NULL.
+	Return  : 1 if success otherwise 0.
+*/
+NPORTLIB
+int NPLSVC_WriteThenRead(
+					 const unsigned char * pWriteData, 
+					 int iWriteDataLength,
+					 unsigned char * pReadBuffer,
+					 int iReadBufferLength,
+					 int * piReadLength
+					 );
+
+/*
+	Funct.	: NPLSVC_ReadThenWrite
+	Desc.   : 
+		Read data from NanoOS port service and then write it. This is similar to NPLSVC_WriteThenRead except this
+		function is in reverse sequence or order.
+	Params. :
+		pReadBuffer
+			Pointer to byte buffer data to receive data. 
+		iReadBufferLength
+			The length or size of pReaduffer above in bytes.
+		piReadLength
+			Pointer to int that will receive number of bytes data that has been successfully received or read. 
+			This parameter is optional or can be NULL.
+		pWriteData
+			Pointer to byte data to be written to NanoOS port service.
+		iWriteDataLength
+			The length of data be written to.
+	Return  : 1 if success otherwise 0.
+*/
+NPORTLIB
+int NPLSVC_ReadThenWrite(
+					 unsigned char * pReadBuffer,
+					 int iReadBufferLength,
+					 int * piReadLength,
+					 const unsigned char * pWriteData,
+					 int iWriteDataLength
+					 );
+
+NPORTLIB
+unsigned long NPLSVC_GetLastError();
 
 #ifdef __cplusplus
 }

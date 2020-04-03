@@ -1,2 +1,2 @@
-[Currently no news]
-
+March, 31 2020
+- Add NPortSvc service and its library that allow access to NanoOS Port from multiple processes.

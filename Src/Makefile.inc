@@ -39,7 +39,7 @@ CC_OPTS				= \
 LINK				= ld.exe
 					  
 GEN_BIN				= objcopy.exe
-GEN_BIN_OPT			= -Obinary
+GEN_BIN_OPT			= -I elf32-littlearm -O binary
 
 OBJ_DUMP			= objdump.exe
 OBJ_DUMP_OPT		= -d

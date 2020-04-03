@@ -528,6 +528,13 @@ int Console(void * pParameter)
 								0, 
 								&guAppTID
 								);
+				//uRes = ConCreateThread(
+				//				spCfg->Control,
+				//				FALSE,
+				//				(THREAD_ENTRY_TYPE) APP_FLASH_RUN_ADDRESS,
+				//				0,
+				//				&guAppTID
+				//				);
 				if (uRes == 0) {
 					UaWriteString("Fail to run user program in flash!\r\n");
 				}

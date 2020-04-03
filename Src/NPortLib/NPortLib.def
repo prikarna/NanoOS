@@ -10,4 +10,11 @@ EXPORTS
 	NPL_InstallNApplication
 	NPL_IsInstalling
 	NPL_CancelInstall
+	NPLSVC_Open
+	NPLSVC_Close
+	NPLSVC_Write
+	NPLSVC_Read
+	NPLSVC_WriteThenRead
+	NPLSVC_ReadThenWrite
+	
 	

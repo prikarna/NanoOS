@@ -321,7 +321,7 @@ void SetLastError(_IN UINT32_T uiError)
 
 UINT32_T GetLastError()
 {
-	UINT32_T	uRes = FALSE;
+	UINT32_T	uRes = 0;
 
 	CALL_SVC_WITH_ZERO_PARAM(SVC__GET_LAST_ERROR, uRes);
 
@@ -876,9 +876,12 @@ static BOOL StreamChar(UINT8_T Char, void * pParm)
 {
 	PSTREAM_PRINTF_PARAMS	pStrParm = (PSTREAM_PRINTF_PARAMS) pParm;
 
-	if (!pParm) return FALSE;
-	if (pStrParm->Buffer == 0) return FALSE;
-	if (pStrParm->BufferLength == 0) return FALSE;
+	if ((!pParm) || 
+		(pStrParm->Buffer == 0) ||
+		(pStrParm->BufferLength == 0)) 
+	{
+		return FALSE;
+	}
 
 	if (pStrParm->Counter >= pStrParm->BufferLength) return FALSE;
 
@@ -894,11 +897,16 @@ UINT32_T StreamPrintf(UINT8_PTR_T pBuffer, UINT32_T uBufferLength, const char * 
 	va_list					argList;
 	STREAM_PRINTF_PARAMS	StrParm;
 
-	if (!pBuffer) return 0;
-	if (uBufferLength == 0) return 0;
+	if ((!pBuffer) ||
+		(uBufferLength == 0))
+	{
+		return 0;
+	}
+
+	MemSet(pBuffer, 0, uBufferLength);
 
 	StrParm.Buffer = pBuffer;
-	StrParm.BufferLength = uBufferLength;
+	StrParm.BufferLength = (uBufferLength - 1);	// Make sure reserve one byte for null terminated string.
 	StrParm.Counter = 0;
 
 	va_start(argList, szFormat);

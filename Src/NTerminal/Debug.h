@@ -26,8 +26,13 @@ void DbgPrintf(const TCHAR *szFormat, ...);
 
 #ifdef _DEBUG
 # define DBG_PRINTF(szFormat, ...)			DbgPrintf(szFormat, __VA_ARGS__)
+# define DBGIF_PRINTF(Expression, szFormat, ...)	\
+	if ((Expression)) {								\
+		DbgPrintf(szFormat, __VA_ARGS__);			\
+	}
 #else
 # define DBG_PRINTF(szFormat, ...)
+# define DBGIF_PRINTF((Expression), szFormat, ...)
 #endif
 
 #ifdef __cplusplus

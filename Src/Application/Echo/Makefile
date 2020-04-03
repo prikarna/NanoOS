@@ -1,47 +1,27 @@
 #
-# File   : Makefile
-# Remark : Makefile for ARM Cortex-M processor based MCU
+# Makefile for ARM Cortex-M processor based MCU
 #
 
-!INCLUDE "Makefile.inc"
+!INCLUDE "..\..\..\Src\Makefile.inc"
 
-TGT_NAME			= NanoOS
+TGT_NAME			= Echo
 
-SRCS_DIR			= $(ROOT_DIR)\Src
-OUT_BIN_DIR			= $(OUT_DIR)\Bin\$(TGT_NAME)
+SRCS_DIR			= $(ROOT_DIR)\Src\Application
+OUT_BIN_DIR			= $(OUT_DIR)\Bin\Application
 OUT_OBJ_DIR			= $(OUT_DIR)\Objs\$(TGT_NAME)
 
 TGT					= $(TGT_NAME).bin
 ELF					= $(TGT_NAME).elf
 
 SRCS				= \
-					  $(SRCS_DIR)\Exception.c\
-					  $(SRCS_DIR)\Clock.c\
-					  $(SRCS_DIR)\Debug.c\
-					  $(SRCS_DIR)\Memory.c\
-					  $(SRCS_DIR)\Core.c\
-					  $(SRCS_DIR)\Thread.c\
-					  $(SRCS_DIR)\Service.c\
-					  $(SRCS_DIR)\Event.c\
-					  $(SRCS_DIR)\Usart.c\
-					  $(SRCS_DIR)\Printf.c\
-					  $(SRCS_DIR)\Console.c\
-					  $(SRCS_DIR)\UsbSerial.c\
-					  $(SRCS_DIR)\UsbService.c\
-					  $(SRCS_DIR)\UsbDesc.c\
-					  $(SRCS_DIR)\Flash.c\
-					  $(SRCS_DIR)\Config.c
+					  $(SRCS_DIR)\$(TGT_NAME)\Echo.c\
+					  $(SRCS_DIR)\NanoApi.c
 
 LINK_OPTS			= \
-!IFDEF _DEBUG
-					  -Map=$(OUT_OBJ_DIR)\$(TGT_NAME)Dbg.map\
-!ELSE
-					  -Map=$(OUT_OBJ_DIR)\$(TGT_NAME)Rel.map\
-!ENDIF
 					  --gc-sections\
-					  -T$(SRCS_DIR)\NanoOS.ld\
+					  -T$(SRCS_DIR)\NanoApp.ld\
 					  -o$(OUT_BIN_DIR)\$(ELF)
-					  
+
 all			: $(TGT)
 
 prep		:
@@ -70,7 +50,7 @@ $(TGT)		: $(ELF)
 
 clean		:
 	@echo Cleaning up...
-	@if exist "$(OUT_BIN_DIR)" erase /S /Q "$(OUT_BIN_DIR)\*.*"
+	@if exist "$(OUT_BIN_DIR)\$(TGT_NAME).*" erase /S /Q "$(OUT_BIN_DIR)\$(TGT_NAME).*"
 	@if exist "$(OUT_OBJ_DIR)" erase /S /Q "$(OUT_OBJ_DIR)\*.*"
 
 rebuild		: clean all

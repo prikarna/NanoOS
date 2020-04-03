@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="NTerminal"
-	ProjectGUID="{AA566F43-4FB1-4A0D-80B4-3A5DC7662485}"
-	RootNamespace="NTerminal"
+	Name="NPortSvc"
+	ProjectGUID="{F4F5C93B-E412-4712-BFB7-838AAD6107DC}"
+	RootNamespace="NPortSvc"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -25,8 +25,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Generate version for $(ProjectName)... "
-				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NTermVer.h NTERMVER"
+				Description="Generate version for $(Projectname)... "
+				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortSvcVer.h NPORTSVCVER"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -64,7 +64,7 @@
 				Name="VCLinkerTool"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -99,8 +99,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Generate version for $(ProjectName)... "
-				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NTermVer.h NTERMVER"
+				Description="Generate version for $(Projectname)... "
+				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortSvcVer.h NPORTSVCVER"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -118,7 +118,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -138,7 +138,7 @@
 				Name="VCLinkerTool"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -179,31 +179,23 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Main.cpp"
+				RelativePath="..\..\..\Src\NPortSvc\Main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NInstaller.cpp"
+				RelativePath="..\..\..\Src\NPortSvc\NPortServer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NPort.cpp"
+				RelativePath="..\..\..\Src\NPortSvc\NPortSvc.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcControl.cpp"
+				RelativePath="..\..\..\Src\NPortSvc\NService.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NTerminal.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Src\NTerminal\NWind.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Src\NTerminal\VDisplay.cpp"
+				RelativePath="..\..\..\Src\NPortSvc\Protocol.cpp"
 				>
 			</File>
 		</Filter>
@@ -217,43 +209,27 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\DkObject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Src\NTerminal\NInstaller.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Src\NTerminal\NPort.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\Src\NTerminal\NPortName.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcControl.h"
+				RelativePath="..\..\..\Src\NPortSvc\NPortServer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NTerminal.h"
+				RelativePath="..\..\..\Src\NPortSvc\NPortSvc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NTermVer.h"
+				RelativePath="..\..\..\Src\NPortSvc\NPortSvcVer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NWind.h"
+				RelativePath="..\..\..\Src\NPortSvc\NService.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\ResId.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Src\NTerminal\VDisplay.h"
+				RelativePath="..\..\..\Src\NPortSvc\Protocol.h"
 				>
 			</File>
 		</Filter>
@@ -263,7 +239,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Res.rc"
+				RelativePath="..\..\..\Src\NPortSvc\Res.rc"
 				>
 			</File>
 		</Filter>

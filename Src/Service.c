@@ -707,7 +707,6 @@ void ExcSupervisorCall()
 		);
 
 	sfNeedToSetStack = FALSE;
-	spCurThread->LastError = ERR__NONE;
 	
 	(* sServices[spParm->Index])();
 

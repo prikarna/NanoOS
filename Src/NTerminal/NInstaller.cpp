@@ -660,6 +660,9 @@ bool NInstaller::_ProgramFlash(HANDLE hAppFile, LARGE_INTEGER liFileSize, DWORD 
 				break;
 			} else if (dwReadRes > 0) {
 				dwBytesRead += dwReadRes;
+				if (dwBytesRead == (DWORD) liFileSize.QuadPart) {
+					fIsFinish = TRUE;
+				}
 			} else {
 				_TriggerError(_T("Can't read application file."), dwErr);
 				break;

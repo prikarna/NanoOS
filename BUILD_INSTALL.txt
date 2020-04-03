@@ -5,9 +5,9 @@ BUILD
 Currently this distribution can only be built with Microsoft Visual Studio 2008 
 Express Edition. In addition you need GCC for ARM cortex-m toolchain for windows, 
 can be found here:
---------------------------
+-------------------------------------------------------------
 https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q3-update
--------------------------- 
+-------------------------------------------------------------
 to compile NanoOS. Not all of the files in that packect needed by the building process. 
 Here's the list of files needed by the building process:
 cc1.exe     -> needed by gcc.exe
@@ -20,7 +20,8 @@ NanoOS uses some gcc characteristics in how it compiles the code which may be
 different from other compiler thus make NanoOS sources may not portable across 
 the compilers and further more: application source may not portable too. 
 Here's some of gcc characteristics used by NanoOS:
-- gcc uses R0 (register 0) to pass first parameter of function before it call the function.
+- gcc uses R0 (register 0) to pass first parameter of function when generate function 
+  call with paramater(s).
 - gcc uses R0 as storage of return value of function that has return value.
 - gcc uses R7 (register 7) as base frame of a function.
 
@@ -58,7 +59,7 @@ Bulding:
    the directory above <root build dir> with new directory name 'NanoOSOut', in 
    this example; build root directory is D:\Dev\NanoOS and the output directory 
    will be D:\Dev\NanoOSOut. If you build all projects and success, then it will 
-   produce four kinds of ouput:
+   produce five kinds of ouput:
    a. NanoOS binary (NanoOS.bin and NanoOS.elf).
       This is NanoOS binary. In this example this file is located in 
       D:\Dev\NanoOSOut\Bin\NanoOS directory.
@@ -71,10 +72,14 @@ Bulding:
       this file should be in 
       D:\Dev\NanoOSOut\Bin\NTerminal\Debug directory for Visual Studio's debug target 
       or in D:\Dev\NanoOSOut\Bin\NTerminal\Release directory for release target.
-   d. NPortLib (NPortLib.dll, NPortLib.lib and NPortLibTest.exe).
+   d. NanoOS Port library or NPortLib (NPortLib.dll, NPortLib.lib and NPortLibTest.exe).
       A simple library to access NanoOS Port, as serial (COM) port on PC for several 
       progamming language. NPortLibTest.exe is a simple application demonstrate how to
-      use NPortLib (NanoOS port library).
+      use NPortLib.
+   e. NanoOS Port service (NPortSvc.exe and NPortSvcTest.exe). This service share NanoOS
+      Port amongs PC applications (or processes). Note that for now this service doesn't
+      provide any security feature. To test NPortSvc use the NPortSvcTest project included
+      in this packet.
       
 
 =======
@@ -107,3 +112,19 @@ C. NTerminal
 D. NPortLib
    No special installation procedure, basically PC application who want to use it must 'know' the location
    of this library.
+   
+E. NPortSvc
+   You can install this service via NTerminal, in the menu click: Options - NanoOS Port Service - Install and
+   when open dialog box appears, locate NPortSvc.exe, choose it and then click OK. Alternatively you can use 
+   sc.exe utility command line. When using sc utility the service name must be 'NPortSvc' and type= own, 
+   for example:
+   ---------------------------------------------------------------------------------------------------------------------------
+   sc create NPortSvc type= own start= auto binPath= "D:\Dev\NanoOSOut\Bin\NPortSvc\NPortSvc.exe" DisplayName= "NPort Service"
+   ---------------------------------------------------------------------------------------------------------------------------
+   Note that in the above example NPortSvc.exe is located in D:\Dev\NanoOSOut\Bin\NPortSvc directory and this 
+   operation need administrator privilege.
+   The above command don't automatically start the service, to start the service type this in the console:
+   --------------------
+   sc start NPortSvc
+   --------------------
+   

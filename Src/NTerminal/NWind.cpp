@@ -9,6 +9,7 @@
 #include "ResId.h"
 #include "Debug.h"
 #include "NTermVer.h"
+#include "NPortName.h"
 
 /* C'tor */
 NWind::NWind():
@@ -21,9 +22,11 @@ NWind::NWind():
 	m_hMenu(NULL),
 	m_fNeedUpdateMenu(false),
 	m_hConsNotif(NULL),
-	m_szNanoOSPortName(_T("\\\\?\\USB#Vid_6a16&Pid_0230#09092019#{a5dcbf10-6530-11d2-901f-00c04fb951ed}")),
-	m_IoMode(NWind::UsbIoMod_None)
+	m_CurIoMode(NWind::UsbIoMod_None),
+	m_PrevIoMode(NWind::UsbIoMod_None)
 {
+	m_szNanoOSPortName = NPORT_DEVICE_NAME;
+
 	RtlZeroMemory(&m_OFN, sizeof(OPENFILENAME));
 	RtlZeroMemory(m_szAppFullFileName, sizeof(m_szAppFullFileName));
 	RtlZeroMemory(m_szAppFileName, sizeof(m_szAppFileName));
@@ -34,7 +37,6 @@ NWind::NWind():
 /* D'tor */
 NWind::~NWind()
 {
-
 }
 
 bool NWind::Create(HINSTANCE hInst)
@@ -166,7 +168,20 @@ bool NWind::Create(HINSTANCE hInst)
 	m_VDisp.Create(hInst, m_hClientWnd, _T("USB VDisplay IO [Inactive]"), 40, 40, 240, 320);
 	m_VDisp.FillRectangle(NULL, RGB(255,255,255));
 
-	_ChangeUsbIoMode(NWind::UsbIoMod_SerialIo);
+	bool	bRes = false, bIsInstalled = false;
+	NSvcControl::SvcStatus	stat = NSvcControl::Stopped;
+	bRes = m_SvcCtl.IsInstalled(bIsInstalled);
+	if (bRes) {
+		if (bIsInstalled) {
+			bRes = m_SvcCtl.GetStatus(stat);
+		}
+	}
+	if (bRes && (stat == NSvcControl::Running)) {
+		m_PrevIoMode = NWind::UsbIoMod_SerialIo;
+		_ChangeUsbIoMode(NWind::UsbIoMod_None, false);
+	} else {
+		_ChangeUsbIoMode(NWind::UsbIoMod_SerialIo, false);
+	}
 
 	m_VDisp.OnInput = new EventHandler<VDisplay::InputData *>(this, &NWind::_HandleOnVDisplayInput);
 
@@ -459,15 +474,43 @@ void NWind::_HandleCommand(WPARAM wParm, LPARAM lParm)
 		break;
 
 	case DKM_OPT_NPORT_DISABLE:
-		_ChangeUsbIoMode(NWind::UsbIoMod_None);
+		_ChangeUsbIoMode(NWind::UsbIoMod_None, true);
 		break;
 
 	case DKM_OPT_NPORT_SEL_SERIAL:
-		_ChangeUsbIoMode(NWind::UsbIoMod_SerialIo);
+		_ChangeUsbIoMode(NWind::UsbIoMod_SerialIo, true);
 		break;
 
 	case DKM_OPT_NPORT_SEL_VDISPLAY:
-		_ChangeUsbIoMode(NWind::UsbIoMod_VDisplayIo);
+		_ChangeUsbIoMode(NWind::UsbIoMod_VDisplayIo, true);
+		break;
+
+	case DKM_OPT_NSVC_STATUS:
+		_GetServiceStatus();
+		break;
+
+	case DKM_OPT_NSVC_INSTALL:
+		_InstallService();
+		break;
+
+	case DKM_OPT_NSVC_UNINSTALL:
+		_UninstallService();
+		break;
+
+	case DKM_OPT_NSVC_START:
+		_StartService();
+		break;
+
+	case DKM_OPT_NSVC_SUSPEND:
+		_SuspendService();
+		break;
+
+	case DKM_OPT_NSVC_RESUME:
+		_ResumeService();
+		break;
+
+	case DKM_OPT_NSVC_STOP:
+		_StopService();
 		break;
 
 	case DKM_HELP_ABOUT:
@@ -601,11 +644,11 @@ void NWind::_HandleOnNanoOSPortDataReceived(char *pDat)
 {
 	PVDISP_OUT_DATA		pDisp = NULL;
 
-	if (m_IoMode == NWind::UsbIoMod_SerialIo) 
+	if (m_CurIoMode == NWind::UsbIoMod_SerialIo) 
 	{
 		m_UsbSerIo.AppendMultiByteText(pDat);
 	} 
-	else if (m_IoMode == NWind::UsbIoMod_VDisplayIo) 
+	else if (m_CurIoMode == NWind::UsbIoMod_VDisplayIo) 
 	{
 		pDisp = reinterpret_cast<PVDISP_OUT_DATA>(pDat);
 		switch (pDisp->Type)
@@ -654,11 +697,11 @@ void NWind::_HandleOnNanoOSPortDeviceChange(bool isConected)
 	RECT	rc;
 	if (isConected) 
 	{
-		if (m_IoMode == NWind::UsbIoMod_SerialIo) 
+		if (m_CurIoMode == NWind::UsbIoMod_SerialIo) 
 		{
 			m_UsbSerIo.Title = _T("USB Serial IO - Connected");
 		} 
-		else if (m_IoMode == NWind::UsbIoMod_VDisplayIo) 
+		else if (m_CurIoMode == NWind::UsbIoMod_VDisplayIo) 
 		{
 			m_VDisp.Title = _T("USB VDisplay - Connected");
 			SetRect(&rc, 0, 0, VDISP_WIDTH, VDISP_HEIGHT);
@@ -671,11 +714,11 @@ void NWind::_HandleOnNanoOSPortDeviceChange(bool isConected)
 	} 
 	else 
 	{
-		if (m_IoMode == NWind::UsbIoMod_SerialIo) 
+		if (m_CurIoMode == NWind::UsbIoMod_SerialIo) 
 		{
 			m_UsbSerIo.Title = _T("USB Serial IO - Disconnected");
 		} 
-		else if (m_IoMode == NWind::UsbIoMod_VDisplayIo) 
+		else if (m_CurIoMode == NWind::UsbIoMod_VDisplayIo) 
 		{
 			m_VDisp.Title = _T("USB VDisplay - Disconnected");
 			SetRect(&rc, 0, 0, VDISP_WIDTH, VDISP_HEIGHT);
@@ -847,19 +890,21 @@ INT_PTR CALLBACK NWind::_AboutDlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM
 	return (INT_PTR)FALSE;
 }
 
-void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode)
+void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode, bool bCompareCurMode)
 {
 	MENUITEMINFO			mii = {0};
 	BOOL					fRes = FALSE;
 	RECT					rc = {0};
 	UINT					uMenuItem;
 
-	if (m_IoMode == mode) return;
+	if (bCompareCurMode) {
+		if (m_CurIoMode == mode) return;
+	}
 
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_STATE;
 
-	switch (m_IoMode)
+	switch (m_CurIoMode)
 	{
 	case NWind::UsbIoMod_None:
 		uMenuItem = DKM_OPT_NPORT_DISABLE;
@@ -889,7 +934,7 @@ void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode)
 	if ((mode == NWind::UsbIoMod_SerialIo) ||
 		(mode == NWind::UsbIoMod_VDisplayIo))
 	{
-		if (m_IoMode == NWind::UsbIoMod_None)
+		if (m_CurIoMode == NWind::UsbIoMod_None)
 		{
 			m_NanoOSPort.ReadEvent = true;
 			m_NanoOSPort.FormatedReadData = false;
@@ -968,5 +1013,424 @@ void NWind::_ChangeUsbIoMode(NWind::UsbIoMode mode)
 		return;
 	}
 
-	m_IoMode = mode;
+	m_CurIoMode = mode;
+}
+
+bool NWind::_GetServiceStatus()
+{
+	bool	bRes = false;
+	bool	bIsInstalled = false;
+	NSvcControl::SvcStatus	Status;
+
+	bRes = m_SvcCtl.IsInstalled(bIsInstalled);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error access service!\r\n"));
+		return bRes;
+	}
+
+	if (!bIsInstalled) {
+		m_Console.AppendText(_T("NPortSvc service is not installed.\r\n"));
+		return true;
+	}
+
+	bRes = m_SvcCtl.GetStatus(Status);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error getting NPortSvc service status!\r\n"));
+		return bRes;
+	}
+
+	switch (Status)
+	{
+	case NSvcControl::Stopped:
+		m_Console.AppendText(_T("NPortSvc service is installed and in stopped state.\r\n"));
+		break;
+
+	case NSvcControl::StartPending:
+		m_Console.AppendText(_T("NPortSvc service is installed and in starting state.\r\n"));
+		break;
+
+	case NSvcControl::StopPending:
+		m_Console.AppendText(_T("NPortSvc service is installed and in stopping state.\r\n"));
+		break;
+
+	case NSvcControl::Running:
+		m_Console.AppendText(_T("NPortSvc service is installed and in running state.\r\n"));
+		break;
+
+	case NSvcControl::ContinuePending:
+		m_Console.AppendText(_T("NPortSvc service is installed and in starting state.\r\n"));
+		break;
+
+	case NSvcControl::PuasePending:
+		m_Console.AppendText(_T("NPortSvc service is installed and in suspending state.\r\n"));
+		break;
+
+	case NSvcControl::Paused:
+		m_Console.AppendText(_T("NPortSvc service is installed and in suspended state.\r\n"));
+		break;
+
+	default:
+		m_Console.AppendText(_T("NPortSvc service is installed but in unknown state.\r\n"));
+		break;
+	}
+
+	return bRes;
+}
+
+bool NWind::_InstallService()
+{
+	bool	bRes = false;
+	bool	bIsInstalled = false;
+
+	bRes = m_SvcCtl.IsInstalled(bIsInstalled);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error access service!\r\n"));
+		return false;
+	}
+
+	if (bIsInstalled) {
+		m_Console.AppendText(_T("NPortSvc service is already installed.\r\n"));
+		return true;
+	}
+
+	//if (m_CurIoMode != NWind::UsbIoMod_None)
+	//{
+	//	int imb = 0;
+	//	imb = MessageBox(
+	//				m_hWnd, 
+	//				_T("Installing NPortSvc service will disable access to NanoOS Port from NTerminal. Do you want to continue ?"),
+	//				_T("Confirmation"),
+	//				MB_ICONQUESTION | MB_YESNO
+	//				);
+	//	if (imb == IDNO) return false;
+	//	m_PrevIoMode = m_CurIoMode;
+	//	_ChangeUsbIoMode(NWind::UsbIoMod_None, true);
+	//}
+
+	m_Console.AppendText(_T("Wait... "));
+	bRes = m_SvcCtl.Install(m_hWnd);
+	if (!bRes) {
+		if (m_SvcCtl.GetError() == 0) {
+			m_Console.AppendText(_T("NPortSvc service installation cancelled!\r\n"));
+		} else {
+			m_Console.AppendText(_T("Error: Can't install NPortSvc service!\r\n"));
+		}
+		return false;
+	}
+
+	m_Console.AppendText(_T("NPortSvc service has been installed successfully.\r\n"));
+
+	return bRes;
+}
+
+bool NWind::_UninstallService()
+{
+	bool	bRes = false;
+	bool	bIsInstalled = false;
+
+	bRes = m_SvcCtl.IsInstalled(bIsInstalled);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error access service!\r\n"));
+		return false;
+	}
+
+	if (!bIsInstalled) {
+		m_Console.AppendText(_T("NPortSvc service is already uninstalled.\r\n"));
+		return true;
+	}
+
+	//int imb = MessageBox(
+	//			m_hWnd, _T("Do you want to uninstall NPortSvc service ?"),
+	//			_T("Confirmation"), MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON2);
+	//if (imb == IDNO) return false;
+
+	bRes = m_SvcCtl.Uninstall();
+	if (!bRes) {
+		m_Console.AppendText(_T("Error: Can't uninstall NPortSvc service!\r\n"));
+		return false;
+	}
+
+	if (m_PrevIoMode != m_CurIoMode) {
+		_ChangeUsbIoMode(m_PrevIoMode, true);
+	} else {
+		if (m_CurIoMode == NWind::UsbIoMod_None) {
+			_ChangeUsbIoMode(NWind::UsbIoMod_SerialIo, false);
+		}
+	}
+
+	m_Console.AppendText(_T("NPortSvc service has been uninstalled successfully.\r\n"));
+	return bRes;
+}
+
+bool NWind::_StartService()
+{
+	bool	bRes = false;
+	bool	bIsInstalled = false;
+	NSvcControl::SvcStatus	Status;
+
+	bRes = m_SvcCtl.IsInstalled(bIsInstalled);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error access service!\r\n"));
+		return bRes;
+	}
+
+	if (!bIsInstalled) {
+		m_Console.AppendText(_T("NPortSvc service is not installed.\r\n"));
+		return true;
+	}
+
+	bRes = m_SvcCtl.GetStatus(Status);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error getting NPortSvc service status!\r\n"));
+		return bRes;
+	}
+
+	int imb = 0;
+	switch (Status)
+	{
+	case NSvcControl::Stopped:
+		imb = MessageBox(
+			m_hWnd, _T("Starting NPortSvc service will disable access to NanoOS Port from NTerminal. Do you want to continue ?"),
+			_T("Confirmation"), MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1);
+		if (imb == IDNO) break;
+		m_PrevIoMode = m_CurIoMode;
+		_ChangeUsbIoMode(NWind::UsbIoMod_None, true);
+		bRes = m_SvcCtl.Start();
+		if (bRes) {
+			m_Console.AppendText(_T("NPortSvc service started successfully.\r\n"));
+		} else {
+			_ChangeUsbIoMode(m_PrevIoMode, true);
+			m_Console.AppendText(_T("Error: Can't start NPortSvc service!\r\n"));
+		}
+		break;
+
+	case NSvcControl::StartPending:
+		m_Console.AppendText(_T("Can't start NPortSvc service: It's in starting state.\r\n"));
+		break;
+
+	case NSvcControl::StopPending:
+		m_Console.AppendText(_T("Can't start NPortSvc service: It's in stopping state.\r\n"));
+		break;
+
+	case NSvcControl::Running:
+		m_Console.AppendText(_T("NPortSvc service is already running.\r\n"));
+		break;
+
+	case NSvcControl::ContinuePending:
+		m_Console.AppendText(_T("Can't start NPortSvc service: It's in starting state.\r\n"));
+		break;
+
+	case NSvcControl::PuasePending:
+		m_Console.AppendText(_T("Can't start NPortSvc service: It's in suspending state.\r\n"));
+		break;
+
+	case NSvcControl::Paused:
+		m_Console.AppendText(_T("Can't start NPortSvc service: It's in suspended state.\r\n"));
+		break;
+
+	default:
+		m_Console.AppendText(_T("Can't start NPortSvc service: It's in unknown state.\r\n"));
+		break;
+	}
+
+	return bRes;
+}
+
+bool NWind::_SuspendService()
+{
+	bool	bRes = false;
+	bool	bIsInstalled = false;
+	NSvcControl::SvcStatus	Status;
+
+	bRes = m_SvcCtl.IsInstalled(bIsInstalled);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error access service!\r\n"));
+		return bRes;
+	}
+
+	if (!bIsInstalled) {
+		m_Console.AppendText(_T("NPortSvc service is not installed.\r\n"));
+		return true;
+	}
+
+	bRes = m_SvcCtl.GetStatus(Status);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error getting NPortSvc service status!\r\n"));
+		return bRes;
+	}
+
+	switch (Status)
+	{
+	case NSvcControl::Stopped:
+		m_Console.AppendText(_T("Can't suspend NPortSvc service: It's in stopped state.\r\n"));
+		break;
+
+	case NSvcControl::StartPending:
+		m_Console.AppendText(_T("Can't suspend NPortSvc service: It's in starting state.\r\n"));
+		break;
+
+	case NSvcControl::StopPending:
+		m_Console.AppendText(_T("Can't suspend NPortSvc service: It's in stopping state.\r\n"));
+		break;
+
+	case NSvcControl::Running:
+		bRes = m_SvcCtl.Pause();
+		if (bRes) {
+			m_Console.AppendText(_T("NPortSvc service has been suspended successfully.\r\n"));
+		} else {
+			m_Console.AppendText(_T("Error: Can't suspend NPortSvc service!\r\n"));
+		}
+		break;
+
+	case NSvcControl::ContinuePending:
+		m_Console.AppendText(_T("Can't suspend NPortSvc service: It's in starting state.\r\n"));
+		break;
+
+	case NSvcControl::PuasePending:
+		m_Console.AppendText(_T("Can't suspend NPortSvc service: It's in suspending state.\r\n"));
+		break;
+
+	case NSvcControl::Paused:
+		m_Console.AppendText(_T("NPortSvc service is already suspended.\r\n"));
+		break;
+
+	default:
+		m_Console.AppendText(_T("Can't suspend NPortSvc service: It's in unknown state.\r\n"));
+		break;
+	}
+
+	return bRes;
+}
+
+bool NWind::_ResumeService()
+{
+	bool	bRes = false;
+	bool	bIsInstalled = false;
+	NSvcControl::SvcStatus	Status;
+
+	bRes = m_SvcCtl.IsInstalled(bIsInstalled);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error access service!\r\n"));
+		return bRes;
+	}
+
+	if (!bIsInstalled) {
+		m_Console.AppendText(_T("NPortSvc service is not installed.\r\n"));
+		return true;
+	}
+
+	bRes = m_SvcCtl.GetStatus(Status);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error getting NPortSvc service status!\r\n"));
+		return bRes;
+	}
+
+	switch (Status)
+	{
+	case NSvcControl::Stopped:
+		m_Console.AppendText(_T("Can't resume NPortSvc service: It's in stopped state.\r\n"));
+		break;
+
+	case NSvcControl::StartPending:
+		m_Console.AppendText(_T("Can't resume NPortSvc service: It's in starting state.\r\n"));
+		break;
+
+	case NSvcControl::StopPending:
+		m_Console.AppendText(_T("Can't resume NPortSvc service: It's in stopping state.\r\n"));
+		break;
+
+	case NSvcControl::Running:
+		m_Console.AppendText(_T("Can't resume NPortSvc service: It's in running state.\r\n"));
+		break;
+
+	case NSvcControl::ContinuePending:
+		m_Console.AppendText(_T("Can't resume NPortSvc service: It's in starting state.\r\n"));
+		break;
+
+	case NSvcControl::PuasePending:
+		m_Console.AppendText(_T("Can't resume NPortSvc service: It's in suspending state.\r\n"));
+		break;
+
+	case NSvcControl::Paused:
+		bRes = m_SvcCtl.Resume();
+		if (bRes) {
+			m_Console.AppendText(_T("NPortSvc service is resummed successfully.\r\n"));
+		} else {
+			m_Console.AppendText(_T("Error: Can't resume NPortSvc service!\r\n"));
+		}
+		break;
+
+	default:
+		m_Console.AppendText(_T("Can't suspend NPortSvc service: It's in unknown state.\r\n"));
+		break;
+	}
+
+	return bRes;
+}
+
+bool NWind::_StopService()
+{
+	bool	bRes = false;
+	bool	bIsInstalled = false;
+	NSvcControl::SvcStatus	Status;
+
+	bRes = m_SvcCtl.IsInstalled(bIsInstalled);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error access service!\r\n"));
+		return bRes;
+	}
+
+	if (!bIsInstalled) {
+		m_Console.AppendText(_T("NPortSvc service is not installed.\r\n"));
+		return true;
+	}
+
+	bRes = m_SvcCtl.GetStatus(Status);
+	if (!bRes) {
+		m_Console.AppendText(_T("Error getting NPortSvc service status!\r\n"));
+		return bRes;
+	}
+
+	switch (Status)
+	{
+	case NSvcControl::Stopped:
+		m_Console.AppendText(_T("NPortSvc service is already stopped.\r\n"));
+		break;
+
+	case NSvcControl::StartPending:
+		m_Console.AppendText(_T("Can't stop NPortSvc service: It's in starting state.\r\n"));
+		break;
+
+	case NSvcControl::StopPending:
+		m_Console.AppendText(_T("Can't stop NPortSvc service: It's in stopping state.\r\n"));
+		break;
+
+	case NSvcControl::Running:
+		bRes = m_SvcCtl.Stop();
+		if (bRes) {
+			m_Console.AppendText(_T("NPortSvc service stopped successfully.\r\n"));
+			_ChangeUsbIoMode(m_PrevIoMode, true);
+		} else {
+			m_Console.AppendText(_T("Error: Can't stop NPortSvc service!\r\n"));
+		}
+		break;
+
+	case NSvcControl::ContinuePending:
+		m_Console.AppendText(_T("Can't stop NPortSvc service: It's in starting state.\r\n"));
+		break;
+
+	case NSvcControl::PuasePending:
+		m_Console.AppendText(_T("Can't stop NPortSvc service: It's in pausing state.\r\n"));
+		break;
+
+	case NSvcControl::Paused:
+		m_Console.AppendText(_T("Can't stop NPortSvc service: It's in paused state.\r\n"));
+		break;
+
+	default:
+		m_Console.AppendText(_T("Can't stop NPortSvc service: It's in unknown state.\r\n"));
+		break;
+	}
+
+	return bRes;
 }

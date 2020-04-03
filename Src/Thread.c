@@ -217,7 +217,8 @@ UINT8_T ThdCreate(
 	}
 
 	pThread = &(sThreads[MAX_NUMB_OF_THREADS - 1]);
-	for (uiTID = (MAX_NUMB_OF_THREADS - 1); uiTID >= 0; uiTID--) {
+	uiTID = (MAX_NUMB_OF_THREADS - 1);
+	for (;;) {
 		if ((pThread->State == THREAD_STATE__EXIT) ||
 			(pThread->State == THREAD_STATE__TERMINATED))
 		{
@@ -225,7 +226,11 @@ UINT8_T ThdCreate(
 			pThread->State = THREAD_STATE__QUEUEING;
 			break;
 		}
+		if (pThread == &(sThreads[0])) {
+			break;
+		}
 		pThread--;
+		uiTID--;
 	}
 
 	if (fRes == FALSE) {

@@ -10,6 +10,8 @@
 
 #include "..\NTerminal\NPort.h"
 #include "..\NTerminal\NInstaller.h"
+#include "..\NTerminal\NPortName.h"
+
 #include "NPortLib.h"
 
 #ifdef _DEBUG
@@ -21,7 +23,7 @@
 static NPort			sPort;
 static NInstaller		sInstaller;
 static bool				sfInstalling = false;
-static const TCHAR *	sszPortName = _T("\\\\?\\USB#Vid_6a16&Pid_0230#09092019#{a5dcbf10-6530-11d2-901f-00c04fb951ed}");
+static const TCHAR *	sszPortName = NPORT_DEVICE_NAME;
 
 static NPL_CONNECTION_CHANGE_CALLBACK		sConnChangeCallback = 0;
 static NPL_DATA_RECEIVED_CALLBACK			sDatRecvCallback = 0;
@@ -34,9 +36,11 @@ int __stdcall DllMain(HMODULE hModule, DWORD dwReason, LPVOID )
 	{
 	case DLL_PROCESS_ATTACH:
 		DisableThreadLibraryCalls(hModule);
+		DBG_PRINTF(_T("%s: DLL_PROCESS_ATTACH\r\n"), FUNCT_NAME_STR);
 		break;
 
 	case DLL_PROCESS_DETACH:
+		DBG_PRINTF(_T("%s: DLL_PROCESS_DETACH\r\n"), FUNCT_NAME_STR);
 		break;
 
 	default:
@@ -270,6 +274,127 @@ int NPL_CancelInstall()
 
 	return ((bRes) ? 1 : 0);
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+/*
+ * Begin export function for NanoOS Port service
+ */
+#include "..\NPortSvc\NPortClient.h"
+
+static NPLSVC_CONNECTION_CHANGE_CALLBACK	sSvcConnChange = 0;
+static NPortClient	Port;
+
+void _SvcHandleConnChange(bool fConnected)
+{
+	if (sSvcConnChange) {
+		int iConn = (fConnected) ? 1 : 0;
+		(sSvcConnChange)(iConn);
+	}
+}
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+NPORTLIB
+int NPLSVC_Open(NPLSVC_CONNECTION_CHANGE_CALLBACK ConnChangeCallback)
+{
+	Port.ConnectionChanged	= _SvcHandleConnChange;
+	sSvcConnChange			= ConnChangeCallback;
+
+	bool	bRes = Port.Open();
+	return ((bRes) ? TRUE : FALSE);
+}
+
+NPORTLIB void NPLSVC_Close()
+{
+	Port.Close();
+}
+
+NPORTLIB
+int NPLSVC_Write(const unsigned char * pData, int iDataLength)
+{
+	bool bRes = Port.Write(pData, iDataLength);
+	return ((bRes) ? 1 : 0);
+}
+
+NPORTLIB
+int NPLSVC_Read(unsigned char * pBuffer, int iBufferLength, int * piReadLength)
+{
+	unsigned int uiRead = 0;
+	bool bRes = Port.Read(pBuffer, iBufferLength, uiRead);
+	if (bRes) {
+		if (piReadLength) {
+			*piReadLength = uiRead;
+		}
+	}
+
+	return ((bRes) ? 1 : 0);
+}
+
+NPORTLIB
+int NPLSVC_WriteThenRead(
+					 const unsigned char * pWriteData, 
+					 int iWriteDataLength,
+					 unsigned char * pReadBuffer,
+					 int iReadBufferLength,
+					 int * piReadLength
+					 )
+{
+	unsigned int uiReadLen = 0;
+	bool bRes = Port.WriteThenRead(
+					pWriteData,
+					iWriteDataLength,
+					pReadBuffer,
+					iReadBufferLength,
+					uiReadLen
+					);
+	if (bRes) {
+		if (piReadLength) {
+			*piReadLength = uiReadLen;
+		}
+	}
+
+	return ((bRes) ? 1 : 0);
+}
+
+NPORTLIB
+int NPLSVC_ReadThenWrite(
+					 unsigned char * pReadBuffer,
+					 int iReadBufferLength,
+					 int * piReadLength,
+					 const unsigned char * pWriteData,
+					 int iWriteDataLength
+					 )
+{
+	unsigned int uiReadLen = 0;
+	bool bRes = Port.ReadThenWrite(
+						pReadBuffer,
+						iReadBufferLength,
+						uiReadLen,
+						pWriteData,
+						iWriteDataLength
+						);
+	if (bRes) {
+		if (piReadLength) {
+			*piReadLength = uiReadLen;
+		}
+	}
+
+	return ((bRes) ? 1 : 0);
+}
+
+NPORTLIB
+unsigned long NPLSVC_GetLastError()
+{
+	return Port.GetError();
+}
+/*
+ * End export function for NanoOS Port service
+ */
 
 #ifdef __cplusplus
 }

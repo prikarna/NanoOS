@@ -18,6 +18,8 @@
 #include "NInstaller.h"
 #include "NPort.h"
 
+#include "..\NPortSvc\NSvcControl.h"
+
 #include "..\UsbData.h"
 #include "..\Application\VDispData.h"
 
@@ -62,9 +64,12 @@ private:
 
 	USB_DATA			m_UsbDat;
 
-	UsbIoMode			m_IoMode;
+	UsbIoMode			m_CurIoMode;
+	UsbIoMode			m_PrevIoMode;
 
 	VDisplay			m_VDisp;
+
+	NSvcControl			m_SvcCtl;
 
 	static LRESULT CALLBACK _WindProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm);
 	static INT_PTR CALLBACK _AboutDlgProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm);
@@ -91,7 +96,17 @@ private:
 	void _HandleOnVDisplayInput(VDisplay::InputData * pDat);
 
 	void _ArrangeChilds();
-	void _ChangeUsbIoMode(NWind::UsbIoMode mode);
+	void _ChangeUsbIoMode(NWind::UsbIoMode mode, bool bCompareCurMode);
+
+	bool _InstallService();
+	bool _UninstallService();
+
+	bool _StartService();
+	bool _SuspendService();
+	bool _ResumeService();
+	bool _StopService();
+
+	bool _GetServiceStatus();
 
 public:
 	NWind();	// C'tor

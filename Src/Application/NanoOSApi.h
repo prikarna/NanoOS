@@ -34,7 +34,8 @@ extern "C" {
      Get OS version information.
  Params. :
      puiVersion
-         Pointer to UINT32_T variable that receive version information.
+         Pointer to UINT32_T variable that receive version information. Use macro of OS_MAJOR_VER() and 
+		 OS_MINOR_VER() to extract major and minor version respectively of returned version value.
  Return value : 
      TRUE if success or FALSE if fail.
  Error code : 

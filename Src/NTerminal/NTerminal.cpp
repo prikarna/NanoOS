@@ -160,10 +160,8 @@ bool NTerminal::Create(HINSTANCE hInst, HWND hClientWnd, const TCHAR *szTitle)
 
 		SendMessage(m_hCtl, EM_FMTLINES, (WPARAM) TRUE, 0);
 
-		if (m_DefProc == NULL) {
-			m_DefProc = reinterpret_cast<WNDPROC>(
-				SetWindowLongPtr(m_hCtl, GWL_WNDPROC, reinterpret_cast<LONG_PTR>(&NTerminal::_EditHookProc)));
-		}
+		m_DefProc = reinterpret_cast<WNDPROC>(
+			SetWindowLongPtr(m_hCtl, GWL_WNDPROC, reinterpret_cast<LONG_PTR>(&NTerminal::_EditHookProc)));
 	} else {
 		return false;
 	}

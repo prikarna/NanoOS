@@ -317,6 +317,7 @@
 		- Toggle STAT_TX[5:4], DISABLE -> NAK
 */
 #define USB_EP_CTL_EX__BULK_IN_INIT					(BITHEX_15 | BITHEX_7 | (0x02 << 4))
+//#define USB_EP_CTL_EX__BULK_IN_INIT					(BITHEX_15 | BITHEX_7 | (0x03 << 4))
 
 /*
 	USB_EP_CTL_EX__BULK_OUT_INIT => To initialize Bulk OUT transfer
@@ -343,6 +344,7 @@
 		- Keep STAT_TX[5:4]
 */
 #define USB_EP_CTL_EX__BULK_IN_CLEAR			(BITHEX_15)
+//#define USB_EP_CTL_EX__BULK_IN_CLEAR_VALID		(BITHEX_15 | BITHEX_7 | BITHEX_4)
 #define USB_EP_CTL_EX__BULK_IN_CLEAR_STALL		(BITHEX_15 | BITHEX_4)
 
 /*

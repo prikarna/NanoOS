@@ -128,6 +128,7 @@ NTerminal is a program specifically to access some NanoOS resources. It has:
 - Simple terminal to communicate with NanoOS application.
 - Simple virtual display that simulate LCD touch screen or similar device.
 - Facility to install NanoOS application.
+- Facility to install NanoOS Port service to share NanoOS Port amongs processes.
 Currently only run on Windows XP.
 
 To use NTerminal establish a physical connection like this:
@@ -166,7 +167,8 @@ connected again when you plug USB Serial IO.
 If you want to use virtual display, on the menu click 'Options' - 'NanoOS Port' - 'Virtual Display'. 
 Checkbox should be displayed in the Enable VDisplay menu item. And also VDisplay window will turn to 
 black. If NanoOSs USB Serial IO connected the window of VDisplay will tell you that the device is 
-connected.
+connected. Please see VDispTest project that use this virtual display as an output if you want to use
+it.
 
 NTerminal can be used to install NanoOS application, on the menu click 'Application' - 'Install App...' 
 and then a dialog box should shows up and let you choose what application file to be installed. Click OK 
@@ -179,6 +181,15 @@ In the NTerminal NanoOS Port or USB Serial IO can be disabled and let the PC app
 Port library can use it. Note that USB Serial IO can only be accessed only one PC application (or process) at 
 a time because it is basically a serial (COM) port device. To disable the NanoOS Port in the NTerminal, on
 the menu click 'Options' - 'NanoOS Port' - 'Disable'.
+
+To install NPortSvc service, on the menu, click 'Options' - 'NanoOS Port Service' - 'Install' and when open file
+dialog box appears locate NPortSvc.exe, choose it and click OK. The result, success or failure, will be displayed
+in the console terminal. This installation don't start service automatically, to start NPortSvc service, on the menu, 
+click 'Options' - 'NanoOS Port Service' - 'Start' and as the installation process, the result will be displayed in 
+console terminal. Notice that starting NPortSvc service will disable access to NanoOS Port from NTerminal in the 
+other word NTerminal can not access NanosOS Port anymore. If you want to enable access to NanoOS Port from NTerminal
+just stop the NPortSvc from menu 'Options' - 'NanoOS Port Service' - 'Stop'. Note that most of service operations 
+such as install and start service require administrator privilege.
 
 
 ==========================
@@ -286,7 +297,7 @@ To use NPortLib:
 3. Compile and link against the NPortLib.lib.
 If your system and/or programming language support dynamic library loading, e.g. LoadLibrary()/FreeLibrary(), you 
 can skip the step 3 above. Note that in run time, you still need NPortLib.dll in both cases, make sure your binary 
-can access this dll. 
+can access this dll. Please see NPortLibTest project included in this packet for more.
 
 In the source code call NPL_Open() and provide callback parameters if required to start using NanoOS Port and then 
 later on call NPL_Close() when you have finished using it. The NPL_Open() will activate NanoOS Port detection, when 
@@ -297,7 +308,7 @@ NPL_Read() if required. Note that NPL_Read() will always fail if 'data receive c
 NPortLibTest project included in this distribution for more. Also note that NPL_Open() can fail too if other PC 
 application (or process), such as NTerminal, already open the NanoOS Port.
 
-NPortLib also provide installer function to install NanoOS application on NanoOS port. Make sure NanoOS port is 
+NPortLib provide installer functions to install NanoOS application on NanoOS port. Make sure NanoOS port is 
 connected and opened before you call NPL_InstallNApplication(), call NPL_IsOpened() to do this if you don't provide 
 'connection change callback' when you call NPL_Open(). NPL_InstallNApplication() is asynchronous call, it will run 
 in the 'backgroud' or another thread. If you don't provide 'progress callback' when you call it, you can call 
@@ -308,3 +319,7 @@ a callback, provide a 'error callback' when you call NPL_Open(), this callback w
 on NanoOS port. If you want to run the NanoOS application right after the installation complete and success, set the
 'auto_run' to 'ena' and then save the configuration in the NanoOS Built-in console, please see 'Built-in Console' 
 section above.
+
+In addition, NPortLib provide access to NPortSvc service, a service that share NanoOS Port so it can be accessed from
+multiple processes. Please see NPortLib.h for more. Note that this is simple service service and don't provide a 
+security mechanism.

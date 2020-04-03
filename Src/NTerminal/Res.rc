@@ -58,6 +58,18 @@ MainMenu	MENU
 			MENUITEM	SEPARATOR
 			MENUITEM	_T("&Disable\tCTRL+D"),			DKM_OPT_NPORT_DISABLE
 		END
+		POPUP	_T("NanoOS Port &Service")
+		BEGIN
+			MENUITEM	_T("Stat&us"),					DKM_OPT_NSVC_STATUS
+			MENUITEM	SEPARATOR
+			MENUITEM	_T("&Install"),					DKM_OPT_NSVC_INSTALL
+			MENUITEM	_T("&Uninstall"),				DKM_OPT_NSVC_UNINSTALL
+			MENUITEM	SEPARATOR
+			MENUITEM	_T("&Start"),					DKM_OPT_NSVC_START
+			MENUITEM	_T("Sus&pend"),					DKM_OPT_NSVC_SUSPEND
+			MENUITEM	_T("&Resume"),					DKM_OPT_NSVC_RESUME
+			MENUITEM	_T("S&top"),					DKM_OPT_NSVC_STOP
+		END
 	END
 
 	POPUP	_T("&Help")
@@ -155,9 +167,7 @@ BEGIN
 
     BLOCK _T("VarFileInfo")
     BEGIN
-
 		VALUE _T("Translation"), 0x409, 1252
-
     END
 END
 /*

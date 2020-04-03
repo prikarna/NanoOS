@@ -189,11 +189,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Src\NPortSvc\NPortClient.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Src\NPortLib\NPortLib.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\Src\NPortLib\NPortLib.def"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NPortSvc\Protocol.cpp"
 				>
 			</File>
 		</Filter>
@@ -211,11 +219,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Src\NPortSvc\NPortClient.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Src\NPortLib\NPortLib.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\Src\NPortLib\NPortLibVer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NTerminal\NPortName.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NPortSvc\Protocol.h"
 				>
 			</File>
 		</Filter>
