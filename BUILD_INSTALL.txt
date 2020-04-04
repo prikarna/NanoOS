@@ -78,8 +78,8 @@ Bulding:
       use NPortLib.
    e. NanoOS Port service (NPortSvc.exe and NPortSvcTest.exe). This service share NanoOS
       Port amongs PC applications (or processes). Note that for now this service doesn't
-      provide any security feature. To test NPortSvc use the NPortSvcTest project included
-      in this packet.
+      provide any security feature. To test NPortSvc use the NPortSvcTest and Echo project 
+      included in this packet.
       
 
 =======
@@ -104,7 +104,7 @@ B. NanoOS application
    If you use ST-Link make sure you choose 0x08008000 as address to be writen to flash memory and choose
    NanoOS application you want, e.g. NApplication.bin in the build process output directory. Otherwise
    if you use NTerminal program, you only need to specify NanoOS application file and NanoOS will take
-   care the rest.
+   care of the rest.
    
 C. NTerminal
    No special installation procedure, just run from NTerminal.exe in containing directory.
@@ -114,15 +114,17 @@ D. NPortLib
    of this library.
    
 E. NPortSvc
-   You can install this service via NTerminal, in the menu click: Options - NanoOS Port Service - Install and
-   when open dialog box appears, locate NPortSvc.exe, choose it and then click OK. Alternatively you can use 
-   sc.exe utility command line. When using sc utility the service name must be 'NPortSvc' and type= own, 
+   You can install this service via NTerminal, in the menu click: 'Options' - 'NanoOS Port Service' - 'Install'
+   and when open dialog box appears, locate NPortSvc.exe, choose it and then click OK. Alternatively you can 
+   use sc.exe utility command line. When using sc utility the service name must be 'NPortSvc' and type= own, 
    for example:
    ---------------------------------------------------------------------------------------------------------------------------
    sc create NPortSvc type= own start= auto binPath= "D:\Dev\NanoOSOut\Bin\NPortSvc\NPortSvc.exe" DisplayName= "NPort Service"
    ---------------------------------------------------------------------------------------------------------------------------
    Note that in the above example NPortSvc.exe is located in D:\Dev\NanoOSOut\Bin\NPortSvc directory and this 
-   operation need administrator privilege.
+   operation need administrator privilege and also sc utility don't install logging (event log) utility provided
+   by NPortSvc service. If you want to install this logging utility, use NTerminal which automatically install
+   this logging utility when instaling NPortSvc.
    The above command don't automatically start the service, to start the service type this in the console:
    --------------------
    sc start NPortSvc

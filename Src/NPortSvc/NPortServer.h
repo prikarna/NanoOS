@@ -6,6 +6,7 @@
 
 #pragma once
 #include "Protocol.h"
+#include "NSvcLog.h"
 
 extern "C" {
 	typedef struct _NSTATE_LOCK
@@ -75,6 +76,7 @@ private:
 	ServerSynch				m_Synch;
 	ServerFileMapping		m_MapFile;
 	NStateLock				m_StateLock;
+	NSvcLog					m_Log;
 
 	DWORD					m_dwReadRes;
 	DWORD					m_dwReadLen;

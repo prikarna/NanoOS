@@ -78,6 +78,7 @@ private:
 	void _HandleCommand(WPARAM wParm, LPARAM lParm);
 	void _HandleCOMxMenu(UINT uMenuId);
 	bool _GetFileNameFromFullPath(const TCHAR *szFullPathFileName, TCHAR * szBuffer, int iByteBufferSize);
+	bool _GetFilePathFromFullPath(const TCHAR *szFullPathFileName, TCHAR * szBuffer, int iByteBufferSize);
 	void _ReOpenConsolePort();
 
 	void _HandleOnConsPortEnum(const TCHAR *szCOMName);

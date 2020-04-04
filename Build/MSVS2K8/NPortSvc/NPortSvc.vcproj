@@ -25,8 +25,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Generate version for $(Projectname)... "
-				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortSvcVer.h NPORTSVCVER"
+				Description="Generate eventlog resource and version for $(Projectname)... "
+				CommandLine="set SRC_DIR=$(SolutionDir)..\..\Src\$(ProjectName)&#x0D;&#x0A;set BIN_DIR=$(SolutionDir)..\..\..\NanoOSOut\Bin\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;set OBJ_DIR=$(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.rc del %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.res del %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;if exist %BIN_DIR%\NSvcLogMsg.dll del %BIN_DIR%\NSvcLogMsg.dll&#x0D;&#x0A;&#x0D;&#x0A;mc -U -h %SRC_DIR%\ -r %OBJ_DIR%\ %SRC_DIR%\NSvcLogMsg.mc&#x0D;&#x0A;rc -r /fo %OBJ_DIR%\NSvcLogMsg.res %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;link -dll -noentry -out:%BIN_DIR%\NSvcLogMsg.dll %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;&#x0D;&#x0A;$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen %SRC_DIR%\NPortSvcVer.h NPORTSVCVER&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -99,8 +99,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Generate version for $(Projectname)... "
-				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortSvcVer.h NPORTSVCVER"
+				Description="Generate event log resource and version for $(Projectname)... "
+				CommandLine="set SRC_DIR=$(SolutionDir)..\..\Src\$(ProjectName)&#x0D;&#x0A;set BIN_DIR=$(SolutionDir)..\..\..\NanoOSOut\Bin\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;set OBJ_DIR=$(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.rc del %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.res del %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;if exist %BIN_DIR%\NSvcLogMsg.dll del %BIN_DIR%\NSvcLogMsg.dll&#x0D;&#x0A;&#x0D;&#x0A;mc -U -h %SRC_DIR%\ -r %OBJ_DIR%\ %SRC_DIR%\NSvcLogMsg.mc&#x0D;&#x0A;rc -r /fo %OBJ_DIR%\NSvcLogMsg.res %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;link -dll -noentry -out:%BIN_DIR%\NSvcLogMsg.dll %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;&#x0D;&#x0A;$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen %SRC_DIR%\NPortSvcVer.h NPORTSVCVER&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -195,6 +195,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Src\NPortSvc\NSvcLog.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Src\NPortSvc\Protocol.cpp"
 				>
 			</File>
@@ -229,6 +233,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Src\NPortSvc\NSvcLog.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NPortSvc\NSvcLogMsg.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NPortSvc\NSvcName.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Src\NPortSvc\Protocol.h"
 				>
 			</File>
@@ -243,6 +259,14 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\..\Src\NPortSvc\NSvcLogMsg.mc"
+			>
+		</File>
+		<File
+			RelativePath=".\Temp.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

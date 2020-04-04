@@ -321,5 +321,5 @@ on NanoOS port. If you want to run the NanoOS application right after the instal
 section above.
 
 In addition, NPortLib provide access to NPortSvc service, a service that share NanoOS Port so it can be accessed from
-multiple processes. Please see NPortLib.h for more. Note that this is simple service service and don't provide a 
-security mechanism.
+multiple processes. Please see NPortLib.h for more. Note that this is simple service and don't provide a security 
+mechanism or facility.

@@ -6,15 +6,17 @@
 
 #include "NSvcControl.h"
 #include "..\NTerminal\Debug.h"
+#include "NSvcName.h"
 
 NSvcControl::NSvcControl():
 	m_hSvcMgr(NULL),
 	m_hSvc(NULL),
-	m_dwError(0),
-	m_szDefName(_T("NPortSvc")),
-	m_szDefDispName(_T("NPort Service")),
-	m_szDefDesc(_T("Provide access to NanoOS Port for multiple processes."))
+	m_dwError(0)
 {
+	m_szDefName			= NSVC_DEF_NAME;
+	m_szDefDispName		= NSVC_DEF_DISP_NAME;
+	m_szDefDesc			= NSVC_DEF_DESC;
+
 	RtlZeroMemory(&m_ofn, sizeof(OPENFILENAME));
 	m_ofn.lStructSize	= sizeof(OPENFILENAME);
 	m_ofn.lpstrFilter	= _T("NPortSvc.exe\0\0");
@@ -106,6 +108,31 @@ bool NSvcControl::_QueryStatus(LPSERVICE_STATUS pStatus)
 	return ((fRes) ? true : false);
 }
 
+bool NSvcControl::_GetFilePathFromFullPath(const TCHAR *szFullPathFileName, TCHAR *szBuffer, int iBufferByteSize)
+{
+	bool bRes = false;
+
+	if ((szBuffer == NULL) || (iBufferByteSize <= 0)) return false;
+
+	int	iFullPathSize = lstrlen(szFullPathFileName) * sizeof(TCHAR);
+	if (iFullPathSize <= 0) return false;
+
+	if (iFullPathSize > iBufferByteSize) return false;
+
+	RtlZeroMemory(szBuffer, iBufferByteSize);
+	HRESULT hr = StringCbCopy(szBuffer, iBufferByteSize, szFullPathFileName);
+	if (hr != S_OK) return false;
+
+	TCHAR *pChar = &(szBuffer[iFullPathSize - 1]);
+	while (*pChar != _T('\\')) {
+		*pChar = 0;
+		pChar--;
+	}
+	*pChar = 0;
+
+	return true;
+}
+
 DWORD NSvcControl::GetError()
 {
 	return m_dwError;
@@ -163,6 +190,79 @@ bool NSvcControl::Install(HWND hWnd)
 		bRes = true;
 
 	} while (FALSE);
+
+	_CloseSCM();
+	_Close();
+
+	return bRes;
+}
+
+bool NSvcControl::Install(HWND hWnd, bool bIncludeLog)
+{
+	bool	bRes = false;
+	BOOL	fRes = FALSE;
+	TCHAR	szLogPath[1024];
+
+	do {
+		RtlZeroMemory(m_szFileName, sizeof(m_szFileName));
+		m_ofn.hwndOwner = hWnd;
+		fRes = GetOpenFileName(&m_ofn);
+		if (!fRes) {
+			m_dwError = CommDlgExtendedError();
+			break;
+		}
+
+		if (bIncludeLog) 
+		{
+			bRes = _GetFilePathFromFullPath(m_szFileName, szLogPath, sizeof(szLogPath));
+			if (!bRes) break;
+
+			bRes = m_Log.Register(szLogPath);
+			if (!bRes) break;
+		}
+
+		bRes = _OpenSCM(SC_MANAGER_CREATE_SERVICE);
+		if (!bRes) break;
+
+		m_hSvc = CreateService(
+					m_hSvcMgr,
+					m_szDefName,
+					m_szDefDispName,
+					GENERIC_WRITE,
+					SERVICE_WIN32_OWN_PROCESS,
+					SERVICE_AUTO_START,
+					SERVICE_ERROR_NORMAL,
+					m_szFileName,
+					NULL,
+					NULL,
+					NULL,
+					NULL,	// use LocalSystem account
+					NULL
+					);
+		if (!m_hSvc) {
+			m_dwError = GetLastError();
+			_HandleError(m_dwError);
+			bRes = false;
+			break;
+		}
+
+		SERVICE_DESCRIPTION	sd;
+
+		sd.lpDescription = const_cast<LPTSTR>(m_szDefDesc);
+		fRes = ChangeServiceConfig2(m_hSvc, SERVICE_CONFIG_DESCRIPTION, (LPVOID) &sd);
+		if (!fRes) {
+			m_dwError = GetLastError();
+			_HandleError(m_dwError);
+			break;
+		}
+
+		bRes = true;
+
+	} while (FALSE);
+
+	if (!bRes) {
+		m_Log.Unregister();
+	}
 
 	_CloseSCM();
 	_Close();
@@ -240,6 +340,8 @@ bool NSvcControl::Uninstall()
 			_HandleError(m_dwError);
 			break;
 		}
+
+		m_Log.Unregister();
 
 		bRes = true;
 	} while (FALSE);

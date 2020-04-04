@@ -9,7 +9,7 @@
 #ifndef NTERMVER_H
 #define NTERMVER_H
 
-#define NTERMVER			1,0,3,129
-#define NTERMVER_STR		_T("1.0.3.129")
+#define NTERMVER			1,0,3,146
+#define NTERMVER_STR		_T("1.0.3.146")
 
 #endif		// End of NTERMVER_H

@@ -6,6 +6,7 @@
 
 #include "NService.h"
 #include "..\NTerminal\Debug.h"
+#include "NSvcName.h"
 
 /*
  * BEGIN NService implementations
@@ -48,10 +49,12 @@ NService *				NServiceDispatcher::m_pService				= NULL;
 NServiceDispatcher::NServiceDispatcher()
 {
 	RtlZeroMemory(m_szName, sizeof(m_szName));
-	StringCbCopy(m_szName, sizeof(m_szName), _T("NPortSvc"));
+	//StringCbCopy(m_szName, sizeof(m_szName), _T("NPortSvc"));
+	StringCbCopy(m_szName, sizeof(m_szName), NSVC_DEF_NAME);
 
 	RtlZeroMemory(m_szDisplayName, sizeof(m_szDisplayName));
-	StringCbCopy(m_szDisplayName, sizeof(m_szDisplayName), _T("NPort Service"));
+	//StringCbCopy(m_szDisplayName, sizeof(m_szDisplayName), _T("NPort Service"));
+	StringCbCopy(m_szDisplayName, sizeof(m_szDisplayName), NSVC_DEF_DISP_NAME);
 
 	RtlZeroMemory(&m_Status, sizeof(SERVICE_STATUS));
 	m_Status.dwServiceType		= SERVICE_WIN32_OWN_PROCESS;

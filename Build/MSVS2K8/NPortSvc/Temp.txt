@@ -1,0 +1,10 @@
+@if exist $(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)\NSvcLog.rc del /Q /F $(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConsigurationName)\NSvcLog.rc
+@if exist $(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)\NSvcLog.res del /Q /F $(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)\NSvcLog.res
+@if exist $(SolutionDir)..\..\..\NanoOSOut\Bin\$(ProjectName)\$(ConfigurationName)\NSvcLog.dll del /Q /F $(SolutionDir)..\..\..\NanoOSOut\Bin\$(ProjectName)\$(ConfigurationName)\NSvcLog.dll
+
+mc -U -h $(SolutionDir)..\..\..\Src\$(ProjectName) -r $(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName) $(SolutionDir)..\..\..\Src\$(ProjectName)\NSvcLog.mc
+
+rc -r $(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)\NSvcLog.rc $(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)\NSvcLog.res
+link -dll -noentry -out:"$(SolutionDir)..\..\..\NanoOSOut\Bin\$(ProjectName)\$(ConfigurationName)\NSvcLog.dll" $(SolutionName)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)\NSvcLog.rc
+
+$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortSvcVer.h NPORTSVCVER

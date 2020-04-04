@@ -353,7 +353,8 @@ DWORD CALLBACK NPortServer::_AcceptIo(LPVOID pDat)
 			break;
 
 		default:
-			DBG_PRINTF(_T("%s: Unknown event %d\r\n"), FUNCT_NAME_STR, Req);
+			DBG_PRINTF(_T("%s: Unknown request %d\r\n"), FUNCT_NAME_STR, Req);
+			pThis->m_Log.Report(NSvcLog::Typ_Warning, _T("Unknown request from client."));
 			break;
 		}
 	}
@@ -397,12 +398,13 @@ bool NPortServer::SetDeviceEvent(bool fArrival)
 						0,
 						NULL);
 		if (hOpenTh) {
-			dwRes = WaitForSingleObject(hOpenTh, 1000);
+			dwRes = WaitForSingleObject(hOpenTh, 700);
 			switch (dwRes) 
 			{
 			case WAIT_TIMEOUT:
-				DBG_PRINTF(_T("%s: can open port, time out!\r\n"), FUNCT_NAME_STR);
+				DBG_PRINTF(_T("%s: can't open port, time out!\r\n"), FUNCT_NAME_STR);
 				TerminateThread(hOpenTh, ERROR_OPERATION_ABORTED);
+				m_Log.Report(NSvcLog::Typ_Error, _T("Can not open NanoOS Port. (Operation timeout)."));
 				break;
 
 			case WAIT_OBJECT_0:
@@ -482,7 +484,7 @@ bool NPortServer::_HandleReadRequest()
 	if (!hRdTh) {
 		dwRet = GetLastError();
 	} else {	// if (!hRdTh) else
-		dwRet = WaitForSingleObject(hRdTh, 1000);
+		dwRet = WaitForSingleObject(hRdTh, 500);
 		switch (dwRet)
 		{
 		case WAIT_TIMEOUT:

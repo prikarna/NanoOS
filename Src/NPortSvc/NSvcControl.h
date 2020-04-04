@@ -11,6 +11,7 @@
 #include "StrSafe.h"
 
 #include "..\NTerminal\DkObject.h"
+#include "NSvcLog.h"
 
 class NSvcControl
 {
@@ -32,6 +33,7 @@ public:
 	DWORD GetError();
 
 	bool Install(HWND hWnd);
+	bool Install(HWND hWnd, bool bIncludeLog);
 	bool Uninstall();
 	bool Start();
 	bool Stop();
@@ -54,12 +56,15 @@ private:
 	OPENFILENAME	m_ofn;
 	TCHAR			m_szErrBuf[1024];
 
+	NSvcLog			m_Log;
+
 	bool _OpenSCM(DWORD dwDesiredAccess);
 	bool _Open(const TCHAR * szServiceName, DWORD dwDesiredAccess);
 	void _CloseSCM();
 	void _Close();
 	bool _Control(DWORD dwControl);
 	bool _QueryStatus(LPSERVICE_STATUS pStatus);
+	bool _GetFilePathFromFullPath(const TCHAR *szFullPathFileName, TCHAR *szBufer, int iBufferByteSize);
 
 	void _HandleError(DWORD dwError);
 };

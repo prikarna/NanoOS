@@ -195,6 +195,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Src\NPortSvc\NSvcLog.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Src\NTerminal\NTerminal.cpp"
 				>
 			</File>
@@ -234,6 +238,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Src\NPortSvc\NSvcControl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NPortSvc\NSvcLog.h"
 				>
 			</File>
 			<File
