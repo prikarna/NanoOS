@@ -183,6 +183,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Src\NTerminal\NAppGen.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NTerminal\NAppGenStr.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Src\NTerminal\NInstaller.cpp"
 				>
 			</File>
@@ -222,6 +230,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Src\NTerminal\DkObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\NTerminal\NAppGen.h"
 				>
 			</File>
 			<File

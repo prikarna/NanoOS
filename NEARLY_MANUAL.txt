@@ -129,6 +129,7 @@ NTerminal is a program specifically to access some NanoOS resources. It has:
 - Simple virtual display that simulate LCD touch screen or similar device.
 - Facility to install NanoOS application.
 - Facility to install NanoOS Port service to share NanoOS Port amongs processes.
+- Facility to generate Visual Studio C++ 2008 Express Edition solution and/or project for NanoOS Application.
 Currently only run on Windows XP.
 
 To use NTerminal establish a physical connection like this:
@@ -190,6 +191,9 @@ console terminal. Notice that starting NPortSvc service will disable access to N
 other word NTerminal can not access NanosOS Port anymore. If you want to enable access to NanoOS Port from NTerminal
 just stop the NPortSvc from menu 'Options' - 'NanoOS Port Service' - 'Stop'. Note that most of service operations 
 such as install and start service require administrator privilege.
+
+To generate NanoOS Application Solution/Project in Visual Studio C++ 2008 Express Edition, on the menu, click; 
+'Application' - 'Generate NApplication Project...'. And then complete dialogbox input when it appears.
 
 
 ==========================
@@ -261,7 +265,8 @@ how to start a simple Hello world program in NanoOS;
    see BUILD_INSTALL.txt).
    
 Alternatively you can start from the included project in NanoOS directory called Hello. This is more or less the 
-same as the above example.
+same as the above example. Or you can use NTerminal to generate simple NanoOS Application Solution and/or Project
+in Microsoft Visual Studio C++ 2008 Express Edition and start from there.
 
 If you want to run this application in SRAM, use NanoAppSRAM.ld instead of NanoApp.ld in step 4 and also please see
 the sample project named RunInSRAM. Note that the binary files may not fits in SRAM because SRAM size is only 10K 
@@ -321,5 +326,5 @@ on NanoOS port. If you want to run the NanoOS application right after the instal
 section above.
 
 In addition, NPortLib provide access to NPortSvc service, a service that share NanoOS Port so it can be accessed from
-multiple processes. Please see NPortLib.h for more. Note that this is simple service and don't provide a security 
-mechanism or facility.
+multiple processes. Please see NPortLib.h and the NPortSvcTest project for more. Note that this is simple service and 
+don't provide a security mechanism or facility.

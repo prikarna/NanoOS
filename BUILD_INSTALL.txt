@@ -102,7 +102,7 @@ A. NanoOS
 B. NanoOS application
    For NanoOS application, you can use either ST-Link debugger and its software or NTerminal program.
    If you use ST-Link make sure you choose 0x08008000 as address to be writen to flash memory and choose
-   NanoOS application you want, e.g. NApplication.bin in the build process output directory. Otherwise
+   NanoOS application you want, such as NApplication.bin in the build process output directory. Otherwise
    if you use NTerminal program, you only need to specify NanoOS application file and NanoOS will take
    care of the rest.
    

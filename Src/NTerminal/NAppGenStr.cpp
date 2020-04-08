@@ -1,0 +1,231 @@
+#include "NAppGen.h"
+
+const char * NAppGen::m_szSln[DKS_SLN_MAX_LINES] =
+{
+	"\xef\xbb\xbf\r\n"
+	"Microsoft Visual Studio Solution File, Format Version 10.00\r\n"
+	"# Visual C++ Express 2008\r\n",										// L0
+	"Project(\"{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\") = ",				// L1
+	"EndProject\r\n"
+	"Global\r\n"
+	"\tGlobalSection(SolutionConfigurationPlatforms) = preSolution\r\n"
+	"\t\tDebug|NApp = Debug|NApp\r\n"
+	"\t\tRelease|NApp = Release|NApp\r\n"
+	"\tEndGlobalSection\r\n"
+	"\tGlobalSection(ProjectConfigurationPlatforms) = postSolution\r\n",	// L2
+	".Debug|NApp.ActiveCfg = Debug|Win32\r\n",								// L3
+	".Release|NApp.ActiveCfg = Release|Win32\r\n",							// L4
+	".Release|NApp.Build.0 = Release|Win32\r\n",							// L5
+	"\tEndGlobalSection\r\n"
+	"\tGlobalSection(SolutionProperties) = preSolution\r\n"
+	"\t\tHideSolutionNode = FALSE\r\n"
+	"\tEndGlobalSection\r\n"
+	"EndGlobal\r\n",														// L6
+	NULL																	// L7 (END)
+};
+
+const char * NAppGen::m_szProj[DKS_PROJ_MAX_LINES] =
+{
+	"<?xml version=\"1.0\" encoding=\"Windows-1252\"?>\r\n"
+	"<VisualStudioProject\r\n"
+	"	ProjectType=\"Visual C++\"\r\n"
+	"	Version=\"9,00\"\r\n",						// L0
+	"	Name=",										// L1
+	"	ProjectGUID=",								// L2
+	"	Keyword=\"MakeFileProj\""
+	"	TargetFrameworkVersion=\"196613\"\r\n"
+	"	>\r\n"
+	"	<Platforms>\r\n"
+	"		<Platform\r\n"
+	"			Name=\"Win32\"\r\n"
+	"		/>\r\n"
+	"	</Platforms>\r\n"
+	"	<ToolFiles>\r\n"
+	"	</ToolFiles>\r\n"
+	"	<Configurations>\r\n"
+	"		<Configuration\r\n"
+	"			Name=\"Debug|Win32\"\r\n"
+	"			OutputDirectory=\"$(ConfigurationName)\"\r\n"
+	"			IntermediateDirectory=\"$(ConfigurationName)\"\r\n"
+	"			ConfigurationType=\"0\"\r\n"
+	"			>\r\n"
+	"			<Tool\r\n"
+	"				Name=\"VCNMakeTool\"\r\n"
+	"				BuildCommandLine=\"nmake /nologo _DEBUG=1 all\"\r\n"
+	"				ReBuildCommandLine=\"nmake /nologo _DEBUG=1 rebuild\"\r\n"
+	"				CleanCommandLine=\"nmake /nologo _DEBUG=1 clean\"\r\n",	// L3
+	"				Output=",												// L4
+	"				PreprocessorDefinitions=\"__GNUC__;_DEBUG\"\r\n",		// L5
+	"				IncludeSearchPath=",									// L6
+	"				ForcedIncludes=\"\"\r\n"
+	"				AssemblySearchPath=\"\"\r\n"
+	"				ForcedUsingAssemblies=\"\"\r\n"
+	"				CompileAsManaged=\"\"\r\n"
+	"			/>\r\n"
+	"		</Configuration>\r\n"
+	"		<Configuration\r\n"
+	"			Name=\"Release|Win32\"\r\n"
+	"			OutputDirectory=\"$(ConfigurationName)\"\r\n"
+	"			IntermediateDirectory=\"$(ConfigurationName)\"\r\n"
+	"			ConfigurationType=\"0\"\r\n"
+	"			>\r\n"
+	"			<Tool\r\n"
+	"				Name=\"VCNMakeTool\"\r\n"
+	"				BuildCommandLine=\"nmake /nologo all\"\r\n"
+	"				ReBuildCommandLine=\"nmake /nologo rebuild\"\r\n"
+	"				CleanCommandLine=\"nmake /nologo clean\"\r\n",		// L7
+	"				Output=",											// L8
+	"				PreprocessorDefinitions=\"__GNUC__\"\r\n",			// L9
+	"				IncludeSearchPath=",								// L10
+	"				ForcedIncludes=\"\"\r\n"
+	"				AssemblySearchPath=\"\"\r\n"
+	"				ForcedUsingAssemblies=\"\"\r\n"
+	"				CompileAsManaged=\"\"\r\n"
+	"			/>\r\n"
+	"		</Configuration>\r\n"
+	"	</Configurations>\r\n"
+	"	<References>\r\n"
+	"	</References>\r\n"
+	"	<Files>\r\n"
+	"		<Filter\r\n"
+	"			Name=\"Source Files\"\r\n"
+	"			Filter=\"cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx\"\r\n"
+	"			UniqueIdentifier=\"{4FC737F1-C7A5-4376-A066-2A32D752A2FF}\"\r\n"
+	"			>\r\n"
+	"			<File\r\n"
+	"				RelativePath=\".\\Main.c\"\r\n"
+	"				>\r\n"
+	"			</File>\r\n"
+	"		</Filter>\r\n"
+	"		<Filter\r\n"
+	"			Name=\"Header Files\"\r\n"
+	"			Filter=\"h;hpp;hxx;hm;inl;inc;xsd\"\r\n"
+	"			UniqueIdentifier=\"{93995380-89BD-4b04-88EB-625FBE52EBFB}\"\r\n"
+	"			>\r\n"
+	"		</Filter>\r\n"
+	"		<Filter\r\n"
+	"			Name=\"Resource Files\"\r\n"
+	"			Filter=\"rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav\"\r\n"
+	"			UniqueIdentifier=\"{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}\"\r\n"
+	"			>\r\n"
+	"		</Filter>\r\n"
+	"		<File\r\n"
+	"			RelativePath=\".\\Makefile\"\r\n"
+	"			>\r\n"
+	"		</File>\r\n"
+	"		<File\r\n"
+	"			RelativePath=\".\\Sources.inc\"\r\n"
+	"			>\r\n"
+	"		</File>\r\n"
+	"	</Files>\r\n"
+	"	<Globals>\r\n"
+	"	</Globals>\r\n"
+	"</VisualStudioProject>\r\n"
+	"\r\n",														// L11
+	NULL														// L12 (END)
+};
+
+const char * NAppGen::m_szMkfile[DKS_MKF_MAX_LINES] =
+{
+	"####\r\n"
+	"# Makefile for ARM Cortex-M processor based MCU\r\n"
+	"# Minimal Makefile\r\n"
+	"##\r\n"
+	"\r\n"
+	"CORT_VER			= m3\r\n"
+	"TGT_CPU			= arm_cortex_$(CORT_VER)\r\n"
+	"\r\n"
+	"###\r\n"
+	"# Output directory (OUT_DIR), this directory will contain .elf and .bin file as result of building process\r\n"
+	"# change this line if you want specify another directory as build output\r\n"
+	"#\r\n",													// L0
+	"OUT_DIR				= ",								// L1
+	"\r\n"
+	"###\r\n"
+	"# Source directory, change this line if want ot specify another directory as your source directory\r\n"
+	"#\r\n",													// L2
+	"SRCS_DIR			= ",									// L3
+	"\r\n"
+	"###\r\n"
+	"# Include path, change this line to specify other include path\r\n"
+	"#\r\n",													// L4
+	"INCLUDE				= ",								// L5
+	"\r\n"
+	"###\r\n"
+	"# GCC_BIN_DIR is directory where gcc.exe. ld.exe and so on exist\r\n"
+	"# Change the line below if the gcc compiler is on somewhere else, for example GCC_BIN_DIR = D:\\OtherDir\r\n"
+	"#\r\n",													// L6
+	"GCC_BIN_DIR			= ",								// L7
+	"\r\n"
+	"PATH				= $(GCC_BIN_DIR);$(PATH)\r\n"
+	"\r\n"
+	"CC					= gcc.exe\r\n"
+	"\r\n"
+	"CC_OPTS				= \\\r\n"
+	"!IFDEF _DEBUG\r\n"
+	"					  -Wall\\\r\n"
+	"					  -D_DEBUG\\\r\n"
+	"					  -g\\\r\n"
+	"!ENDIF\r\n"
+	"					  -I$(INCLUDE)\\\r\n"
+	"					  -mcpu=cortex-$(CORT_VER)\\\r\n"
+	"					  -mthumb\\\r\n"
+	"					  -ffunction-sections\\\r\n"
+	"					  -O0\\\r\n"
+	"					  -mfix-cortex-m3-ldrd\\\r\n"
+	"					  -c\r\n"
+	"\r\n"
+	"LINK				= ld.exe\r\n"
+	"LINK_OPTS			= \\\r\n"
+	"					  --gc-sections\\\r\n"
+	"					  -T$(INCLUDE)\\NanoApp.ld\\\r\n"
+	"					  -o$(OUT_DIR)\\$(ELF)\r\n"
+	"\r\n"
+	"GEN_BIN				= objcopy.exe\r\n"
+	"GEN_BIN_OPT			= -Obinary\r\n"
+	"\r\n",													// L8
+	"TGT_NAME			= ",								// L9
+	"\r\n"
+	"TGT					= $(TGT_NAME).bin\r\n"
+	"ELF					= $(TGT_NAME).elf\r\n"
+	"\r\n"
+	"!INCLUDE Sources.inc\r\n"
+	"\r\n"
+	"all			: $(TGT)\r\n"
+	"\r\n"
+	"prep		:\r\n"
+	"	@echo Preparing...\r\n"
+	"	@if not exist $(OUT_DIR) mkdir $(OUT_DIR)\r\n"
+	"	@set OBJ_FILES=\r\n"
+	"\r\n"
+	"$(SRCS)		: prep\r\n"
+	"	@echo Compiling $@\r\n"
+	"!IFDEF _DEBUG\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Debug\\$(*B).obj\r\n"
+	"	@$(CC) $(CC_OPTS) -o Debug\\$(*B).obj $@\r\n"
+	"!ELSE\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Release\\$(*B).obj\r\n"
+	"	@$(CC) $(CC_OPTS) -o Release\\$(*B).obj $@\r\n"
+	"!ENDIF\r\n"
+	"\r\n"
+	"$(ELF)		: $(SRCS)\r\n"
+	"	@echo Linking...\r\n"
+	"	@$(LINK) $(LINK_OPTS) %%OBJ_FILES%%\r\n"
+	"\r\n"
+	"$(TGT)		: $(ELF)\r\n"
+	"	@echo Generating binary...\r\n"
+	"	@$(GEN_BIN) $(GEN_BIN_OPT) $(OUT_DIR)\\$(ELF) $(OUT_DIR)\\$(TGT)\r\n"
+	"\r\n"
+	"clean		:\r\n"
+	"	@echo Cleaning up...\r\n"
+	"	@if exist $(OUT_DIR)\\*.* erase /S /Q $(OUT_DIR)\\*.*\r\n"
+	"!IFDEF _DEBUG\r\n"
+	"	@if exist Debug\\*.obj erase /S /Q Debug\\*.obj\r\n"
+	"!ELSE\r\n"
+	"	@if exist Release\\*.obj erase /S /Q Release\\*.obj\r\n"
+	"!ENDIF\r\n"
+	"\r\n"
+	"rebuild		: clean all\r\n"
+	"\r\n",												// L10
+	NULL												// L11 (END)
+};

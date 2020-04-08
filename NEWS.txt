@@ -1,2 +1,5 @@
+April, 8 2020
+- Add facility in NTerminal to generate NanoOS Application in Visual Studio C++ 2008 Express Edition
+
 March, 31 2020
 - Add NPortSvc service and its library that allow access to NanoOS Port from multiple processes.

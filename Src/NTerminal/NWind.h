@@ -17,6 +17,7 @@
 #include "NTerminal.h"
 #include "NInstaller.h"
 #include "NPort.h"
+#include "NAppGen.h"
 
 #include "..\NPortSvc\NSvcControl.h"
 
@@ -68,8 +69,8 @@ private:
 	UsbIoMode			m_PrevIoMode;
 
 	VDisplay			m_VDisp;
-
 	NSvcControl			m_SvcCtl;
+	NAppGen				m_AppGen;
 
 	static LRESULT CALLBACK _WindProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm);
 	static INT_PTR CALLBACK _AboutDlgProc(HWND hWnd, UINT uMsg, WPARAM wParm, LPARAM lParm);

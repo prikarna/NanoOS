@@ -185,6 +185,8 @@ bool NWind::Create(HINSTANCE hInst)
 
 	m_VDisp.OnInput = new EventHandler<VDisplay::InputData *>(this, &NWind::_HandleOnVDisplayInput);
 
+	m_AppGen.Initialize();
+
 	return true;
 }
 
@@ -450,6 +452,14 @@ void NWind::_HandleCommand(WPARAM wParm, LPARAM lParm)
 
 	case DKM_APP_UPDATE_CONS_MENU:
 		m_fNeedUpdateMenu = true;
+		break;
+
+	case DKM_GEN_CODE:
+		if (m_AppGen.Generate(m_hWnd, true)) {
+			m_Console.Printf(_T("Successfully generate NanoOS Application Solution/Project in %s.\r\n"), m_AppGen.GetProjectPath());
+		} else {
+			m_Console.Printf(_T("Generate code failed!\r\n"));
+		}
 		break;
 
 	case DKM_APP_EXIT:
@@ -870,8 +880,6 @@ void NWind::_HandleOnInstallError(const TCHAR *szErrMsg)
 
 INT_PTR CALLBACK NWind::_AboutDlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM lParm)
 {
-	HWND	hWnd;
-	RECT	rcPar, rcDlg, rc;
 	HWND	hStat;
 	TCHAR	szBuf[256];
 
@@ -883,24 +891,6 @@ INT_PTR CALLBACK NWind::_AboutDlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM
 		hStat = GetDlgItem(hDlg, DKC_STATIC_2);
 		if (hStat) {
 			SetWindowText(hStat, szBuf);
-		}
-		hWnd = GetParent(hDlg);
-		if (hWnd) {
-			GetWindowRect(hWnd, &rcPar);
-			GetWindowRect(hDlg, &rcDlg);
-			CopyRect(&rc, &rcPar);
-			OffsetRect(&rcDlg, -rcDlg.left, -rcDlg.top);
-			OffsetRect(&rc, -rc.left, -rc.top);
-			OffsetRect(&rc, -rcDlg.right, -rcDlg.bottom);
-			SetWindowPos(
-						hDlg,
-						HWND_TOP,
-						(rcPar.left + (rc.right / 2)),
-						(rcPar.top + (rc.bottom / 2)),
-						0,
-						0,
-						SWP_NOSIZE
-						);
 		}
 		return (INT_PTR)TRUE;
 
