@@ -4,7 +4,8 @@
  *
  */
 
-#include "Type.h"
+#include "Sys\Type.h"
+
 #include "UsbData.h"
 #include "UsbSerial.h"
 

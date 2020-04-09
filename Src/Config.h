@@ -7,7 +7,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "Type.h"
+#include "Sys\Type.h"
 
 #pragma pack(push)
 #pragma pack(1)

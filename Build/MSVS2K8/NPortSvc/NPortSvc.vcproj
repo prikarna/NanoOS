@@ -263,10 +263,6 @@
 			RelativePath="..\..\..\Src\NPortSvc\NSvcLogMsg.mc"
 			>
 		</File>
-		<File
-			RelativePath=".\Temp.txt"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

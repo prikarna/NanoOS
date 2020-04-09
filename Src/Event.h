@@ -7,7 +7,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include "Type.h"
+#include "Sys\Type.h"
 
 #define EVT__MAX_EVENTS			64
 

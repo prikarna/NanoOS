@@ -7,7 +7,7 @@
 #ifndef USBSERIAL_H
 #define USBSERIAL_H
 
-#include "Type.h"
+#include "Sys\Type.h"
 
 #define USBSER_VID						0x6A16
 #define USBSER_PID						0x0230

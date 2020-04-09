@@ -47,4 +47,15 @@ typedef char *				INT8_PTR_T;
 # error va_xxx must be defined for other compiler or include related header which define them, e.g., stdarg.h
 #endif  // End of __GNUC__
 
+#ifndef _IN
+# define _IN
+# define _OUT
+# define _IN_OPT
+# define _OUT_OPT
+#endif
+
+#ifndef NULL
+# define NULL		0
+#endif
+
 #endif  // End of TYPE_H

@@ -7,7 +7,7 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#include "Type.h"
+#include "Sys\Type.h"
 #include "ThreadDef.h"
 #include "Exception.h"
 #include "Address.h"

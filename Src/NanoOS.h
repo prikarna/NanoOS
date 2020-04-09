@@ -19,7 +19,7 @@
 #define PROG_MN_VER			(PROG_VER & 0xFF)
 #define TGT_CHIP_STR		"Stm32f10XXX"
 
-#include "Type.h"
+#include "Sys\Type.h"
 
 /*
  * Usart

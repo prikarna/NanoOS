@@ -4,7 +4,7 @@
  *
  */
 
-#include "Type.h"
+#include "Sys\Type.h"
 
 void NMemCopy(UINT8_PTR_T pDst, UINT8_PTR_T pSrc, UINT32_T uLen)
 {

@@ -7,7 +7,7 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "Type.h"
+#include "Sys\Type.h"
 
 #define CONS_VER		0x0101
 #define CONS_MJ_VER		((CONS_VER >> 8) & 0xFF)

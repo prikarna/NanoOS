@@ -184,10 +184,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\Type.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\Src\UsbData.h"
 				>
 			</File>

@@ -17,8 +17,8 @@
 #include "Sys\CortexM\SysTick.h"
 #include "Sys\Stm\Gpio.h"
 #include "Sys\Stm\Rcc.h"
+#include "Sys\Type.h"
 
-#include "Type.h"
 #include "NanoOS.h"
 #include "Thread.h"
 #include "Service.h"
