@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 #include "..\Sys\CortexM\Asm.h"
-#include "..\Type.h"
+#include "..\Sys\Type.h"
 #include "..\ServiceDef.h"
 
 #define APP_SEGMENT_ATTR			__attribute__ ((section(".nanoos_application")))
