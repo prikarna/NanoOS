@@ -9,7 +9,7 @@
 #ifndef NPORTLIBVER_H
 #define NPORTLIBVER_H
 
-#define NPORTLIBVER			1,0,1,124
-#define NPORTLIBVER_STR		_T("1.0.1.124")
+#define NPORTLIBVER			1,0,1,125
+#define NPORTLIBVER_STR		_T("1.0.1.125")
 
 #endif		// End of NPORTLIBVER_H
