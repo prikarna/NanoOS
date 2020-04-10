@@ -705,6 +705,7 @@ bool NAppGen::Generate(HWND hWnd, bool fOverwrite)
 						(LPARAM) this
 						);
 		if (iRes == DKGC_BTN_CANCEL) {
+			m_dwError = ERROR_CANCELLED;
 			break;
 		}
 
@@ -755,4 +756,9 @@ const TCHAR * NAppGen::GetProjectPath()
 #else
 	return &(m_szProjPath[0]);
 #endif
+}
+
+DWORD NAppGen::GetError()
+{
+	return m_dwError;
 }

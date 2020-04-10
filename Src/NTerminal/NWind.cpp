@@ -458,7 +458,11 @@ void NWind::_HandleCommand(WPARAM wParm, LPARAM lParm)
 		if (m_AppGen.Generate(m_hWnd, true)) {
 			m_Console.Printf(_T("Successfully generate NanoOS Application Solution/Project in %s.\r\n"), m_AppGen.GetProjectPath());
 		} else {
-			m_Console.Printf(_T("Generate code failed!\r\n"));
+			if (m_AppGen.GetError() == ERROR_CANCELLED) {
+				m_Console.AppendText(_T("Operation cancelled!\r\n"));
+			} else {
+				m_Console.Printf(_T("Generate code failed! (%d)\r\n"), m_AppGen.GetError());
+			}
 		}
 		break;
 

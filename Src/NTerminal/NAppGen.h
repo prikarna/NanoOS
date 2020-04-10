@@ -19,6 +19,7 @@ public:
 	bool Generate(HWND hWnd, bool fOverwrite);
 	bool Initialize();
 	const TCHAR * GetProjectPath();
+	DWORD GetError();
 
 private:
 	CHAR			m_szSlnName[256];
