@@ -42,7 +42,7 @@ public:
 	bool IsInstalled(bool & bResult);
 	bool GetStatus(NSvcControl::SvcStatus & Status);
 
-	Event<const TCHAR *>	OnError;
+	Event<NSvcControl, const TCHAR *>	OnError;
 
 private:
 	SC_HANDLE		m_hSvcMgr;

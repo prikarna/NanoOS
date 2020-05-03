@@ -51,7 +51,7 @@ public:
 					);
 	DWORD GetError();
 
-	Event<bool>		ConnectionChanged;
+	Event<NPortClient, bool>		ConnectionChanged;
 
 private:
 	volatile HANDLE		m_hDevEventTh;

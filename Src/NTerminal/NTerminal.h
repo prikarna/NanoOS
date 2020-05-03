@@ -66,7 +66,7 @@ public:
 	Desc.			: Triggered when a user type a char to terminal.
 	Handler param.	: A char (char type).
 */
-	Event<CHAR>							OnChar;
+	Event<NTerminal, CHAR>							OnChar;
 
 /*
 	Funct.	: Create

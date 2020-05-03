@@ -154,35 +154,35 @@ public:
 	Desc.			: Triggered when data received. ReadEvent property must be set to true. (default: true).
 	Handler param.	: multibyte string or byte stream data.
 */
-	Event<char *>					OnDataReceived;
+	Event<NPort, char *>					OnDataReceived;
 
 /*
 	Event			: OnError
 	Desc.			: Triggered when an error ocuured.
 	Handler param.	: string of error message.
 */
-	Event<const TCHAR *>			OnError;
+	Event<NPort, const TCHAR *>			OnError;
 
 /*
 	Event			: OnEnumCOM
 	Desc.			: Triggered EnumCom function found a serial or COM port.
 	Handler param.	: string of serial or COM name.
 */
-	Event<const TCHAR *>			OnEnumCOM;
+	Event<NPort, const TCHAR *>			OnEnumCOM;
 
 /*
 	Event			: OnDeviceChange
 	Desc.			: Triggered when auto detection is enabled and when device connect or disconnect.
 	Handler param.	: true if device is connected or otherwise false.
 */
-	Event<bool>						OnDeviceChange;
+	Event<NPort, bool>						OnDeviceChange;
 
 /*
 	Event			: OnFormatedReadData
 	Desc.			: Triggered when FormatedReadData is set to true.
 	Handler param.	: Pointer to NPort::ReadDataFormat.
 */
-	Event<NPort::ReadDataFormat *>	OnFormatedReadData;
+	Event<NPort, NPort::ReadDataFormat *>	OnFormatedReadData;
 
 /*
 	Prop.		: Handle.

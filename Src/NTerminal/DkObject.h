@@ -36,12 +36,12 @@ public :
  * a class need to do something about it. This event handler class template is used to assign a 
  * void member function of a class or an object.
  */
-template <typename EventArgumentType=int>
+template <typename ArgumentType=int>
 class EventHandler
 {
 public:
 	EventConsumer *			_Consumer;
-	void (EventConsumer:: *	_ConsumerHandler)(EventArgumentType);
+	void (EventConsumer:: *	_ConsumerHandler)(ArgumentType);
 	void (EventConsumer:: *	_ConsumerHandlerNoArg)();
 
 	/* 
@@ -49,10 +49,10 @@ public:
 	 * Note that assigment below may violate any C++ standard.
 	 */
 	template <typename Consumer>
-	EventHandler<EventArgumentType>(Consumer * ConsumerObject, void (Consumer:: * ConsumerHandler)(EventArgumentType))
+	EventHandler<ArgumentType>(Consumer * ConsumerObject, void (Consumer:: * ConsumerHandler)(ArgumentType))
 	{
 		_Consumer					= dynamic_cast<EventConsumer *>(ConsumerObject);
-		_ConsumerHandler			= reinterpret_cast<void (EventConsumer:: *)(EventArgumentType)>(ConsumerHandler);
+		_ConsumerHandler			= reinterpret_cast<void (EventConsumer:: *)(ArgumentType)>(ConsumerHandler);
 
 		_ConsumerHandlerNoArg		= 0;
 
@@ -63,7 +63,7 @@ public:
 	 * Note that assigment below may violate any C++ standard.
 	 */
 	template <typename Consumer>
-	EventHandler<EventArgumentType>(Consumer * ConsumerObject, void (Consumer:: * ConsumerHandler)())
+	EventHandler<ArgumentType>(Consumer * ConsumerObject, void (Consumer:: * ConsumerHandler)())
 	{
 		_Consumer					= dynamic_cast<EventConsumer *>(ConsumerObject);
 		_ConsumerHandlerNoArg		= reinterpret_cast<void (EventConsumer:: *)()>(ConsumerHandler);
@@ -72,7 +72,7 @@ public:
 	};
 
 	/* D'tor */
-	~EventHandler<EventArgumentType>() {};
+	~EventHandler<ArgumentType>() {};
 };
 
 /*
@@ -92,17 +92,17 @@ public:
  *      EventConsumer class).
  * 
  */
-template <typename EventArgumentType=int>
+template <typename Owner, typename ArgumentType=int>
 class Event
 {
 private:
 	EventConsumer *			_Consumer;
-	void (EventConsumer:: *	_ConsumerHandler)(EventArgumentType);
+	void (EventConsumer:: *	_ConsumerHandler)(ArgumentType);
 	void (EventConsumer:: *	_ConsumerHandlerNoArg)();
-	void (*					_GlobalHandler)(EventArgumentType);
+	void (*					_GlobalHandler)(ArgumentType);
 	void (*					_GlobalHandlerNoArg)();
 
-	bool Fire(EventArgumentType Arg)
+	bool Fire(ArgumentType Arg)
 	{
 		bool	fRes = false;
 
@@ -140,16 +140,28 @@ private:
 		return fRes;
 	}
 
+	/* Fire or trigger an event with argument, only owner can fire an event */
+	bool operator() (ArgumentType Argument)
+	{
+		return Fire(Argument);
+	}
+
+	/* Fire or trigger an event wihtout argument, only owner can fire an event */
+	bool operator() ()
+	{
+		return Fire();
+	}
+
 public:
 	/* Assignment with a global void function with an argument */
-	Event<EventArgumentType>& operator= (void (* GlobalHandler)(EventArgumentType))
+	Event<Owner, ArgumentType>& operator= (void (* GlobalHandler)(ArgumentType))
 	{
 		_GlobalHandler = GlobalHandler;
 		return (*this);
 	}
 
 	/* Assignment with a global void function without argument */
-	Event<EventArgumentType>& operator= (void (* GlobalHandler)())
+	Event<Owner, ArgumentType>& operator= (void (* GlobalHandler)())
 	{
 		_GlobalHandlerNoArg = GlobalHandler;
 		return (*this);
@@ -158,7 +170,7 @@ public:
 	/*
 	 * Assignment with a new instance of EventHandler<EventArgumentType> class.
 	 */
-	Event<EventArgumentType>& operator= (EventHandler<EventArgumentType> * NewHandlerObject)
+	Event<Owner, ArgumentType>& operator= (EventHandler<ArgumentType> * NewHandlerObject)
 	{
 		if (NewHandlerObject) {
 			if (NewHandlerObject->_ConsumerHandler) 
@@ -181,22 +193,8 @@ public:
 		return (*this);
 	}
 
-	/* Fire or trigger an event with argument */
-	Event<EventArgumentType>& operator() (EventArgumentType Argument)
-	{
-		Fire(Argument);
-		return (*this);
-	}
-
-	/* Fire or trigger an event without argument */
-	Event<EventArgumentType>& operator() ()
-	{
-		Fire();
-		return (*this);
-	}
-
 	// C'tor
-	Event<EventArgumentType>()
+	Event<Owner, ArgumentType>()
 	{
 		_Consumer				= 0;
 		_ConsumerHandler		= 0;
@@ -206,16 +204,19 @@ public:
 	}
 
 	// D'tor
-	~Event<EventArgumentType>() {}
+	~Event<Owner, ArgumentType>() {}
+
+	/* Owner can access private members */
+	friend typename Owner;	// friend typename ..., may not comply with C++ standard
 };
 
 /*
  * Property class template.
  *
- * ClassUser can be any type of class who use this class template as class member. VariableType can be any 
+ * Owner or class user can be any type of class who use this class template as class member. VariableType can be any 
  * variable type and its pointer to those types.
- * Property class must be set to a setter and getter function of a class user (a class that use Property class
- * template as its member). This operation can be done in class user's constructor. Note that these setter and 
+ * Property class must be set to a setter and getter function of an owner or a class user (a class that use Property 
+ * class template as its member). This operation can be done in class user's constructor. Note that these setter and 
  * getter function can be a functions in global space or class user's member functions.
  * The setter function must be parameterized with VariableType. This setter function is called when the property
  * of class user is assigned to a varable type of VariableType.
@@ -225,18 +226,17 @@ public:
  * Note this class template may not work on some (untested) situations.
  *
  */
-template <typename ClassUser, typename VariableType=int>
+template <typename Owner, typename VariableType=int>
 class Property
 {
 private:
-	ClassUser *					_User;
-	void (ClassUser:: *			_UserSetter)(VariableType);
-	VariableType (ClassUser:: *	_UserGetter)();
+	Owner *						_Owner;
+	void (Owner:: *				_OwnerSetter)(VariableType);
+	VariableType (Owner:: *		_OwnerGetter)();
 	void (*						_GlobalSetter)(VariableType);
 	VariableType (*				_GlobalGetter)();
 	bool						_IsGlobal;
 
-public:
 	/*
 	 * Set a setter and a getter function of global space. 
 	 */
@@ -247,23 +247,23 @@ public:
 
 		_IsGlobal = true;
 
-		_User		= 0;
-		_UserSetter	= 0;
-		_UserGetter	= 0;
+		_Owner			= 0;
+		_OwnerSetter	= 0;
+		_OwnerGetter	= 0;
 	}
 
 	/*
 	 * Set a setter and a getter function of class user's member function.
 	 */
 	void Set(
-			ClassUser * ClassUserObject, 
-			void (ClassUser:: * UserSetter)(VariableType), 
-			VariableType (ClassUser:: * UserGetter)()
+			Owner * OwnerObject, 
+			void (Owner:: * OwnerSetter)(VariableType), 
+			VariableType (Owner:: * OwnerGetter)()
 			)
 	{
-		_User		= ClassUserObject;
-		_UserSetter = UserSetter;
-		_UserGetter = UserGetter;
+		_Owner			= OwnerObject;
+		_OwnerSetter	= OwnerSetter;
+		_OwnerGetter	= OwnerGetter;
 
 		_IsGlobal = false;
 
@@ -271,10 +271,11 @@ public:
 		_GlobalGetter	= 0;
 	}
 
+public:
 	/*
 	 * Assigment with a variable with type of VariableType.
 	 */
-	Property<ClassUser, VariableType>& operator= (VariableType Variable)
+	Property<Owner, VariableType>& operator= (VariableType Variable)
 	{
 		if (_IsGlobal) 
 		{
@@ -284,9 +285,9 @@ public:
 		}
 		else
 		{
-			if ((_User) && (_UserSetter))
+			if ((_Owner) && (_OwnerSetter))
 			{
-				(_User->*(_UserSetter))(Variable);
+				(_Owner->*(_OwnerSetter))(Variable);
 			}
 		}
 
@@ -310,24 +311,25 @@ public:
 		}
 		else
 		{
-			if ((_User) && (_UserGetter))
+			if ((_Owner) && (_OwnerGetter))
 			{
-				Var = (_User->*(_UserGetter))();
+				Var = (_Owner->*(_OwnerGetter))();
 			} 
 			else 
 			{
-				throw "Class user getter has not been set!";
+				throw "Owner or class user getter has not been set!";
 			}
 		}
 
 		return Var;
 	}
 
-	Property<ClassUser, VariableType>()
+	/* C'tor */
+	Property<Owner, VariableType>()
 	{
-		_User		= 0;
-		_UserSetter	= 0;
-		_UserGetter	= 0;
+		_Owner			= 0;
+		_OwnerSetter	= 0;
+		_OwnerGetter	= 0;
 
 		_IsGlobal = false;
 
@@ -335,5 +337,9 @@ public:
 		_GlobalGetter	= 0;
 	}
 
-	~Property<ClassUser, VariableType>() {}
+	/* D'tor */
+	~Property<Owner, VariableType>() {}
+
+	/* Owner can access private members */
+	friend typename Owner;
 };

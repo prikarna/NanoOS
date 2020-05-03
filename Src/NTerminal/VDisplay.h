@@ -73,7 +73,7 @@ public:
 	Desc.			: Triggered when a mouse click on virtual display.
 	Handler param.	: Pointer to VDisplay::InputData.
 */
-	Event<VDisplay::InputData *>		OnInput;
+	Event<VDisplay, VDisplay::InputData *>		OnInput;
 
 /*
 	Funct.	: Create

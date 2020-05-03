@@ -63,14 +63,14 @@ public:
 	Desc.			: Triggered when error occur.
 	Handler param.	: string error message.
 */
-	Event<const TCHAR *>		OnError;
+	Event<NInstaller, const TCHAR *>		OnError;
 
 /*
 	Event			: OnInstalling
 	Desc.			: Triggered when install operation is on progress.
 	Handler param.	: int variable of progress in percent (%).
 */
-	Event<>						OnInstalling;
+	Event<NInstaller>						OnInstalling;
 
 /*
 	Funct.  : bool Install(const TCHAR * szNanoOSIoName, const TCHAR * szAppFileName) 
