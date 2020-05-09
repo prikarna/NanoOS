@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		cout << "File " << szFileName << "doesn't not exist, ";
+		cout << "File " << szFileName << " does not exist, ";
 		cout << "try to create a new one... ";
 
 		FILE * f = 0;

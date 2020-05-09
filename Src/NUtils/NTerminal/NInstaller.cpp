@@ -5,7 +5,7 @@
  */
 
 #include "NInstaller.h"
-#include "..\UsbData.h"
+#include "..\..\UsbData.h"
 
 // C'tor
 NInstaller::NInstaller(void):

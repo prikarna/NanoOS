@@ -18,15 +18,15 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Generate version for $(Projectname)... "
-				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortLibVer.h NPORTLIBVER"
+				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\NUtils\$(ProjectName)\NPortLibVer.h NPORTLIBVER"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -63,7 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				ModuleDefinitionFile="$(SolutionDir)..\..\Src\$(ProjectName)\NPortLib.def"
+				ModuleDefinitionFile="$(SolutionDir)..\..\Src\NUtils\$(ProjectName)\NPortLib.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -92,8 +92,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -101,7 +101,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Generate version for $(Projectname)... "
-				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NPortLibVer.h NPORTLIBVER"
+				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\NUtils\$(ProjectName)\NPortLibVer.h NPORTLIBVER"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -138,7 +138,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				ModuleDefinitionFile="$(SolutionDir)..\..\Src\$(ProjectName)\NPortLib.def"
+				ModuleDefinitionFile="$(SolutionDir)..\..\Src\NUtils\$(ProjectName)\NPortLib.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -177,31 +177,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Debug.c"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\Debug.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NInstaller.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NInstaller.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NPort.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NPort.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NPortClient.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NPortClient.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortLib\NPortLib.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortLib\NPortLib.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortLib\NPortLib.def"
+				RelativePath="..\..\..\Src\NUtils\NPortLib\NPortLib.def"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\Protocol.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\Protocol.cpp"
 				>
 			</File>
 		</Filter>
@@ -211,31 +211,31 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NInstaller.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NInstaller.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NPort.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NPort.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NPortClient.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NPortClient.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortLib\NPortLib.h"
+				RelativePath="..\..\..\Src\NUtils\NPortLib\NPortLib.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortLib\NPortLibVer.h"
+				RelativePath="..\..\..\Src\NUtils\NPortLib\NPortLibVer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NPortName.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NPortName.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\Protocol.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\Protocol.h"
 				>
 			</File>
 		</Filter>
@@ -245,7 +245,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NPortLib\Res.rc"
+				RelativePath="..\..\..\Src\NUtils\NPortLib\Res.rc"
 				>
 			</File>
 		</Filter>

@@ -21,6 +21,7 @@
  * inheritance list class definition. This allow C++ compiler to do reinterpret_cast() between member 
  * function pointer safely (please see EventHandler class template definition) when assign an new instance 
  * of event handler on an event object.
+ *
  */
 class EventConsumer
 {
@@ -52,7 +53,8 @@ public:
 	EventHandler<ArgumentType>(Consumer * ConsumerObject, void (Consumer:: * ConsumerHandler)(ArgumentType))
 	{
 		_Consumer					= dynamic_cast<EventConsumer *>(ConsumerObject);
-		_ConsumerHandler			= reinterpret_cast<void (EventConsumer:: *)(ArgumentType)>(ConsumerHandler);
+		//_ConsumerHandler			= reinterpret_cast<void (EventConsumer:: *)(ArgumentType)>(ConsumerHandler);
+		_ConsumerHandler			= static_cast<void (EventConsumer:: *)(ArgumentType)>(ConsumerHandler);
 
 		_ConsumerHandlerNoArg		= 0;
 
@@ -66,7 +68,8 @@ public:
 	EventHandler<ArgumentType>(Consumer * ConsumerObject, void (Consumer:: * ConsumerHandler)())
 	{
 		_Consumer					= dynamic_cast<EventConsumer *>(ConsumerObject);
-		_ConsumerHandlerNoArg		= reinterpret_cast<void (EventConsumer:: *)()>(ConsumerHandler);
+		//_ConsumerHandlerNoArg		= reinterpret_cast<void (EventConsumer:: *)()>(ConsumerHandler);
+		_ConsumerHandlerNoArg		= static_cast<void (EventConsumer:: *)()>(ConsumerHandler);
 
 		_ConsumerHandler			= 0;
 	};

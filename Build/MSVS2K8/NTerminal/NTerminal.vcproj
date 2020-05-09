@@ -18,15 +18,15 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Generate version for $(ProjectName)... "
-				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NTermVer.h NTERMVER"
+				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\NUtils\$(ProjectName)\NTermVer.h NTERMVER"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -91,8 +91,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -100,7 +100,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Generate version for $(ProjectName)... "
-				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\$(ProjectName)\NTermVer.h NTERMVER"
+				CommandLine="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\VerGen\$(ConfigurationName)\VerGen $(SolutionDir)..\..\Src\NUtils\$(ProjectName)\NTermVer.h NTERMVER"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -175,47 +175,47 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Debug.c"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\Debug.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Main.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\Main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NAppGen.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NAppGen.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NAppGenStr.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NAppGenStr.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NInstaller.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NInstaller.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NPort.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NPort.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcControl.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcControl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcLog.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcLog.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NTerminal.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NTerminal.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NWind.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NWind.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\VDisplay.cpp"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\VDisplay.cpp"
 				>
 			</File>
 		</Filter>
@@ -225,55 +225,55 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Debug.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\Debug.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\DkObject.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\DkObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NAppGen.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NAppGen.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NInstaller.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NInstaller.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NPort.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NPort.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NPortName.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NPortName.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcControl.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcControl.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcLog.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcLog.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NTerminal.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NTerminal.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NTermVer.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NTermVer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NWind.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NWind.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\ResId.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\ResId.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\VDisplay.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\VDisplay.h"
 				>
 			</File>
 		</Filter>
@@ -283,7 +283,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Res.rc"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\Res.rc"
 				>
 			</File>
 		</Filter>

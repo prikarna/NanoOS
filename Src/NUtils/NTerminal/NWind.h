@@ -21,8 +21,8 @@
 
 #include "..\NPortSvc\NSvcControl.h"
 
-#include "..\UsbData.h"
-#include "..\Application\VDispData.h"
+#include "..\..\UsbData.h"
+#include "..\..\Application\VDispData.h"
 
 class NWind:
 	public EventConsumer

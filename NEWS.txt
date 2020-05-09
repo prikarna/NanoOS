@@ -1,5 +1,11 @@
+May, 8 2020
+- Restructure the project, seperate NanoOS and it's utilities solution file.
+
+May, 4 2020
+- Enforce Event and Property object policy: The object owner can access private member.
+
 April, 8 2020
-- Add facility in NTerminal to generate NanoOS Application in Visual Studio C++ 2008 Express Edition
+- Add facility in NTerminal to generate NanoOS Application in Visual Studio C++ 2008 Express Edition.
 
 March, 31 2020
 - Add NPortSvc service and its library that allow access to NanoOS Port from multiple processes.

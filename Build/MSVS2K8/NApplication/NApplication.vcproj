@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\Application"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\$(ProjectName)"
+			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\Application\$(ProjectName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\Application\$(ProjectName)"
 			ConfigurationType="0"
 			>
 			<Tool
@@ -38,8 +38,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\Application"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\$(ProjectName)"
+			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\Application\$(ProjectName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\Application\$(ProjectName)"
 			ConfigurationType="0"
 			>
 			<Tool

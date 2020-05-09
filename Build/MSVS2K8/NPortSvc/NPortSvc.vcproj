@@ -18,15 +18,15 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Generate eventlog resource and version for $(Projectname)... "
-				CommandLine="set SRC_DIR=$(SolutionDir)..\..\Src\$(ProjectName)&#x0D;&#x0A;set BIN_DIR=$(SolutionDir)..\..\..\NanoOSOut\Bin\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;set OBJ_DIR=$(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.rc del %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.res del %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;if exist %BIN_DIR%\NSvcLogMsg.dll del %BIN_DIR%\NSvcLogMsg.dll&#x0D;&#x0A;&#x0D;&#x0A;mc -U -h %SRC_DIR%\ -r %OBJ_DIR%\ %SRC_DIR%\NSvcLogMsg.mc&#x0D;&#x0A;rc -r /fo %OBJ_DIR%\NSvcLogMsg.res %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;link -dll -noentry -out:%BIN_DIR%\NSvcLogMsg.dll %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;&#x0D;&#x0A;$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen %SRC_DIR%\NPortSvcVer.h NPORTSVCVER&#x0D;&#x0A;"
+				CommandLine="set SRC_DIR=$(SolutionDir)..\..\Src\NUtils\$(ProjectName)&#x0D;&#x0A;set BIN_DIR=$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;set OBJ_DIR=$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;&#x0D;&#x0A;if not exist $(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName) mkdir $(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)&#x0D;&#x0A;if not exist $(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName) mkdir $(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)&#x0D;&#x0A;if not exist %BIN_DIR% mkdir %BIN_DIR%&#x0D;&#x0A;if not exist %OBJ_DIR% mkdir %OBJ_DIR%&#x0D;&#x0A;&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.rc del %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.res del %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;if exist %BIN_DIR%\NSvcLogMsg.dll del %BIN_DIR%\NSvcLogMsg.dll&#x0D;&#x0A;&#x0D;&#x0A;mc -U -h %SRC_DIR%\ -r %OBJ_DIR%\ %SRC_DIR%\NSvcLogMsg.mc&#x0D;&#x0A;rc -r /fo %OBJ_DIR%\NSvcLogMsg.res %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;link -dll -noentry -out:%BIN_DIR%\NSvcLogMsg.dll %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;&#x0D;&#x0A;$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\VerGen\$(ConfigurationName)\VerGen %SRC_DIR%\NPortSvcVer.h NPORTSVCVER&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -91,8 +91,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -100,7 +100,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Generate event log resource and version for $(Projectname)... "
-				CommandLine="set SRC_DIR=$(SolutionDir)..\..\Src\$(ProjectName)&#x0D;&#x0A;set BIN_DIR=$(SolutionDir)..\..\..\NanoOSOut\Bin\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;set OBJ_DIR=$(SolutionDir)..\..\..\NanoOSOut\Objs\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.rc del %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.res del %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;if exist %BIN_DIR%\NSvcLogMsg.dll del %BIN_DIR%\NSvcLogMsg.dll&#x0D;&#x0A;&#x0D;&#x0A;mc -U -h %SRC_DIR%\ -r %OBJ_DIR%\ %SRC_DIR%\NSvcLogMsg.mc&#x0D;&#x0A;rc -r /fo %OBJ_DIR%\NSvcLogMsg.res %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;link -dll -noentry -out:%BIN_DIR%\NSvcLogMsg.dll %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;&#x0D;&#x0A;$(SolutionDir)..\..\..\NanoOSOut\Bin\VerGen\$(ConfigurationName)\VerGen %SRC_DIR%\NPortSvcVer.h NPORTSVCVER&#x0D;&#x0A;"
+				CommandLine="set SRC_DIR=$(SolutionDir)..\..\Src\NUtils\$(ProjectName)&#x0D;&#x0A;set BIN_DIR=$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;set OBJ_DIR=$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)&#x0D;&#x0A;&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.rc del %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;if exist %OBJ_DIR%\NSvcLogMsg.res del %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;if exist %BIN_DIR%\NSvcLogMsg.dll del %BIN_DIR%\NSvcLogMsg.dll&#x0D;&#x0A;&#x0D;&#x0A;mc -U -h %SRC_DIR%\ -r %OBJ_DIR%\ %SRC_DIR%\NSvcLogMsg.mc&#x0D;&#x0A;rc -r /fo %OBJ_DIR%\NSvcLogMsg.res %OBJ_DIR%\NSvcLogMsg.rc&#x0D;&#x0A;link -dll -noentry -out:%BIN_DIR%\NSvcLogMsg.dll %OBJ_DIR%\NSvcLogMsg.res&#x0D;&#x0A;&#x0D;&#x0A;$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\VerGen\$(ConfigurationName)\VerGen %SRC_DIR%\NPortSvcVer.h NPORTSVCVER&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -175,31 +175,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Debug.c"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\Debug.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\Main.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\Main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NPortServer.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NPortServer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NPortSvc.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NPortSvc.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NService.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NService.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcLog.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcLog.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\Protocol.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\Protocol.cpp"
 				>
 			</File>
 		</Filter>
@@ -209,43 +209,43 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\Debug.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\Debug.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NTerminal\NPortName.h"
+				RelativePath="..\..\..\Src\NUtils\NTerminal\NPortName.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NPortServer.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NPortServer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NPortSvc.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NPortSvc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NPortSvcVer.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NPortSvcVer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NService.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NService.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcLog.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcLog.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcLogMsg.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcLogMsg.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\NSvcName.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcName.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\Protocol.h"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\Protocol.h"
 				>
 			</File>
 		</Filter>
@@ -255,12 +255,12 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NPortSvc\Res.rc"
+				RelativePath="..\..\..\Src\NUtils\NPortSvc\Res.rc"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\..\Src\NPortSvc\NSvcLogMsg.mc"
+			RelativePath="..\..\..\Src\NUtils\NPortSvc\NSvcLogMsg.mc"
 			>
 		</File>
 	</Files>

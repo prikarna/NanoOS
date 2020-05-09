@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\NPortLib\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\NPortLib\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\NPortLib\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -90,8 +90,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\NPortLib\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\NPortLib\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)..\..\..\NanoOSOut\Bin\$(SolutionName)\NPortLib\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\NanoOSOut\Objs\$(SolutionName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -172,7 +172,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\Src\NPortLib\NPortLibTest.cpp"
+				RelativePath="..\..\..\Src\NUtils\NPortLib\NPortLibTest.cpp"
 				>
 			</File>
 		</Filter>

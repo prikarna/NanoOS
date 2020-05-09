@@ -26,6 +26,7 @@ Here's some of gcc characteristics used by NanoOS:
 - gcc uses R7 (register 7) as base frame of a function.
 
 Bulding:
+--------
 1. Create a new directory in a drive, for example D:\Dev. The bulding process will 
    use this directory as root of build process.
 2. Download the sources from this link:
@@ -43,7 +44,7 @@ Bulding:
    step 3 ('git clone' command will download per files, no need for extraction).
 3. Extract the packect to a directory, for example: D:\Dev\NanoOS. This directory
    will contain three directories: 
-   - Build : contain build environment to build NanoOS, NanoOS application and NTerminal.
+   - Build : contain build environment to build NanoOS, NanoOS application and etc..
    - Icons : contain icons of NTerminal.
    - Src   : contain the source code.
 4. Open NanoOS solution file (NanoOS.sln) with Visual Studio. In above root directory
@@ -59,7 +60,7 @@ Bulding:
    the directory above <root build dir> with new directory name 'NanoOSOut', in 
    this example; build root directory is D:\Dev\NanoOS and the output directory 
    will be D:\Dev\NanoOSOut. If you build all projects and success, then it will 
-   produce five kinds of ouput:
+   produce two kinds of ouput:
    a. NanoOS binary (NanoOS.bin and NanoOS.elf).
       This is NanoOS binary. In this example this file is located in 
       D:\Dev\NanoOSOut\Bin\NanoOS directory.
@@ -67,20 +68,23 @@ Bulding:
       For example: NApplication.bin, LockedPrin.bin etc. and this files can be installed 
       to NanoOS as application. In this example this files should be in 
       D:\Dev\NanoOSOut\Bin\Application directory
-   c. NTerminal.exe (for now only tested on Window XP). 
-      A terminal program specifically to access or interract with NanoOS. In this example 
-      this file should be in 
-      D:\Dev\NanoOSOut\Bin\NTerminal\Debug directory for Visual Studio's debug target 
-      or in D:\Dev\NanoOSOut\Bin\NTerminal\Release directory for release target.
-   d. NanoOS Port library or NPortLib (NPortLib.dll, NPortLib.lib and NPortLibTest.exe).
-      A simple library to access NanoOS Port, as serial (COM) port on PC for several 
-      progamming language. NPortLibTest.exe is a simple application demonstrate how to
-      use NPortLib.
-   e. NanoOS Port service (NPortSvc.exe and NPortSvcTest.exe). This service share NanoOS
-      Port amongs PC applications (or processes). Note that for now this service doesn't
-      provide any security feature. To test NPortSvc use the NPortSvcTest and Echo project 
-      included in this packet.
       
+NUtils:
+-------
+Is a group of utilities for NanoOS, consist of:
+1. NTerminal.exe (for now only tested on Window XP). 
+   A terminal program specifically to access or interract with NanoOS.
+2. NanoOS Port library or NPortLib (NPortLib.dll, NPortLib.lib and NPortLibTest.exe).
+   A simple library to access NanoOS Port, as serial (COM) port on PC for several 
+   progamming language.
+3. NanoOS Port service (NPortSvc.exe and NPortSvcTest.exe). 
+   This service share NanoOS Port amongs PC applications (or processes). Note that 
+   for now this service doesn't provide any security feature.
+
+To build NUtils, just open NUtils.sln in extracted directory, in the above example this 
+directory is D:\Dev\NanoOS\Build\MSVS2K8. And choose the project you want to build, right
+click it and and then click 'Build'. The build process will put the exe's and/or dll's files 
+to directory D:\Dev\NanoOSOut\Bin\NUtils
 
 =======
 INSTALL
@@ -111,7 +115,7 @@ C. NTerminal
    
 D. NPortLib
    No special installation procedure, basically PC application who want to use it must 'know' the location
-   of this library.
+   of this library. Please see NPortLibTest project for the example how to use this library.
    
 E. NPortSvc
    You can install this service via NTerminal, in the menu click: 'Options' - 'NanoOS Port Service' - 'Install'

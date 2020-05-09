@@ -7,8 +7,8 @@
 TGT_NAME			= VDispTest
 
 SRCS_DIR			= $(ROOT_DIR)\Src\Application
-OUT_BIN_DIR			= $(OUT_DIR)\Bin\Application
-OUT_OBJ_DIR			= $(OUT_DIR)\Objs\$(TGT_NAME)
+OUT_BIN_DIR			= $(OUT_DIR)\Bin\Application\$(TGT_NAME)
+OUT_OBJ_DIR			= $(OUT_DIR)\Objs\Application\$(TGT_NAME)
 
 TGT					= $(TGT_NAME).bin
 ELF					= $(TGT_NAME).elf
