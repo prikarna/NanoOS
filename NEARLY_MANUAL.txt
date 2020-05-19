@@ -303,6 +303,8 @@ in the above exmple GCC_BIN_DIR is D:\Dev\gcc, and then use Makefile in the sour
 For a start please take a look to NanoStd project included in NanoOS solution. This project demonstrate how to write 
 application in C++. It create some short of standard input and output using USB Serial IO, so user can 'communicate'
 with the program through it.
+Note that eventhough NanoOS doesn't support C++ exception, C++ code can still use SetProbe()/ResetProbe() to handle 
+fault and/or simulate C++ exception in the modest manner.
 Since NanoOS don't provide dynamic memory allocation, application can't use 'new' and 'delete' operator 'blindly'. To 
 overcome that, use the class as some short variable in the global and/or local space, as the following example:
 In the header file define a class and state an object that already allocated in the other source file or in the 
