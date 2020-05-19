@@ -290,6 +290,147 @@ NanoOS API doesn't support to be called in exception or interrupt handler. Note 
 NanoOS.h suitable for the application.
 
 
+=================================
+Writing NanoOS Application In C++
+---------------------------------
+Now NanoOS support application that written in C++ but unfortunately it comes with some restrictions:
+1. Can't use compiler's exceptions (-fno-exceptions option)
+2. Can't use compiler's RTTI (run time type info) (-fno-rtti option) and in consiquence: type casting may not work 
+   as you expected.
+Writing application in C++ on NanoOS is basically the same as writing application in C on NanoOS (please see the 
+above section: 'Writing NanoOS Application'). In addition you need to copy g++.exe and cc1plus.exe file to GCC_BIN_DIR,
+in the above exmple GCC_BIN_DIR is D:\Dev\gcc, and then use Makefile in the source tree to compile C++ code.
+For a start please take a look to NanoStd project included in NanoOS solution. This project demonstrate how to write 
+application in C++. It create some short of standard input and output using USB Serial IO, so user can 'communicate'
+with the program through it.
+Since NanoOS don't provide dynamic memory allocation, application can't use 'new' and 'delete' operator 'blindly'. To 
+overcome that, use the class as some short variable in the global and/or local space, as the following example:
+In the header file define a class and state an object that already allocated in the other source file or in the 
+implementation file.
++------------------------------------------+
+// File: Test.h
+// Desc.: Test class definition
+
+class Test
+{
+private:
+	int	i;
+	
+public:
+	Test();
+	~Test();
+	void Set(int a);
+};
+
+extern Test	TestInst1;	// Tell the compiler that there is an already allocated object in the other 
+						// source file
+...
++-----------------------------------------+
+
+In the implemenation file you declare an object, Test object in this case, as global variable, as follows:
++-----------------------------------------+
+// File : Test.cpp
+// Desc. : Implementation of Test class
+
+Test TestInst1;		// declare this to allocate Test object as TestInst1 variable
+
+Test::Test() 
+{
+	i = 0;
+}
+
+Test::~Test() {}
+
+void Test::Set(int a) 
+{
+	i = a;
+}
+...
++----------------------------------------+
+
+In this way, if you want to use Test class in another source file, just include the header, Test.h, and 
+then use TestInst1 as follows:
++----------------------------------------+
+...
+#include "Test.h"
+
+int main(int argc, char *argv[])
+{
+	TestInst1.Set(20);
+	return 20;
+}
+...
++----------------------------------------+
+
+Or alternatively, declare another object if we don't want to use currently allocated object as follows:
++----------------------------------------+
+...
+#include "Test.h"
+
+Test	TestInts2;		// declare Test obejct as TestInst2 variable
+
+int main(int argc, char *argv[])
+{
+	TestInst2.Set(20);
+	return 20;
+}
+...
++----------------------------------------+
+
+Please note that if every time you declare new Test object as variable, it will consume more resources,
+which you probably don't want to because you have relatively small resources.
+If, for some reason, you want to use 'new' and 'delete' operator, overload 'new' and 'delete' operator
+with relevan procedure. For example you can implement 'single new instance object' model: everytime you 
+use or call 'new' operator it will point to the same already declared or allocated object as the following
+examples:
+Define a class in a header:
++----------------------------------------+
+// File: Test.h
+// Desc.: Test class definition
+
+class Test
+{
+private:
+	int	i;
+	
+public:
+	Test();
+	~Test();
+	void Set(int a);
+	
+	void *operator new(unsigned int uiSize);	// Overload new operator
+	void operator delete(void * pObj);			// Overload delete operator
+};
+...
++----------------------------------------+
+
+And the Test class implemtation as follows:
++----------------------------------------+
+// File : Test.cpp
+// Desc. : Implementation of Test class
+
+Test TestInst1;		// declare this to allocate Test object as TestInst1 variable
+
+/*
+ * return the pointer to currently allocated object (TestInst1)
+ */
+void * Test::operator new(unsigned int uiSize)
+{
+	return (void *) &TestInst1;
+}
+
+/* No need deletion procedure (just 'empty' function), because this is 'single new instance' model */
+void Test::operator delete(void *pObj)
+{
+}
+...
++----------------------------------------+
+
+To be more clear, please take a look a project called UsbIo in NanoOS solution. This project purpose is
+to create some short of interface between PC application and the controllers available on chipset. This 
+project use that 'single new instance' model above.
+
+
 ============================================================
 Using NanoOS Port Library (NPortLib.lib and/or NPortLib.dll)
 ------------------------------------------------------------

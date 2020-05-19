@@ -10,6 +10,10 @@
 
 #include "..\Bit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define TIM1_BASE				0x40012C00
 #define TIM2_BASE				0x40000000
 #define TIM3_BASE				0x40000400
@@ -241,5 +245,9 @@
 #define TIM_SET_DMA_BASE_ADDR(TimNo, Addr)					SET_IO_BITS((TimNo + TIM_DCR_OFFSET), BIT_0, BITMASK_5, Addr)
 
 #define TIM_SET_DMA_ADDR_FOR_FULL_TRANS(TimNo, Addr)		SET_IO_BITS((TimNo + TIM_DMAR_OFFSET), BIT_0, BITMASK_16, Addr)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // End of TIMER_H

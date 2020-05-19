@@ -11,6 +11,10 @@
 #include "..\Type.h"
 #include "..\Bit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define USB_BASE		0x40005C00		// USB Full Speed device registers
 
 #define USB_EP0R		0x40005C00		// (USB_BASE + 0x00)
@@ -442,5 +446,9 @@
 
 #define USB_EP_CTL_EX(EpRegNo, EpAddr, EpCtlExCode)			\
 	IO_MEM32(USB_EP_REG_ADDR(EpRegNo)) = (EpCtlExCode | (EpAddr & 0xF))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // End of USB_H

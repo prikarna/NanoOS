@@ -10,6 +10,10 @@
 #include "..\Type.h"
 #include "..\Bit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NVIC_BASE		0xE000E100
 
 #define NVIC_ISER0		(NVIC_BASE + 0x000)
@@ -142,5 +146,9 @@
 	SET_IO_BITS(NVIC_PRIO__REG_ADDR(NvicIrq), NVIC_PRIO__NTH_BIT(NvicIrq), BITMASK_4, NvicPrio)
 
 #define NVIC_SOFT_TRIG_INT(NvicIrq)				SET_IO_BITS(NVIC_STIR, BIT_0, BITMASK_9, NvicIrq)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif   // End of NVIC_H

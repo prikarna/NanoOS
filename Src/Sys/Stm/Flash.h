@@ -11,6 +11,10 @@
 #include "..\Type.h"
 #include "..\Bit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define FLASH_ACR				0x40022000		// 0x4002 2003 4
 #define FLASH_KEYR				0x40022004		// 0x4002 2007 4
 #define FLASH_OPTKEYR			0x40022008		// 0x4002 200B 4
@@ -86,5 +90,9 @@
 #define FLASH_ENABLE_RESET_ON_STANDBY()					CLR_IO_BIT(FLASH_OB0, BIT_18)
 #define FLASH_SET_OPTION_BYTE_DATA0(Value)				SET_IO_BITS(FLASH_OB1, BIT_0, BITMASK_8, Value)
 #define FLASH_SET_OPTION_BYTE_DATA1(Value)				SET_IO_BITS(FLASH_OB1, BIT_16, BITMASK_8, Value)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // End of FLASH_H

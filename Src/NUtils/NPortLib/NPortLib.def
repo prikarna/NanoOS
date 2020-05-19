@@ -7,6 +7,7 @@ EXPORTS
 	NPL_Read
 	NPL_IsOpen
 	NPL_GetErrorCode
+	NPL_Purge
 	NPL_InstallNApplication
 	NPL_IsInstalling
 	NPL_CancelInstall

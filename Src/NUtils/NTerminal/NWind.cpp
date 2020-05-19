@@ -187,6 +187,8 @@ bool NWind::Create(HINSTANCE hInst)
 
 	m_AppGen.Initialize();
 
+	//m_SvcCtl.OnError = new EventHandler<const TCHAR *>(this, &NWind::_HandleOnSvcControlError);
+
 	return true;
 }
 
@@ -1460,4 +1462,9 @@ bool NWind::_StopService()
 	}
 
 	return bRes;
+}
+
+void NWind::_HandleOnSvcControlError(const TCHAR *szErr)
+{
+	m_Console.AppendText(szErr);
 }

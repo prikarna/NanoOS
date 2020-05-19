@@ -221,6 +221,49 @@ unsigned long NPL_GetErrorCode()
 }
 
 NPORTLIB
+int NPL_Purge(enum NPL_PurgeOption Option)
+{
+	NPort::PurgeOption	Opt;
+	switch (Option)
+	{
+	case NPLPurge_RxAbort:
+		Opt = NPort::PurgeOption_RxAbort;
+		break;
+
+	case NPLPurge_RxClear:
+		Opt = NPort::PurgeOption_RxClear;
+		break;
+
+	case NPLPurge_TxAbort:
+		Opt = NPort::PurgeOption_TxAbort;
+		break;
+
+	case NPLPurge_TxClear:
+		Opt = NPort::PurgeOption_TxClear;
+		break;
+
+	case NPLPurge_RxTxAbort:
+		Opt = NPort::PurgeOption_RxTxAbort;
+		break;
+
+	case NPLPurge_RxTxClear:
+		Opt = NPort::PurgeOption_RxTxClear;
+		break;
+
+	case NPLPurge_All:
+		Opt = NPort::PurgeOption_All;
+		break;
+
+	default:
+		SetLastError(ERROR_INVALID_PARAMETER);
+		return 0;
+	}
+
+	bool b = sPort.Purge(Opt);
+	return ((b) ? 1 : 0);
+}
+
+NPORTLIB
 int NPL_InstallNApplication(
 		const char * szApplicationFile,
 		NPL_INSTALLING_CALLBACK InstallingCallback

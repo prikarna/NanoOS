@@ -20,7 +20,9 @@ extern "C" {
 
 #include "..\Sys\CortexM\Asm.h"
 #include "..\Sys\Type.h"
+#include "..\Sys\Bit.h"
 #include "..\ServiceDef.h"
+#include "..\Address.h"
 
 #define APP_SEGMENT_ATTR			__attribute__ ((section(".nanoos_application")))
 
@@ -1020,9 +1022,12 @@ UINT32_T UtlVPrintf(
 UINT32_T DbgPrintf(const char *szFormat, ...);
 
 #ifdef _DEBUG
-# define DBG_PRINTF(szFmt, ...)				DbgPrintf(szFmt, __VA_ARGS__)
+# define DBG_PRINTF(szFmt, ...)					DbgPrintf(szFmt, __VA_ARGS__)
+# define DBGIF_PRINTF(Expression, szFmt, ...)	\
+	if ((Expression)) {	DbgPrintf(szFmt, __VA_ARGS__); }
 #else
 # define DBG_PRINTF(szFmt, ...)
+# define DBGIF_PRINTF(Expression, szFmt, ...)
 #endif
 
 /*
@@ -1064,6 +1069,65 @@ typedef struct _STREAM_PRINTF_PARAMS {
      None.
  */
 UINT32_T StreamPrintf(UINT8_PTR_T pBuffer, UINT32_T uBufferLength, const char * szFormat, ...);
+
+/*
+ * String helper functions
+ */
+/*
+ int StrLen(const char *pStr)
+
+ Desc.:
+     Return null terminated string of string pStr.
+ Params. :
+	 pStr
+	     Null terminated string to compute it's length.
+ Return value : 
+     The length or number character(s) of the null terminated string.
+ Error code : None.
+ */
+int StrLen(const char * pStr);
+
+/*
+ int StrCmp(const char * pStr1, const char * pStr2)
+
+ Desc.:
+     Compare null terminated pStr1 to null terminated string pStr2. If exactly the same the function return 0.
+ Params. :
+	 pStr1
+	     First null terminated string.
+	 pStr2
+		Second null terminated string.
+ Return value : 
+     If pStr1 and pStr2 is exactly the same, function return 0. If error it return -1 and if not the same
+	 then return the minimum length of one of string that being compared.
+ Error code : None.
+ */
+int StrCmp(const char * pStr1, const char * pStr2);
+
+/*
+ int StrCopy(char * pBuffer, const char * pStr, int iBufferLen)
+
+ Desc.:
+     Copy null terminated string pStr to specified buffer pBuffer. If the length of pStr is less than the
+	 length of the buffer specified by iBufferLen then the string will be fully copied. If not the buffer 
+	 will containt truncated string.
+ Params. :
+	 pBuffer
+		Pointer to buffer that will receive a string. Can not be 0 or NULL.
+	 pStr
+		Null terminated string to be copied to buffer.
+	 iBufferLen
+		The length in bytes if pBuffer above. Can not be less then or equal to 0.
+ Return value : 
+     Number of character(s) being copied successfully to buffer.
+ Error code : None.
+ */
+int StrCopy(char * pBuffer, const char * pStr, int iBufferLen);
+
+/*
+ * Additional defs.
+ */
+#define APP_SRAM_LIMIT_ADDRESS		(APP_SRAM_ADDRESS + APP_SRAM_SIZE)
 
 #ifdef __cplusplus
 }

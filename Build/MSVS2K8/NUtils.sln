@@ -28,6 +28,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NPortSvcTest", "NPortSvcTes
 		{F4F5C93B-E412-4712-BFB7-838AAD6107DC} = {F4F5C93B-E412-4712-BFB7-838AAD6107DC}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UsbIoCtrl", "UsbIoCtrl\UsbIoCtrl.vcproj", "{14B23421-DBF6-4746-9DE0-546D67CD5377}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DB17DFCC-C229-4971-9D4F-447F5C7EF295} = {DB17DFCC-C229-4971-9D4F-447F5C7EF295}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -58,6 +63,10 @@ Global
 		{95438E0C-A63C-4993-BC41-25130B0A0168}.Debug|Win32.Build.0 = Debug|Win32
 		{95438E0C-A63C-4993-BC41-25130B0A0168}.Release|Win32.ActiveCfg = Release|Win32
 		{95438E0C-A63C-4993-BC41-25130B0A0168}.Release|Win32.Build.0 = Release|Win32
+		{14B23421-DBF6-4746-9DE0-546D67CD5377}.Debug|Win32.ActiveCfg = Debug|Win32
+		{14B23421-DBF6-4746-9DE0-546D67CD5377}.Debug|Win32.Build.0 = Debug|Win32
+		{14B23421-DBF6-4746-9DE0-546D67CD5377}.Release|Win32.ActiveCfg = Release|Win32
+		{14B23421-DBF6-4746-9DE0-546D67CD5377}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,3 +1,6 @@
+May, 19 2020
+- Adding support for C++ language.
+
 May, 8 2020
 - Restructure the project, seperate NanoOS and it's utilities solution file.
 

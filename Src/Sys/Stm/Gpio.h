@@ -11,6 +11,10 @@
 #include "..\Type.h"
 #include "..\Bit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define GPIO_PORT_OFFSET				0x400
 
 #define GPIO_PORT__A				0
@@ -101,5 +105,9 @@
 #define GPIO_RESET(Port, Pin)				SET_IO_BIT(GPIO_ADDR(Port, GPIO_BSRR_OFFSET), (Pin + 16))
 #define GPIO_RESET4(Port, StartPin)			SET_IO_BITS(GPIO_ADDR(Port, GPIO_BSRR_OFFSET), (StartPin + 16), BITMASK_4, 0xF)
 #define GPIO_RESET8(Port, StartPin)			SET_IO_BITS(GPIO_ADDR(Port, GPIO_BSRR_OFFSET), (StartPin + 16), BITMASK_8, 0xFF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // End of GPIO_H

@@ -140,6 +140,40 @@ NPORTLIB
 unsigned long NPL_GetErrorCode();
 
 /*
+	Enum.	: NPL_PurgeOption
+	Desc.	: Option for purge operation;
+				NPLPurge_RxAbort	: Termnated all outstanding overlapped read operation.
+				NPLPurge_RxClear	: Clear input buffer.
+				NPLPurge_TxAbort	: Terminate all outstanding overlapped write operation.
+				NPLPurge_TxClear	: Clear output buffer.
+				NPLPurge_RxTxAbort	: Combination of PurgeOption_RxAbort and PurgeOption_TxAbort.
+				NPLPurge_RxTxClear	: Combination of PurgeOption_RxClear and PurgeOption_TxClear.
+				NPLPurge_All		: All of the above combinations.
+*/
+enum NPL_PurgeOption
+{
+	NPLPurge_RxAbort,
+	NPLPurge_RxClear,
+	NPLPurge_TxAbort,
+	NPLPurge_TxClear,
+	NPLPurge_RxTxAbort,
+	NPLPurge_RxTxClear,
+	NPLPurge_All
+};
+
+/*
+	Funct.	: NPL_Purge
+	Desc.   : 
+		Discard input and output buffer and terminate read write pending operation.
+	Params. :
+		Option
+			Can be one of the NPL_PurgeOption enumeration above.
+	Return  : 1 if success otherwise 0.
+*/
+NPORTLIB
+int NPL_Purge(enum NPL_PurgeOption Option);
+
+/*
 	Funct.	: NPL_InstallNApplication
 	Desc.   : Install NanoOS application. This is asynchronuos function.
 	Params. :
@@ -301,7 +335,3 @@ unsigned long NPLSVC_GetLastError();
 #endif
 
 #endif  // End of NPORTLIB_H
-
-#ifdef __cplusplus
-
-#endif  // End of __cplusplus

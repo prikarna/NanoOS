@@ -10,6 +10,10 @@
 #include "..\Type.h"
 #include "..\Bit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define STK_BASE					0xE000E010
 
 #define STK_CTRL					(STK_BASE + 0x00)
@@ -29,5 +33,9 @@
 #define STK_GET_VAL()				(IO_MEM32(STK_VAL))
 #define STK_SET_VAL(Val)			IO_MEM32(STK_VAL) = ((Val & BITMASK_24))
 #define STK_GET_CALIB()				(IO_MEM32(STK_CALIB))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // End of SYSTICK_H

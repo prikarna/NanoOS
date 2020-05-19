@@ -174,7 +174,6 @@ void SvcReadUsbSer()
 
 	fRes = UsbRequestReceive();
 	if (!fRes) {
-		spCurThread->LastError = ERR__USB_IO_IS_BUSY;
 		spParm->ReturnValue = FALSE;
 		return;
 	}

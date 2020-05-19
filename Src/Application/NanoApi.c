@@ -8,36 +8,99 @@
 
 extern unsigned int	_etext, _start_data, _end_data;
 extern unsigned int	_start_bss, _end_bss;
+unsigned char		_init_glob_obj_start, _init_glob_obj_end;
+
+typedef void (* GLOB_OBJ_INIT)();
+typedef void (* GLOB_OBJ_DTOR)();
+
+typedef struct _DTOR_ITEM
+{
+	void *			ObjectPtr;
+	GLOB_OBJ_DTOR	Destructor;
+} DTOR_ITEM, *PDTOR_ITEM;
 
 extern int main(int argc, char *argv[]);
-extern int wmain(int argc, short *argv[]);
 
 static const char	sHexCharsU[] = { "0123456789ABCDEF" };
 static const char	sHexCharsL[] = { "0123456789abcdef" };
 
+void * __dso_handle;	// Just to satisfy the linker.
+
+static unsigned int	sDTorCount = 0;	// Must be initialized ?
+
+void __aeabi_atexit(void * pObj, GLOB_OBJ_DTOR dTor, void * pEndAddr)
+{
+	PDTOR_ITEM		pDtor = (PDTOR_ITEM) &_end_bss;
+
+	pDtor += sDTorCount;
+
+	if ((unsigned int) pDtor > (APP_SRAM_LIMIT_ADDRESS - sizeof(DTOR_ITEM))) 
+		return;
+	
+	pDtor->ObjectPtr = pObj;
+	pDtor->Destructor = dTor;
+	sDTorCount++;
+}
+
 APP_SEGMENT_ATTR
 int NanoEntry(void * pParm)
 {
-	unsigned int *		pucDst = 0;
-	unsigned int *		pucSrc = 0;
+	unsigned int *		puiDst = 0;
+	unsigned int *		puiSrc = 0;
+	int					iRet = 0;
 
 	/*
 	 * Copy initialization value data from FLASH to data segment at RAM
 	 */
-	for (pucDst = &_start_data, pucSrc = &_etext; pucDst < &_end_data; )
+	for (puiDst = &_start_data, puiSrc = &_etext; puiDst < &_end_data; )
 	{
-		*pucDst++ = *pucSrc++;
+		*puiDst++ = *puiSrc++;
 	}
 
 	/*
 	 * Zero bss segment at RAM
 	 */
-	for (pucDst = &_start_bss; pucDst < &_end_bss; ) 
+	for (puiDst = &_start_bss; puiDst < &_end_bss; ) 
 	{
-		*pucDst++ = 0;
+		*puiDst++ = 0;
 	}
 
-	return main(0, 0);
+	/*
+	 * Initialize CPP global object if any
+	 */
+	unsigned char *p = &_init_glob_obj_start;
+	GLOB_OBJ_INIT	InitGlobalObj;
+	while (p < &_init_glob_obj_end) {
+		InitGlobalObj = (GLOB_OBJ_INIT) (p + 1);
+		p += 0x10;
+
+		(* InitGlobalObj)();
+	}
+
+	/*
+	 * Call main() function
+	 */
+	iRet = main(0, 0);
+
+	/*
+	 * De-initialize CPP global object if any
+	 */
+	PDTOR_ITEM	pDtor;
+	do {
+		sDTorCount--;
+		pDtor = (PDTOR_ITEM) &_end_bss;
+		pDtor += sDTorCount;
+
+		__asm volatile
+			(
+			"MOV.W R1, %0;"
+			"MOV.W R0, %1;"
+			"BLX R1;"
+			: : "r" (pDtor->Destructor), "r" (pDtor->ObjectPtr)
+			);
+	} while (sDTorCount > 0);
+
+	return iRet;
 }
 
 /*

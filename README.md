@@ -8,7 +8,7 @@ For now only support for STM32F103XXX chipset only, STM32F103C8 chipset for spec
 Brief :
 
 	Memory :
-	- NanoOS devide flash and sram memory into two section each, one for the NanoOS itself 
+	- NanoOS divide flash and sram memory into two section each, one for the NanoOS itself 
 	  and other for the application that run on the top of it. From 64K bytes total flash, 
 	  32K bytes used by NanoOS, 31K reserved for the application and 1K reserved for 
 	  configuration. From 20K bytes total sram, 10K bytes used by NanoOS and another 10K 
@@ -46,7 +46,7 @@ Brief :
 	  interface to communicate with.
 	  
 	Nano OS API :
-	- A simple application programming interface or API. For now this only tested on C language.
+	- A simple application programming interface or API. For now this only tested on C/C++ language.
 	  The main purpose of this API is actually not to 'serve' an application, but it rather for
 	  synchronization so that the application can access the NanoOS resource in multhreaded 
 	  environment safer. Note that an application can access NanoOS resource or function directly

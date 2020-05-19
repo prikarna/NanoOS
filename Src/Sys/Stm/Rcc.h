@@ -11,6 +11,10 @@
 #include "..\Type.h"
 #include "..\Bit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define RCC_HSI_CLOCK		8000000UL
 #define RCC_HSE_CLOCK		8000000UL
 
@@ -31,7 +35,8 @@
 //#define RCC_MMAP(RegOffset)			IO_MMAP((RCC_BASE + RegOffset))
 
 #define RCC_ENA_HSI(Ena)			ENABLE_IO_BIT(RCC_CR, BIT_0, Ena)
-#define RCC_IS_HSI_READY()			GET_IO_BIT(RCC_CR), 1)
+#define RCC_GET_HSI()				GET_IO_BIT(RCC_CR, BIT_0)
+#define RCC_IS_HSI_READY()			GET_IO_BIT(RCC_CR, 1)
 
 #define RCC_SET_HSI_TRIMM(TrimVal)	SET_IO_BITS(RCC_CR, BIT_3, BITMASK_5, TrimVal)
 #define RCC_GET_HSI_TRIM()			GET_IO_BITS(RCC_CR, BIT_3, BITMASK_5)
@@ -39,14 +44,21 @@
 #define RCC_GET_HSI_CALIB()			GET_IO_BITS(RCC_CR, BIT_8, BITMASK_8)
 
 #define RCC_ENA_HSE(Ena)			ENABLE_IO_BIT(RCC_CR, BIT_16, Ena)
+#define RCC_GET_HSE()				GET_IO_BIT(RCC_CR, BIT_16)
 #define RCC_IS_HSE_READY()			GET_IO_BIT(RCC_CR, BIT_17)
 
 #define RCC_ENA_HSE_BYPASS(Ena)		ENABLE_IO_BIT(RCC_CR, BIT_18, Ena)
+#define RCC_IS_HSE_BYPASS()			GET_IO_BIT(RCC_CR, BIT_18)
 
 #define RCC_ENA_CLOCK_SEC_SYS(Ena)	ENABLE_IO_BIT(RCC_CR, BIT_19, Ena)
 
 #define RCC_ENA_PLL(Ena)			ENABLE_IO_BIT(RCC_CR, BIT_24, Ena)
+#define RCC_IS_PLL_ENABLED()		GET_IO_BIT(RCC_CR, BIT_24)
 #define RCC_IS_PLL_READY()			GET_IO_BIT(RCC_CR, BIT_25)
+
+//#define RCC_1_WAIT_STATE()			__asm volatile ("NOP;")
+//#define RCC_2_WAIT_STATE()			__asm volatile ("NOP;NOP;")
+//#define RCC_DMB()					__asm volatile ("DMB;");
 
 #define RCC_APB_PRESCALE__HCLK_NO_DIV		0x0		// 0xx: HCLK not divided
 #define RCC_APB_PRESCALE__HCLK_DIV_BY_2		0x4		// 100: HCLK divided by 2
@@ -94,6 +106,7 @@
 #define RCC_GET_PLL_MUL()			GET_IO_BITS(RCC_CFGR, BIT_18, BITMASK_4)
 
 #define RCC_SET_PLLXTPRE(Set)		ENABLE_IO_BIT(RCC_CFGR, BIT_17, Set)
+#define RCC_GET_PLLXTPRE()			GET_IO_BIT(RCC_CFGR, BIT_17)
 
 #define RCC_PLL_SRC__HSI_DIV_2		0x0
 #define RCC_PLL_SRC__HSE			0x1
@@ -223,5 +236,9 @@
 #define RCC_REMOVE_RESET_FLAG()			SET_IO_BIT(RCC_CSR, BIT_24)
 
 #define RCC_ENA_LSI(Ena)				ENABLE_IO_BIT(RCC_CSR, BIT_0, Ena)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // End of RCC_H

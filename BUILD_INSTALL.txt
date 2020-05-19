@@ -84,7 +84,8 @@ Is a group of utilities for NanoOS, consist of:
 To build NUtils, just open NUtils.sln in extracted directory, in the above example this 
 directory is D:\Dev\NanoOS\Build\MSVS2K8. And choose the project you want to build, right
 click it and and then click 'Build'. The build process will put the exe's and/or dll's files 
-to directory D:\Dev\NanoOSOut\Bin\NUtils
+to directory D:\Dev\NanoOSOut\Bin\NUtils\<ProjectName>, where <ProjectName> is the project 
+name such as NTerminal.
 
 =======
 INSTALL

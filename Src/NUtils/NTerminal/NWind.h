@@ -110,6 +110,8 @@ private:
 
 	bool _GetServiceStatus();
 
+	void _HandleOnSvcControlError(const TCHAR * szErr);
+
 public:
 	NWind();	// C'tor
 	~NWind();	// D'tor

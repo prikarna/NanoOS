@@ -10,6 +10,10 @@
 #include "..\Type.h"
 #include "..\Bit.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SCB_BASE				0xE000ED00
 #define SCB_ACTLR				0xE000E008
 #define SCB_CPUID				(SCB_BASE + 0x00)
@@ -194,5 +198,9 @@
 #define SCB_GENERAL_FAULTS							(SCB_USAGE_FAULT__ALL | SCB_BUS_FAULT__ALL | SCB_MEM_FAULT__ALL)
 
 #define SCB_GET_GENERAL_FAULT_STATUS()				IO_MEM32(SCB_CFSR)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // End of SCB_H

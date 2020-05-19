@@ -8,6 +8,10 @@
 #ifndef BIT_H
 #define BIT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define BITHEX_0			0x00000001
 #define BITHEX_1			0x00000002
 #define BITHEX_2			0x00000004
@@ -155,5 +159,9 @@
 
 #define ENABLE_IO_BIT(Address, NthBit, Enable)		\
 	(Enable) ? (SET_IO_BIT(Address, NthBit)) : (CLR_IO_BIT(Address, NthBit))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	// End of BIT_H

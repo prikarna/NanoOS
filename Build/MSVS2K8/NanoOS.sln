@@ -21,6 +21,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hello", "Hello\Hello.vcproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Echo", "Echo\Echo.vcproj", "{CC7206FA-BF47-41F6-8C7A-05F3A1034204}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NanoStd", "NanoStd\NanoStd.vcproj", "{A97EDC0A-2F52-4C6B-B84D-17EA1F32892B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UsbIo", "UsbIo\UsbIo.vcproj", "{F27D97BE-06F3-4FC6-8056-B0231BA5B073}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -67,6 +71,14 @@ Global
 		{CC7206FA-BF47-41F6-8C7A-05F3A1034204}.Debug|Win32.Build.0 = Debug|Win32
 		{CC7206FA-BF47-41F6-8C7A-05F3A1034204}.Release|Win32.ActiveCfg = Release|Win32
 		{CC7206FA-BF47-41F6-8C7A-05F3A1034204}.Release|Win32.Build.0 = Release|Win32
+		{A97EDC0A-2F52-4C6B-B84D-17EA1F32892B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A97EDC0A-2F52-4C6B-B84D-17EA1F32892B}.Debug|Win32.Build.0 = Debug|Win32
+		{A97EDC0A-2F52-4C6B-B84D-17EA1F32892B}.Release|Win32.ActiveCfg = Release|Win32
+		{A97EDC0A-2F52-4C6B-B84D-17EA1F32892B}.Release|Win32.Build.0 = Release|Win32
+		{F27D97BE-06F3-4FC6-8056-B0231BA5B073}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F27D97BE-06F3-4FC6-8056-B0231BA5B073}.Debug|Win32.Build.0 = Debug|Win32
+		{F27D97BE-06F3-4FC6-8056-B0231BA5B073}.Release|Win32.ActiveCfg = Release|Win32
+		{F27D97BE-06F3-4FC6-8056-B0231BA5B073}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

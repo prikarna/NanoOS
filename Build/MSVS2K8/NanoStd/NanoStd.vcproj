@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9,00"
+	Name="NanoStd"
+	ProjectGUID="{A97EDC0A-2F52-4C6B-B84D-17EA1F32892B}"
+	Keyword="MakeFileProj"
+	TargetFrameworkVersion="196613"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\Application\$(ProjectName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\Application\$(ProjectName)"
+			ConfigurationType="0"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile _DEBUG=1 all"
+				ReBuildCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile _DEBUG=1 rebuild"
+				CleanCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile _DEBUG=1 clean"
+				Output="NanoStd.bin"
+				PreprocessorDefinitions="__GNUC__;_DEBUG"
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Bin\Application\$(ProjectName)"
+			IntermediateDirectory="$(SolutionDir)..\..\..\$(SolutionName)Out\Objs\Application\$(ProjectName)"
+			ConfigurationType="0"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile all"
+				ReBuildCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile rebuild"
+				CleanCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile clean"
+				Output="NanoStd.bin"
+				PreprocessorDefinitions="__GNUC__;NDEBUG"
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
+			<File
+				RelativePath="..\..\..\Src\Application\NanoStd\Main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\Application\NanoApi.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\Application\NanoStd\NanoStd.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
+			<File
+				RelativePath="..\..\..\Src\Application\NanoOSApi.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Src\Application\NanoStd\NanoStd.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
+		</Filter>
+		<File
+			RelativePath="..\..\..\Src\Application\NanoStd\Makefile"
+			>
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

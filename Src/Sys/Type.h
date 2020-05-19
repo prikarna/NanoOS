@@ -1,6 +1,10 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef unsigned int		UINT32_T;
 typedef int					INT32_T;
 typedef unsigned int *		UINT32_PTR_T;
@@ -56,6 +60,10 @@ typedef char *				INT8_PTR_T;
 
 #ifndef NULL
 # define NULL		0
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif  // End of TYPE_H

@@ -14,12 +14,30 @@ SECTIONS
 	.text :
 	{
 		KEEP(*(.nanoos_application))
+		
+		_init_glob_obj_start = .;
+		KEEP(*(.text._GLOBAL__sub_I_*))
+		_init_glob_obj_end = .;
+		
 		*(.text .text.*)
+		*(.rodata .rodata.*)
 	} > APP_FLASH
 	
+	/*
 	.rodata :
 	{
 		*(.rodata .rodata.*)
+	} > APP_FLASH
+	*/
+	
+	.ARM.extab :
+	{
+		*(.ARM.extab* .gnu.linkonce.armextab.*)
+	} > APP_FLASH
+	
+	.ARM.exidx :
+	{
+		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
 	} > APP_FLASH
 	
 	_etext = .;
@@ -28,7 +46,7 @@ SECTIONS
 	{
 		_start_data = .;
 		*(.data .data.*)
-		. += 4;
+		. = ALIGN(4);
 		_end_data = .;
 	} > APP_SRAM
 	
@@ -36,7 +54,7 @@ SECTIONS
 	{
 		_start_bss = .;
 		*(.bss .bss.*)
-		. += 4;
+		. = ALIGN(4);
 		_end_bss = .;
 	} > APP_SRAM
 }

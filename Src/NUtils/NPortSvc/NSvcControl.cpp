@@ -519,7 +519,6 @@ bool NSvcControl::IsInstalled(bool & bResult)
 
 		bRes = _Open(m_szDefName, SERVICE_QUERY_STATUS);
 		if (!bRes) {
-			m_dwError = GetLastError();
 			if (m_dwError == ERROR_SERVICE_DOES_NOT_EXIST) {
 				bRes = true;
 				bResult = false;
