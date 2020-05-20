@@ -302,9 +302,10 @@ above section: 'Writing NanoOS Application'). In addition you need to copy g++.e
 in the above exmple GCC_BIN_DIR is D:\Dev\gcc, and then use Makefile in the source tree to compile C++ code.
 For a start please take a look to NanoStd project included in NanoOS solution. This project demonstrate how to write 
 application in C++. It create some short of standard input and output using USB Serial IO, so user can 'communicate'
-with the program through it.
+with the program through it. Alternatively you can start a project by generate C++ solution and/or project of Visual
+Studio 2008 Express Edition.
 Note that eventhough NanoOS doesn't support C++ exception, C++ code can still use SetProbe()/ResetProbe() to handle 
-fault and/or simulate C++ exception in the modest manner.
+fault and/or simulate C++ exception in a modest manner.
 Since NanoOS don't provide dynamic memory allocation, application can't use 'new' and 'delete' operator 'blindly'. To 
 overcome that, use the class as some short variable in the global and/or local space, as the following example:
 In the header file define a class and state an object that already allocated in the other source file or in the 
@@ -325,7 +326,7 @@ public:
 };
 
 extern Test	TestInst1;	// Tell the compiler that there is an already allocated object in the other 
-						// source file
+						// source file such as implementation file.
 ...
 +-----------------------------------------+
 
@@ -364,7 +365,7 @@ int main(int argc, char *argv[])
 ...
 +----------------------------------------+
 
-Or alternatively, declare another object if we don't want to use currently allocated object as follows:
+Or alternatively, declare another object if you don't want to use currently allocated object as follows:
 +----------------------------------------+
 ...
 #include "Test.h"
@@ -379,10 +380,10 @@ int main(int argc, char *argv[])
 ...
 +----------------------------------------+
 
-Please note that if every time you declare new Test object as variable, it will consume more resources,
+Please note that if every time you declare new object as variable, it will consume more resources,
 which you probably don't want to because you have relatively small resources.
 If, for some reason, you want to use 'new' and 'delete' operator, overload 'new' and 'delete' operator
-with relevan procedure. For example you can implement 'single new instance object' model: everytime you 
+with relevan procedure. For example you can implement 'single instance object' model that everytime you 
 use or call 'new' operator it will point to the same already declared or allocated object as the following
 examples:
 Define a class in a header:
@@ -421,7 +422,7 @@ void * Test::operator new(unsigned int uiSize)
 	return (void *) &TestInst1;
 }
 
-/* No need deletion procedure (just 'empty' function), because this is 'single new instance' model */
+/* No need deletion procedure (just 'empty' function), because this is 'single instance object' model */
 void Test::operator delete(void *pObj)
 {
 }
@@ -430,7 +431,7 @@ void Test::operator delete(void *pObj)
 
 To be more clear, please take a look a project called UsbIo in NanoOS solution. This project purpose is
 to create some short of interface between PC application and the controllers available on chipset. This 
-project use that 'single new instance' model above.
+project use that 'single instance object' model above.
 
 
 ============================================================

@@ -3,7 +3,7 @@
  * Remark  : Demonstrate how to write NanoOS application in C++ using NanoStd namespace.
  */
 
-#include "NanoStd.h"
+#include "..\NanoStd.h"
 
 using namespace NanoStd;
 

@@ -4,7 +4,6 @@
  *
  */
 
-#include "..\NanoOSApi.h"
 #include "NanoStd.h"
 
 namespace NanoStd

@@ -1,11 +1,17 @@
 #include "NAppGen.h"
+#include "Debug.h"
 
 NAppGen::NAppGen():
-m_pMainFileRes(NULL),
-m_dwMainFileSize(0),
-m_pSrcIncFile(NULL),
-m_dwSrcIncSize(0),
-m_bIncSolution(false)
+m_pCMainFileRes(NULL),
+m_dwCMainFileSize(0),
+m_pCSrcIncFile(NULL),
+m_dwCSrcIncSize(0),
+m_pCppMainFileRes(NULL),
+m_dwCppMainFileSize(0),
+m_pCppSrcIncRes(NULL),
+m_dwCppSrcIncSize(0),
+m_bIncSolution(false),
+m_bIsCPPProj(false)
 {
 	RtlZeroMemory(m_szSlnName, sizeof(m_szSlnName));
 	RtlZeroMemory(m_szProjName, sizeof(m_szProjName));
@@ -18,14 +24,14 @@ NAppGen::~NAppGen()
 	CoUninitialize();
 }
 
-bool NAppGen::_LoadResource(HMODULE hMod, WORD wResId, WORD wResType, LPVOID *ppRetRes, LPDWORD pdwResSize)
+bool NAppGen::_LoadResource(HMODULE hMod, WORD wResId, LPVOID * ppRetRes, LPDWORD pdwResSize)
 {
 	if ((!ppRetRes) || (!pdwResSize)) {
 		m_dwError = ERROR_INVALID_PARAMETER;
 		return false;
 	}
 
-	HRSRC hRes = FindResource(hMod, MAKEINTRESOURCE(wResId), MAKEINTRESOURCE(wResType));
+	HRSRC hRes = FindResource(hMod, MAKEINTRESOURCE(wResId), MAKEINTRESOURCE(DKF_RES_TYPE));
 	if (!hRes) {
 		m_dwError = GetLastError();
 		return false;
@@ -56,11 +62,28 @@ bool NAppGen::Initialize()
 {
 	CoInitialize(NULL);
 
-	HMODULE	hMod = GetModuleHandle(NULL);
-	bool bRes = _LoadResource(hMod, DKF_MAIN_RES_ID, DKF_MAIN_RES_TYPE, &m_pMainFileRes, &m_dwMainFileSize);
-	if (bRes) {
-		bRes = _LoadResource(hMod, DKF_SRC_INC_RES_ID, DKF_SRC_INC_RES_TYPE, &m_pSrcIncFile, &m_dwSrcIncSize);
-	}
+	HMODULE	hMod = NULL;
+	bool	bRes = false;
+	m_dwError = ERROR_SUCCESS;
+
+	do {
+		hMod = GetModuleHandle(NULL);
+		if (!hMod) {
+			m_dwError = GetLastError();
+			break;
+		}
+
+		bRes = _LoadResource(hMod, DKF_CMAIN_RES_ID, &m_pCMainFileRes, &m_dwCMainFileSize);
+		if (!bRes) break;
+		
+		bRes = _LoadResource(hMod, DKF_CSRC_INC_RES_ID, &m_pCSrcIncFile, &m_dwCSrcIncSize);
+		if (!bRes) break;
+
+		bRes = _LoadResource(hMod, DKF_CPPMAIN_RES_ID, &m_pCppMainFileRes, &m_dwCppMainFileSize);
+		if (!bRes) break;
+
+		bRes = _LoadResource(hMod, DKF_CPPSRC_INC_RES_ID, &m_pCppSrcIncRes, &m_dwCppSrcIncSize);
+	} while (FALSE);
 
 	return bRes;
 }
@@ -267,6 +290,16 @@ bool NAppGen::_CreateProject(bool fOverwrite)
 			fRes = WriteFile(hFile, (LPCVOID) m_szBuff, lstrlenA(m_szBuff), &dwWr, NULL);
 			break;
 
+		case DKS_PROJ_SRC_FILE:
+			RtlZeroMemory(m_szBuff, sizeof(m_szBuff));
+			if (!m_bIsCPPProj) {
+				hr = StringCbPrintfA(m_szBuff, sizeof(m_szBuff), "%s.\\Main.c\"\n", pszLine, m_szIncPath);
+			} else {
+				hr = StringCbPrintfA(m_szBuff, sizeof(m_szBuff), "%s.\\Main.cpp\"\n", pszLine, m_szIncPath);
+			}
+			fRes = WriteFile(hFile, (LPCVOID) m_szBuff, lstrlenA(m_szBuff), &dwWr, NULL);
+			break;
+
 		default:
 			fRes = WriteFile(hFile, (LPCVOID) pszLine, lstrlenA(pszLine), &dwWr, NULL);
 			break;
@@ -284,7 +317,7 @@ bool NAppGen::_CreateProject(bool fOverwrite)
 	return ((fRes) ? true : false);
 }
 
-bool NAppGen::_CreateMakefile(bool fOverwrite)
+bool NAppGen::_CreateMakefile(bool fOverWrite)
 {
 	HRESULT hr = S_OK;
 	BOOL	fRes = FALSE;
@@ -306,7 +339,7 @@ bool NAppGen::_CreateMakefile(bool fOverwrite)
 	}
 
 	DWORD	dwDisp;
-	if (fOverwrite) {
+	if (fOverWrite) {
 		dwDisp = CREATE_ALWAYS;
 	} else {
 		dwDisp = OPEN_ALWAYS;
@@ -332,14 +365,25 @@ bool NAppGen::_CreateMakefile(bool fOverwrite)
 
 	fRes = FALSE;
 
-	for (UINT uiResId = DKS_MKF_BEGIN; uiResId < DKS_MKF_END; uiResId++)
+	for (UINT uiResId = 0; uiResId < DKS_MKF_HDR_MAX_LINES; uiResId++)
 	{
-		pszLine = const_cast<CHAR *>(m_szMkfile[uiResId]);
+		pszLine = const_cast<CHAR *>(m_szMkFlHdr[uiResId]);
 
 		m_dwError = 0;
 		switch (uiResId)
 		{
-		case DKS_MKF_OUT_DIR:
+		case DKS_MKF_HDR_TGT_NAME:
+			RtlZeroMemory(m_szBuff, sizeof(m_szBuff));
+			hr = StringCbPrintfA(m_szBuff, sizeof(m_szBuff), "%s%s\n", pszLine, m_szProjName);
+			if (hr != S_OK) {
+				m_dwError = HRESULT_CODE(hr);
+				fRes = FALSE;
+				break;
+			}
+			fRes = WriteFile(hFile, (LPCVOID) m_szBuff, lstrlenA(m_szBuff), &dwWr, NULL);
+			break;
+
+		case DKS_MKF_HDR_OUT_DIR:
 			RtlZeroMemory(m_szBuff, sizeof(m_szBuff));
 			hr = StringCbPrintfA(m_szBuff, sizeof(m_szBuff), "%s%s\\Bin\n", pszLine, m_szProjPath);
 			if (hr != S_OK) {
@@ -350,7 +394,7 @@ bool NAppGen::_CreateMakefile(bool fOverwrite)
 			fRes = WriteFile(hFile, (LPCVOID) m_szBuff, lstrlenA(m_szBuff), &dwWr, NULL);
 			break;
 
-		case DKS_MKF_SRCS_DIR:
+		case DKS_MKF_HDR_SRCS_DIR:
 			RtlZeroMemory(m_szBuff, sizeof(m_szBuff));
 			if (m_bIncSolution) {
 				hr = StringCbPrintfA(m_szBuff, sizeof(m_szBuff), "%s%s\\%s\n", pszLine, m_szProjPath, m_szProjName);
@@ -365,7 +409,7 @@ bool NAppGen::_CreateMakefile(bool fOverwrite)
 			fRes = WriteFile(hFile, (LPCVOID) m_szBuff, lstrlenA(m_szBuff), &dwWr, NULL);
 			break;
 
-		case DKS_MKF_INCLUDE:
+		case DKS_MKF_HDR_INCLUDE:
 			RtlZeroMemory(m_szBuff, sizeof(m_szBuff));
 			hr = StringCbPrintfA(m_szBuff, sizeof(m_szBuff), "%s%s\\Application\n", pszLine, m_szIncPath);
 			if (hr != S_OK) {
@@ -376,23 +420,13 @@ bool NAppGen::_CreateMakefile(bool fOverwrite)
 			fRes = WriteFile(hFile, (LPCVOID) m_szBuff, lstrlenA(m_szBuff), &dwWr, NULL);
 			break;
 
-		case DKS_MKF_GCC_DIR:
+		case DKS_MKF_HDR_GCC_DIR:
 			RtlZeroMemory(m_szBuff, sizeof(m_szBuff));
 			hr = StringCbPrintfA(m_szBuff, sizeof(m_szBuff), "%s%s\n", pszLine, m_szGccPath);
 			if (hr != S_OK) {
 				m_dwError = HRESULT_CODE(hr);
 				fRes = FALSE;
 				break;
-			}
-			fRes = WriteFile(hFile, (LPCVOID) m_szBuff, lstrlenA(m_szBuff), &dwWr, NULL);
-			break;
-
-		case DKS_MKF_TGT_NAME:
-			RtlZeroMemory(m_szBuff, sizeof(m_szBuff));
-			hr = StringCbPrintfA(m_szBuff, sizeof(m_szBuff), "%s%s\n", pszLine, m_szProjName);
-			if (hr != S_OK) {
-				m_dwError = HRESULT_CODE(hr);
-				fRes = FALSE;
 			}
 			fRes = WriteFile(hFile, (LPCVOID) m_szBuff, lstrlenA(m_szBuff), &dwWr, NULL);
 			break;
@@ -409,12 +443,24 @@ bool NAppGen::_CreateMakefile(bool fOverwrite)
 		}
 	}
 
+	if ((fRes == TRUE) && (m_dwError == NO_ERROR))
+	{
+		dwWr = 0;
+		if (m_bIsCPPProj) {
+			fRes = WriteFile(hFile, (LPCVOID) m_szMkFlCppBody, lstrlenA(m_szMkFlCppBody), &dwWr, NULL);
+		} else {
+			fRes = WriteFile(hFile, (LPCVOID) m_szMkFlCBody, lstrlenA(m_szMkFlCBody), &dwWr, NULL);
+		}
+
+		if (!fRes) m_dwError = GetLastError();
+	}
+
 	CloseHandle(hFile);
 
 	return ((fRes) ? true : false);
 }
 
-bool NAppGen::_CreateFile(bool fOverwrite, const char *szFileName, WORD wResId, WORD wResType)
+bool NAppGen::_CreateSourceFile(bool fOverwrite, const char *szFileName, WORD wResId)
 {
 	HRESULT	hr = S_OK;
 
@@ -463,28 +509,37 @@ bool NAppGen::_CreateFile(bool fOverwrite, const char *szFileName, WORD wResId, 
 					NULL
 					);
 		if (hFile == INVALID_HANDLE_VALUE) {
-			m_dwError = GetLastError();
 			break;
 		}
 
-		if (lstrcmpiA(szFileName, "Main.c") == 0)
+		m_dwError = 0;
+		switch (wResId)
 		{
-			fRes = WriteFile(hFile, m_pMainFileRes, m_dwMainFileSize, &dwWr, NULL);
-		}
-		else if (lstrcmpiA(szFileName, "Sources.inc") == 0)
-		{
-			fRes = WriteFile(hFile, m_pSrcIncFile, m_dwSrcIncSize, &dwWr, NULL);
-		}
-		else
-		{
+		case DKF_CMAIN_RES_ID:
+			fRes = WriteFile(hFile, reinterpret_cast<LPCVOID>(m_pCMainFileRes), m_dwCMainFileSize, &dwWr, NULL);
+			break;
+
+		case DKF_CSRC_INC_RES_ID:
+			fRes = WriteFile(hFile, reinterpret_cast<LPCVOID>(m_pCSrcIncFile), m_dwCSrcIncSize, &dwWr, NULL);
+			break;
+
+		case DKF_CPPMAIN_RES_ID:
+			fRes = WriteFile(hFile, reinterpret_cast<LPCVOID>(m_pCppMainFileRes), m_dwCppMainFileSize, &dwWr, NULL);
+			break;
+
+		case DKF_CPPSRC_INC_RES_ID:
+			fRes = WriteFile(hFile, reinterpret_cast<LPCVOID>(m_pCppSrcIncRes), m_dwCppSrcIncSize, &dwWr, NULL);
+			break;
+
+		default:
 			m_dwError = ERROR_INVALID_PARAMETER;
-			fRes = FALSE;
+			break;
 		}
 
 	} while (FALSE);
 
 	if (!fRes) {
-		if (m_dwError != ERROR_SUCCESS)
+		if (m_dwError != ERROR_INVALID_PARAMETER)
 			m_dwError = GetLastError();
 	}
 
@@ -515,7 +570,21 @@ INT_PTR CALLBACK NAppGen::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM lP
 		RtlZeroMemory(pThis->m_szGccPath, sizeof(pThis->m_szGccPath));
 		return (INT_PTR)TRUE;
 
+
 	case WM_SHOWWINDOW:
+		if (pThis->m_bIsCPPProj) {
+			hCh = GetDlgItem(hDlg, DKGC_CPP_LANG_RB);
+		} else {
+			hCh = GetDlgItem(hDlg, DKGC_C_LANG_RB);
+		}
+		SendMessage(hCh, BM_SETCHECK, static_cast<WPARAM>(BST_CHECKED), 0);
+		hCh = GetDlgItem(hDlg, DKGC_SLN_CHECK);
+		if (pThis->m_bIncSolution) {
+			SendMessage(hCh, BM_SETCHECK, static_cast<WPARAM>(BST_CHECKED), 0);
+		} else {
+			SendMessage(hCh, BM_SETCHECK, static_cast<WPARAM>(BST_UNCHECKED), 0);
+		}
+
 		hCh = GetDlgItem(hDlg, DKGC_PROJ_NAME);
 		if (hCh) SetFocus(hCh);
 		SetDlgItemText(hDlg, DKGC_PROJ_NAME, _T("NApplication"));
@@ -589,6 +658,16 @@ INT_PTR CALLBACK NAppGen::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM lP
 				}
 				CoTaskMemFree(pShRet);
 			}
+			break;
+
+		case DKGC_C_LANG_RB:
+			DBG_PRINTF(_T("%s: C Lang. selected\r\n"), FUNCT_NAME_STR);
+			pThis->m_bIsCPPProj = false;
+			break;
+
+		case DKGC_CPP_LANG_RB:
+			DBG_PRINTF(_T("%s: C++ Lang. selected\r\n"), FUNCT_NAME_STR);
+			pThis->m_bIsCPPProj = true;
 			break;
 
 		default:
@@ -685,6 +764,22 @@ bool NAppGen::Generate(HWND hWnd, bool fOverwrite)
 	m_pszProjUUID = NULL;
 
 	do {
+		iRes = DialogBoxParam(
+						GetModuleHandle(NULL), 
+						MAKEINTRESOURCE(DKD_GEN_CODE), 
+						hWnd, 
+						NAppGen::_DlgProc, 
+						(LPARAM) this
+						);
+		if (iRes != DKGC_BTN_OK) {
+			if (iRes == DKGC_BTN_CANCEL) {
+				m_dwError = ERROR_CANCELLED;
+			} else {
+				m_dwError = GetLastError();
+			}
+			break;
+		}
+
 		rpStat = UuidCreate(&m_ProjUUID);
 		if (rpStat != RPC_S_OK) {
 			m_dwError = rpStat;
@@ -694,18 +789,6 @@ bool NAppGen::Generate(HWND hWnd, bool fOverwrite)
 		rpStat = UuidToStringA(&m_ProjUUID, &m_pszProjUUID);
 		if (rpStat != RPC_S_OK) {
 			m_dwError = rpStat;
-			break;
-		}
-
-		iRes = DialogBoxParam(
-						GetModuleHandle(NULL), 
-						MAKEINTRESOURCE(DKD_GEN_CODE), 
-						hWnd, 
-						NAppGen::_DlgProc, 
-						(LPARAM) this
-						);
-		if (iRes == DKGC_BTN_CANCEL) {
-			m_dwError = ERROR_CANCELLED;
 			break;
 		}
 
@@ -720,11 +803,19 @@ bool NAppGen::Generate(HWND hWnd, bool fOverwrite)
 		bRes = _CreateMakefile(fOverwrite);
 		if (!bRes) break;
 
-		bRes = _CreateFile(fOverwrite, "Main.c", DKF_MAIN_RES_ID, DKF_MAIN_RES_TYPE);
-		if (!bRes) break;
+		if (m_bIsCPPProj) {
+			bRes = _CreateSourceFile(fOverwrite, "Main.cpp", DKF_CPPMAIN_RES_ID);
+			if (!bRes) break;
 
-		bRes = _CreateFile(fOverwrite, "Sources.inc", DKF_SRC_INC_RES_ID, DKF_SRC_INC_RES_TYPE);
-		if (!bRes) break;
+			bRes = _CreateSourceFile(fOverwrite, "Sources.inc", DKF_CPPSRC_INC_RES_ID);
+			if (!bRes) break;
+		} else {
+			bRes = _CreateSourceFile(fOverwrite, "Main.c", DKF_CMAIN_RES_ID);
+			if (!bRes) break;
+
+			bRes = _CreateSourceFile(fOverwrite, "Sources.inc", DKF_CSRC_INC_RES_ID);
+			if (!bRes) break;
+		}
 
 	} while (FALSE);
 

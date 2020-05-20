@@ -93,7 +93,7 @@ const char * NAppGen::m_szProj[DKS_PROJ_MAX_LINES] =
 	"			UniqueIdentifier=\"{4FC737F1-C7A5-4376-A066-2A32D752A2FF}\"\r\n"
 	"			>\r\n"
 	"			<File\r\n"
-	"				RelativePath=\".\\Main.c\"\r\n"
+	"				RelativePath=\"",									// L11
 	"				>\r\n"
 	"			</File>\r\n"
 	"		</Filter>\r\n"
@@ -121,44 +121,50 @@ const char * NAppGen::m_szProj[DKS_PROJ_MAX_LINES] =
 	"	<Globals>\r\n"
 	"	</Globals>\r\n"
 	"</VisualStudioProject>\r\n"
-	"\r\n",														// L11
-	NULL														// L12 (END)
+	"\r\n",														// L12
+	NULL														// L13 (END)
 };
 
-const char * NAppGen::m_szMkfile[DKS_MKF_MAX_LINES] =
+const char * NAppGen::m_szMkFlHdr[DKS_MKF_HDR_MAX_LINES] =
 {
 	"####\r\n"
-	"# Makefile for ARM Cortex-M processor based MCU\r\n"
+	"# Makefile for NanoOS application\r\n"
 	"# Minimal Makefile\r\n"
 	"##\r\n"
 	"\r\n"
-	"CORT_VER			= m3\r\n"
-	"TGT_CPU			= arm_cortex_$(CORT_VER)\r\n"
+	"CORT_VER			= m3\r\n",							// L0
+	"TGT_CPU				= arm_cortex_$(CORT_VER)\r\n",	// L1
+	"\r\n"
+	"###\r\n"
+	"# Target name\r\n"
+	"TGT_NAME			= ",								// L2
 	"\r\n"
 	"###\r\n"
 	"# Output directory (OUT_DIR), this directory will contain .elf and .bin file as result of building process\r\n"
 	"# change this line if you want specify another directory as build output\r\n"
-	"#\r\n",													// L0
-	"OUT_DIR				= ",								// L1
+	"#\r\n"
+	"OUT_DIR				= ",							// L3
 	"\r\n"
 	"###\r\n"
 	"# Source directory, change this line if want ot specify another directory as your source directory\r\n"
-	"#\r\n",													// L2
-	"SRCS_DIR			= ",									// L3
+	"#\r\n"
+	"SRCS_DIR			= ",								// L4
 	"\r\n"
 	"###\r\n"
 	"# Include path, change this line to specify other include path\r\n"
-	"#\r\n",													// L4
-	"INCLUDE				= ",								// L5
+	"#\r\n"
+	"INCLUDE				= ",							// L5
 	"\r\n"
 	"###\r\n"
 	"# GCC_BIN_DIR is directory where gcc.exe. ld.exe and so on exist\r\n"
-	"# Change the line below if the gcc compiler is on somewhere else, for example GCC_BIN_DIR = D:\\OtherDir\r\n"
-	"#\r\n",													// L6
-	"GCC_BIN_DIR			= ",								// L7
+	"# Change the line below if the gcc compiler is on somewhere else, for example GCC_BIN_DIR = D:\\OtherDir\\r\n"
+	"#\r\n"
+	"GCC_BIN_DIR			= ",							// L6
 	"\r\n"
-	"PATH				= $(GCC_BIN_DIR);$(PATH)\r\n"
-	"\r\n"
+	"PATH				= $(GCC_BIN_DIR);$(PATH)\r\n"		// L7
+};
+
+const char NAppGen::m_szMkFlCBody[] =
 	"CC					= gcc.exe\r\n"
 	"\r\n"
 	"CC_OPTS				= \\\r\n"
@@ -172,7 +178,6 @@ const char * NAppGen::m_szMkfile[DKS_MKF_MAX_LINES] =
 	"					  -mthumb\\\r\n"
 	"					  -ffunction-sections\\\r\n"
 	"					  -O0\\\r\n"
-	"					  -mfix-cortex-m3-ldrd\\\r\n"
 	"					  -c\r\n"
 	"\r\n"
 	"LINK				= ld.exe\r\n"
@@ -183,8 +188,6 @@ const char * NAppGen::m_szMkfile[DKS_MKF_MAX_LINES] =
 	"\r\n"
 	"GEN_BIN				= objcopy.exe\r\n"
 	"GEN_BIN_OPT			= -Obinary\r\n"
-	"\r\n",													// L8
-	"TGT_NAME			= ",								// L9
 	"\r\n"
 	"TGT					= $(TGT_NAME).bin\r\n"
 	"ELF					= $(TGT_NAME).elf\r\n"
@@ -198,7 +201,17 @@ const char * NAppGen::m_szMkfile[DKS_MKF_MAX_LINES] =
 	"	@if not exist $(OUT_DIR) mkdir $(OUT_DIR)\r\n"
 	"	@set OBJ_FILES=\r\n"
 	"\r\n"
-	"$(SRCS)		: prep\r\n"
+	"nanolibs	: prep\r\n"
+	"	@echo Compiling NanoOS library\r\n"
+	"!IFDEF _DEBUG\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Debug\\NanoApi.obj\r\n"
+	"	@$(CC) $(CC_OPTS) -o Debug\\NanoApi.obj $(INCLUDE)\\NanoApi.c\r\n"
+	"!ELSE\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Release\\NanoApi.obj\r\n"
+	"	@$(CC) $(CC_OPTS) -o Release\\NanoApi.obj $(INCLUDE)\\NanoApi.c\r\n"
+	"!ENDIF\r\n"
+	"\r\n"
+	"$(SRCS)		: nanolibs\r\n"
 	"	@echo Compiling $@\r\n"
 	"!IFDEF _DEBUG\r\n"
 	"	@set OBJ_FILES=%%OBJ_FILES%% Debug\\$(*B).obj\r\n"
@@ -225,7 +238,91 @@ const char * NAppGen::m_szMkfile[DKS_MKF_MAX_LINES] =
 	"	@if exist Release\\*.obj erase /S /Q Release\\*.obj\r\n"
 	"!ENDIF\r\n"
 	"\r\n"
-	"rebuild		: clean all\r\n"
-	"\r\n",												// L10
-	NULL												// L11 (END)
-};
+	"rebuild		: clean all\r\n";
+
+const char NAppGen::m_szMkFlCppBody[] =
+	"CC					= gcc.exe\r\n"
+	"\r\n"
+	"CC_OPTS				= \\\r\n"
+	"!IFDEF _DEBUG\r\n"
+	"					  -Wall\\\r\n"
+	"					  -D_DEBUG\\\r\n"
+	"					  -g\\\r\n"
+	"!ENDIF\r\n"
+	"					  -I$(INCLUDE)\\\r\n"
+	"					  -mcpu=cortex-$(CORT_VER)\\\r\n"
+	"					  -mthumb\\\r\n"
+	"					  -ffunction-sections\\\r\n"
+	"					  -O0\\\r\n"
+	"					  -c\r\n"
+	"\r\n"
+	"CPP					= g++.exe\r\n"
+	"\r\n"
+	"CPP_OPTS			= \\\r\n"
+	"					  -fno-exceptions\\\r\n"
+	"					  -fno-rtti\\\r\n"
+	"					  $(CC_OPTS)\r\n"
+	"\r\n"
+	"LINK				= ld.exe\r\n"
+	"LINK_OPTS			= \\\r\n"
+	"					  --gc-sections\\\r\n"
+	"					  -T$(INCLUDE)\\NanoApp.ld\\\r\n"
+	"					  -o$(OUT_DIR)\\$(ELF)\r\n"
+	"\r\n"
+	"GEN_BIN				= objcopy.exe\r\n"
+	"GEN_BIN_OPT			= -Obinary\r\n"
+	"\r\n"
+	"TGT					= $(TGT_NAME).bin\r\n"
+	"ELF					= $(TGT_NAME).elf\r\n"
+	"\r\n"
+	"!INCLUDE Sources.inc\r\n"
+	"\r\n"
+	"all			: $(TGT)\r\n"
+	"\r\n"
+	"prep		:\r\n"
+	"	@echo Preparing...\r\n"
+	"	@if not exist $(OUT_DIR) mkdir $(OUT_DIR)\r\n"
+	"	@set OBJ_FILES=\r\n"
+	"\r\n"
+	"nanolibs	: prep\r\n"
+	"	@echo Compiling NanoOS library\r\n"
+	"!IFDEF _DEBUG\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Debug\\NanoApi.obj\r\n"
+	"	@$(CC) $(CC_OPTS) -o Debug\\NanoApi.obj $(INCLUDE)\\NanoApi.c\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Debug\\NanoStd.obj\r\n"
+	"	@$(CPP) $(CPP_OPTS) -o Debug\\NanoStd.obj $(INCLUDE)\\NanoStd.cpp\r\n"
+	"!ELSE\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Release\\NanoOSApi.obj\r\n"
+	"	@$(CC) $(CC_OPTS) -o Debug\\NanoOSApi.obj $(INCLUDE)\\NanoOSApi.c\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Release\\NanoStd.obj\r\n"
+	"	@$(CPP) $(CPP_OPTS) -o Release\\NanoStd.obj $(INCLUDE)\\NanoStd.cpp\r\n"
+	"!ENDIF\r\n"
+	"\r\n"
+	"$(SRCS)		: nanolibs\r\n"
+	"	@echo Compiling $@\r\n"
+	"!IFDEF _DEBUG\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Debug\\$(*B).obj\r\n"
+	"	@$(CPP) $(CPP_OPTS) -o Debug\\$(*B).obj $@\r\n"
+	"!ELSE\r\n"
+	"	@set OBJ_FILES=%%OBJ_FILES%% Release\\$(*B).obj\r\n"
+	"	@$(CPP) $(CPP_OPTS) -o Release\\$(*B).obj $@\r\n"
+	"!ENDIF\r\n"
+	"\r\n"
+	"$(ELF)		: $(SRCS)\r\n"
+	"	@echo Linking...\r\n"
+	"	@$(LINK) $(LINK_OPTS) %%OBJ_FILES%%\r\n"
+	"\r\n"
+	"$(TGT)		: $(ELF)\r\n"
+	"	@echo Generating binary...\r\n"
+	"	@$(GEN_BIN) $(GEN_BIN_OPT) $(OUT_DIR)\\$(ELF) $(OUT_DIR)\\$(TGT)\r\n"
+	"\r\n"
+	"clean		:\r\n"
+	"	@echo Cleaning up...\r\n"
+	"	@if exist $(OUT_DIR)\\*.* erase /S /Q $(OUT_DIR)\\*.*\r\n"
+	"!IFDEF _DEBUG\r\n"
+	"	@if exist Debug\\*.obj erase /S /Q Debug\\*.obj\r\n"
+	"!ELSE\r\n"
+	"	@if exist Release\\*.obj erase /S /Q Release\\*.obj\r\n"
+	"!ENDIF\r\n"
+	"\r\n"
+	"rebuild		: clean all\r\n";

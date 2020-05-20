@@ -26,20 +26,16 @@ static const char	sHexCharsL[] = { "0123456789abcdef" };
 
 void * __dso_handle;	// Just to satisfy the linker.
 
-static unsigned int	sDTorCount = 0;	// Must be initialized ?
+static PDTOR_ITEM sDTorList = 0;	// Must be initialized ?
 
 void __aeabi_atexit(void * pObj, GLOB_OBJ_DTOR dTor, void * pEndAddr)
 {
-	PDTOR_ITEM		pDtor = (PDTOR_ITEM) &_end_bss;
-
-	pDtor += sDTorCount;
-
-	if ((unsigned int) pDtor > (APP_SRAM_LIMIT_ADDRESS - sizeof(DTOR_ITEM))) 
+	if ((unsigned int) sDTorList > (APP_SRAM_LIMIT_ADDRESS - sizeof(DTOR_ITEM)))
 		return;
-	
-	pDtor->ObjectPtr = pObj;
-	pDtor->Destructor = dTor;
-	sDTorCount++;
+
+	sDTorList->ObjectPtr = pObj;
+	sDTorList->Destructor = dTor;
+	sDTorList++;
 }
 
 APP_SEGMENT_ATTR
@@ -65,6 +61,8 @@ int NanoEntry(void * pParm)
 		*puiDst++ = 0;
 	}
 
+	sDTorList = (PDTOR_ITEM) &_end_bss;
+
 	/*
 	 * Initialize CPP global object if any
 	 */
@@ -85,20 +83,17 @@ int NanoEntry(void * pParm)
 	/*
 	 * De-initialize CPP global object if any
 	 */
-	PDTOR_ITEM	pDtor;
-	do {
-		sDTorCount--;
-		pDtor = (PDTOR_ITEM) &_end_bss;
-		pDtor += sDTorCount;
-
+	while ((unsigned int) sDTorList > (unsigned int) &_end_bss)
+	{
+		sDTorList--;
 		__asm volatile
 			(
 			"MOV.W R1, %0;"
 			"MOV.W R0, %1;"
 			"BLX R1;"
-			: : "r" (pDtor->Destructor), "r" (pDtor->ObjectPtr)
+			: : "r" (sDTorList->Destructor), "r" (sDTorList->ObjectPtr)
 			);
-	} while (sDTorCount > 0);
+	}
 
 	return iRet;
 }

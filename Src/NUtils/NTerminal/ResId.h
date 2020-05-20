@@ -62,6 +62,8 @@
 #define DKGC_INC_BROW					46
 #define DKGC_BTN_OK						47
 #define DKGC_BTN_CANCEL					48
+#define DKGC_C_LANG_RB					49
+#define DKGC_CPP_LANG_RB				50					
 
 #define DKS_SLN_BEGIN					0
 #define DKS_SLN_PROJ_GUID_NAME			1
@@ -84,27 +86,25 @@
 #define DKS_PROJ_REL_OUTPUT				8
 #define DKS_PROJ_L9						9
 #define DKS_PROJ_REL_INC_PATH			10
-#define DKS_PROJ_L11					11
-#define DKS_PROJ_END					12
-#define DKS_PROJ_MAX_LINES				13
+#define DKS_PROJ_SRC_FILE				11
+#define DKS_PROJ_L12					12
+#define DKS_PROJ_END					13
+#define DKS_PROJ_MAX_LINES				14
 
-#define DKS_MKF_BEGIN					0
-#define DKS_MKF_OUT_DIR					1
-#define DKS_MKF_L2						2
-#define DKS_MKF_SRCS_DIR				3
-#define DKS_MKF_L4						4
-#define DKS_MKF_INCLUDE					5
-#define DKS_MKF_L6						6
-#define DKS_MKF_GCC_DIR					7
-#define DKS_MKF_L8						8
-#define DKS_MKF_TGT_NAME				9
-#define DKS_MKF_L10						10
-#define DKS_MKF_END						11
-#define DKS_MKF_MAX_LINES				12
+#define DKS_MKF_HDR_CORT_VER			0
+#define DKS_MKF_HDR_TGT_CPU				1
+#define DKS_MKF_HDR_TGT_NAME			2
+#define DKS_MKF_HDR_OUT_DIR				3
+#define DKS_MKF_HDR_SRCS_DIR			4
+#define DKS_MKF_HDR_INCLUDE				5
+#define DKS_MKF_HDR_GCC_DIR				6
+#define DKS_MKF_HDR_L7					7
+#define DKS_MKF_HDR_MAX_LINES			8
 
-#define DKF_MAIN_RES_ID					470
-#define DKF_MAIN_RES_TYPE				471
-#define DKF_SRC_INC_RES_ID				472
-#define DKF_SRC_INC_RES_TYPE			473
+#define DKF_CMAIN_RES_ID				470
+#define DKF_RES_TYPE					471
+#define DKF_CSRC_INC_RES_ID				472
+#define DKF_CPPMAIN_RES_ID				474
+#define DKF_CPPSRC_INC_RES_ID			476
 
 #endif	// End of RESID_H

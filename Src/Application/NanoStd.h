@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include "..\NanoOSApi.h"
+#include "NanoOSApi.h"
 
 #define OVERFLOW_FLAG		0x10000000
 #define CARRY_FLAG			0x20000000

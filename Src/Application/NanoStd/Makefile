@@ -16,7 +16,7 @@ ELF					= $(TGT_NAME).elf
 NANOAPI				= $(SRCS_DIR)\NanoApi.c
 
 SRCS				= \
-					  $(SRCS_DIR)\$(TGT_NAME)\NanoStd.cpp\
+					  $(SRCS_DIR)\NanoStd.cpp\
 					  $(SRCS_DIR)\$(TGT_NAME)\Main.cpp
 					  
 CPP					= g++

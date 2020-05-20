@@ -73,7 +73,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\Application\NanoStd\NanoStd.cpp"
+				RelativePath="..\..\..\Src\Application\NanoStd.cpp"
 				>
 			</File>
 		</Filter>
@@ -87,7 +87,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\Application\NanoStd\NanoStd.h"
+				RelativePath="..\..\..\Src\Application\NanoStd.h"
 				>
 			</File>
 		</Filter>
