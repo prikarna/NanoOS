@@ -6,6 +6,13 @@
 
 #include "NanoStd.h"
 
+#define OVERFLOW_FLAG		0x10000000
+#define CARRY_FLAG			0x20000000
+#define ZERO_FLAG			0x40000000
+#define NEGATIVE_FLAG		0x80000000
+#define NZ_FLAGS			(NEGATIVE_FLAG | ZERO_FLAG)
+#define STATUS_FLAGS		(OVERFLOW_FLAG | CARRY_FLAG | ZERO_FLAG | NEGATIVE_FLAG)
+
 namespace NanoStd
 {
 
@@ -43,7 +50,7 @@ void Output::_WriteString(const char *szString)
 	}
 }
 
-void Output::_WriteString(SArray<char, 64> &szBuffer)
+void Output::_WriteString(Array<char, 64> &szBuffer)
 {
 	int	iLen = StrLen(&szBuffer[0]);
 	if (iLen <= 0) return;
@@ -171,7 +178,7 @@ Output& Output::operator <<(const char *szText)
 	return *this;
 }
 
-Output& Output::operator <<(NanoStd::SArray<char,64> &szBuffer)
+Output& Output::operator <<(NanoStd::Array<char,64> &szBuffer)
 {
 	_WriteString(szBuffer);
 	return *this;
@@ -281,7 +288,7 @@ void Input::_ReadString(char szStrBuf[])
 	} while (fRes);
 }
 
-void Input::_ReadString(SArray<char, 64> &Buffer)
+void Input::_ReadString(Array<char, 64> &Buffer)
 {
 	char *			pBuf = &Buffer[0];
 	char			chNL = '\n';
@@ -299,7 +306,7 @@ void Input::_ReadString(SArray<char, 64> &Buffer)
 				*pBuf = '\0';
 				break;
 			}
-			if (++uiCount >= Buffer.Size())
+			if (++uiCount >= 64)
 				break;
 
 			pBuf++;
@@ -454,7 +461,7 @@ Input& Input::operator >>(char szStrBuf[])
 	return *this;
 }
 
-Input& Input::operator >>(SArray<char, 64> &Buffer)
+Input& Input::operator >>(Array<char, 64> &Buffer)
 {
 	_ReadString(Buffer);
 	return *this;

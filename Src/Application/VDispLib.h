@@ -1,6 +1,8 @@
 /*
  * File    : VDispLib.h
  * Remark  : List of data definitions and functions to access VDisplay.
+ *           (This lib. has been replaced by NDisplay class, provided here for hystorical
+ *            purpose only and will be removed in the future).
  *
  */
 

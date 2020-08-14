@@ -7,6 +7,10 @@
 #ifndef ADDRESS_H
 #define ADDRESS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "Thread.h"
 
 #define FLASH_ADDRESS				0x00000000				// Could be mapped by hardware
@@ -39,5 +43,9 @@
 #define APP_FLASH_ADDRESS			(FLASH_ADDRESS + SYSTEM_FLASH_SIZE)	// 0x00008000
 #define APP_FLASH_RUN_ADDRESS		(APP_FLASH_ADDRESS + 1)
 #define APP_FLASH_WRITE_ADDRESS		(FLASH_WRITE_BASE_ADDRESS + APP_FLASH_ADDRESS)	// 0x08008000
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // End of ADDRESS_H

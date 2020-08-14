@@ -973,3 +973,29 @@ UINT32_T StreamPrintf(UINT8_PTR_T pBuffer, UINT32_T uBufferLength, const char * 
 
 	return StrParm.Counter;
 }
+
+/*
+ * C++ compiler required functions
+ */
+
+/*
+ * Not sure exactly when this function being called,
+ * for now just outputing to debug iface and 'trap' it.
+ */
+void __cxa_pure_virtual()
+{
+	DbgPrintf("%s\r\n", __FUNCTION__);
+	ExitThread();
+}
+
+void *memcpy(void * pDst, const void * pSrc, unsigned int uiLength)
+{
+	unsigned char *pD = (unsigned char *) pDst;
+	unsigned char *pS = (unsigned char *) pSrc;
+	for (unsigned int u = 0; u < uiLength; u++)
+	{
+		*pD++ = *pS++;
+	}
+
+	return pDst;
+}

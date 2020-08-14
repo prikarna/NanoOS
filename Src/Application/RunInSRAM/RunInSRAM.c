@@ -54,7 +54,7 @@ int main(int argc, char * argv[])
 	/*
 	 * Get current PC (Program Counter) register. If PC is in range of FLASH memory then this application run in FLASH 
 	 * memory. If PC is in range of SRAM then this application run in SRAM. FLASH and SRAM start addresses and their 
-	 * range can be seen in ld script, in this case: RunInSRAM.ld
+	 * range can be seen in ld script, in this case: NanoAppSRAM.ld
 	 */
 	GET_PC(uPC);
 

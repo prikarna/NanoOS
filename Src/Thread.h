@@ -40,11 +40,16 @@ typedef struct _THREAD_STACK	THREAD_STACK, *PTHREAD_STACK;
 #define THREAD_FLAG__TERMINATING	0x00000001
 #define THREAD_FLAG__RESERVED		0x00000002
 #define THREAD_FLAG__PROBING		0x00000004
+#define THREAD_FLAG__IO_RECEIVE		0x00000010
+#define THREAD_FLAG__IO_SEND		0x00000020
 
 #define THREAD_WAIT_TYPE__SLEEP			0
 #define THREAD_WAIT_TYPE__OBJECT		1
+#define THREAD_WAIT_TYPE__IO_INTERRUPT	2
 
 struct _THREAD {
+	struct _THREAD *			FLink;		// Forward linkage
+	struct _THREAD *			BLink;		// Backward linkage
 	UINT32_T					Id;
 	THREAD_ENTRY_TYPE			Entry;
 	int							ReturnValue;

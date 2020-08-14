@@ -43,11 +43,11 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine=""
-				ReBuildCommandLine=""
-				CleanCommandLine=""
+				BuildCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile all"
+				ReBuildCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile rebuild"
+				CleanCommandLine="nmake /nologo /F ..\..\..\Src\Application\$(ProjectName)\Makefile clean"
 				Output="VDispSample.bin"
-				PreprocessorDefinitions="WIN32;NDEBUG"
+				PreprocessorDefinitions="__GNUC__"
 				IncludeSearchPath=""
 				ForcedIncludes=""
 				AssemblySearchPath=""
@@ -65,15 +65,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\..\Src\Application\VDispTest\Main.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Src\Application\NanoApi.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\Application\VDispLib.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Src\Application\VDispTest\VDispTest.c"
+				RelativePath="..\..\..\Src\Application\NDisplay.cpp"
 				>
 			</File>
 		</Filter>
@@ -87,11 +87,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\Application\VDispData.h"
+				RelativePath="..\..\..\Src\Application\NDisplay.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Src\Application\VDispLib.h"
+				RelativePath="..\..\..\Src\Application\VDispData.h"
 				>
 			</File>
 		</Filter>

@@ -257,18 +257,26 @@ bool VDisplay::Create(HINSTANCE hInst, HWND hClientWnd, const TCHAR *szTitle, in
 	return bRes;
 }
 
-bool VDisplay::SetPixel(unsigned int uiX, unsigned int uiY, COLORREF Color)
+bool VDisplay::SetPixel(int iX, int iY, COLORREF Color)
 {
 	COLORREF	cRes = 0;
 	BOOL		fRes = FALSE;
 
-	cRes = ::SetPixel(m_hDc, (int) uiX, (int) uiY, Color);
+	cRes = ::SetPixel(m_hDc, iX, iY, Color);
 	if (cRes != 1) {
 		fRes = InvalidateRect(m_hWnd, NULL, FALSE);
+		if (fRes) {
+			fRes = UpdateWindow(m_hWnd);
+		}
 	}
 
 	return ((fRes) ? true : false);
-	//return ((cRes != 1) ? true : false);
+}
+
+bool VDisplay::GetPixel(int iX, int iY, COLORREF &Color)
+{
+	Color = ::GetPixel(m_hDc, iX, iY);
+	return (Color != 1) ? true : false;
 }
 
 bool VDisplay::FillRectangle(const LPRECT pRectangle, COLORREF Color)
@@ -291,7 +299,10 @@ bool VDisplay::FillRectangle(const LPRECT pRectangle, COLORREF Color)
 
 	fRes = FillRect(m_hDc, &rc, m_hBrush);
 	if (fRes) {
-		fRes = InvalidateRect(m_hWnd, &rc, TRUE);
+		fRes = InvalidateRect(m_hWnd, &rc, FALSE);
+		if (fRes) {
+			fRes = UpdateWindow(m_hWnd);
+		}
 	}
 
 	return ((fRes) ? true : false);
@@ -300,10 +311,11 @@ bool VDisplay::FillRectangle(const LPRECT pRectangle, COLORREF Color)
 bool VDisplay::Update()
 {
 	BOOL	fRes = FALSE;
-	//RECT	rc = {0};
 
-	//GetClientRect(m_hWnd, &rc);
 	fRes = InvalidateRect(m_hWnd, NULL, TRUE);
+	if (fRes) {
+		fRes = UpdateWindow(m_hWnd);
+	}
 
 	return ((fRes) ? true : false);
 }

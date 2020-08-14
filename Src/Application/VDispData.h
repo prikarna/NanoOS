@@ -27,16 +27,16 @@ extern "C" {
 #define VDISP_GET_BVALUE(Color)	((Color >> 16) & 0xFF)
 
 typedef struct _VDISP_PIXEL_DATA {
-	unsigned int		X;
-	unsigned int		Y;
+	int		X;
+	int		Y;
 	VDISP_COLORREF	Color;
 } VDISP_PIXEL_DATA, *PVDISP_PIXEL_DATA;
 
 typedef struct _VDISP_RECTANGLE {
-	unsigned int		Left;
-	unsigned int		Top;
-	unsigned int		Right;
-	unsigned int		Bottom;
+	int		Left;
+	int		Top;
+	int		Right;
+	int		Bottom;
 } VDISP_RECTANGLE, *PVDISP_RECTANGLE;
 
 typedef struct _VDISP_FILL_RECT_DATA {
@@ -48,22 +48,25 @@ typedef struct _VDISP_FILL_RECT_DATA {
  * IN and OUT tag are relative to NanoOS point of view
  */
 
-#define VDISP_IN_TYPE__NONE		0
-#define VDISP_IN_TYPE__TOUCH	1
-#define VDISP_IN_TYPE__RELEASED	2
-#define VDISP_IN_TYPE__TAB		3
-#define VDISP_IN_TYPE__DRAG		4
+#define VDISP_IN_TYPE__NONE		1
+#define VDISP_IN_TYPE__TOUCH	2
+#define VDISP_IN_TYPE__RELEASED	3
+#define VDISP_IN_TYPE__TAB		4
+#define VDISP_IN_TYPE__DRAG		5
+#define VDISP_IN_TYPE__PIXEL	6
 
 typedef struct _VDISP_IN_DATA {
-	unsigned int		Type;
-	unsigned int		X;
-	unsigned int		Y;
+	unsigned int	Type;
+	int				X;
+	int				Y;
+	VDISP_COLORREF	Color;
 } VDISP_IN_DATA, *PVDISP_IN_DATA;
 
-#define VDISP_OUT_TYPE__NONE			0
-#define VDISP_OUT_TYPE__PIXEL			1
-#define VDISP_OUT_TYPE__FILL_RECT		2
-#define VDISP_OUT_TYPE__UPDATE			3
+#define VDISP_OUT_TYPE__NONE		1
+#define VDISP_OUT_TYPE__SET_PIXEL	2
+#define VDISP_OUT_TYPE__GET_PIXEL	3
+#define VDISP_OUT_TYPE__FILL_RECT	4
+#define VDISP_OUT_TYPE__UPDATE		5
 
 /* Must be less than USB_DATA_SIZE (64 bytes) */
 typedef struct _VDISP_OUT_DATA {

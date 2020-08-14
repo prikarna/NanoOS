@@ -13,21 +13,35 @@ OUT_OBJ_DIR			= $(OUT_DIR)\Objs\Application\$(TGT_NAME)
 TGT					= $(TGT_NAME).bin
 ELF					= $(TGT_NAME).elf
 
+NANOAPI				= $(SRCS_DIR)\NanoApi.c
+
 SRCS				= \
-					  $(SRCS_DIR)\$(TGT_NAME)\VDispTest.c\
-					  $(SRCS_DIR)\VDispLib.c\
-					  $(SRCS_DIR)\NanoApi.c
+					  $(SRCS_DIR)\NanoStd.cpp\
+					  $(SRCS_DIR)\NDisplay.cpp\
+					  $(SRCS_DIR)\$(TGT_NAME)\Main.cpp
+					  
+CPP					= g++
+
+CPP_OPTS			= \
+					  -D_CHIP_STM32F10XXX\
+!IFDEF _DEBUG
+					  -Wall\
+					  -D_DEBUG\
+					  -g\
+!ENDIF
+					  -mcpu=cortex-$(CORT_VER)\
+					  -mthumb\
+					  -ffunction-sections\
+					  -fdata-sections\
+					  -fno-exceptions\
+					  -fno-rtti\
+					  -O0\
+					  -c
 
 LINK_OPTS			= \
 					  --gc-sections\
 					  -T$(SRCS_DIR)\NanoApp.ld\
 					  -o$(OUT_BIN_DIR)\$(ELF)
-
-GEN_BIN				= objcopy.exe
-GEN_BIN_OPT			= -I elf32-littlearm -O binary
-
-OBJ_DUMP			= objdump.exe
-OBJ_DUMP_OPT		= -d
 
 all			: $(TGT)
 
@@ -37,10 +51,15 @@ prep		:
 	@if not exist "$(OUT_OBJ_DIR)" mkdir "$(OUT_OBJ_DIR)"
 	@set OBJ_FILES=
 	
-$(SRCS)		: prep
+$(NANOAPI)	: prep
 	@echo Compiling $@
 	@set OBJ_FILES=%%OBJ_FILES%% $(OUT_OBJ_DIR)\$(*B).obj
 	@$(CC) $(CC_OPTS) -o $(OUT_OBJ_DIR)\$(*B).obj $@
+
+$(SRCS)		: $(NANOAPI)
+	@echo Compiling $@
+	@set OBJ_FILES=%%OBJ_FILES%% $(OUT_OBJ_DIR)\$(*B).obj
+	@$(CPP) $(CPP_OPTS) -o $(OUT_OBJ_DIR)\$(*B).obj $@
 
 $(ELF)		: $(SRCS)
 	@echo Linking...

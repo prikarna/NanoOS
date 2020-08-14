@@ -101,15 +101,29 @@ public:
 	Funct.	: SetPixel
 	Desc.   : Set a pixel of virtual display.
 	Params. :
-		uiX
+		iX
 			X position of pixel from left of display client area.
-		uiY
+		iY
 			Y position of pixel from top of display client area.
 		Color
 			Color of the pixel.
 	Return  : true if success otherwise false.
 */
-	bool SetPixel(unsigned int uiX, unsigned int uiY, COLORREF Color);
+	bool SetPixel(int iX, int iY, COLORREF Color);
+
+/*
+	Funct.	: GetPixel
+	Desc.   : Get a pixel of virtual display.
+	Params. :
+		iX
+			X position of pixel from left of display client area.
+		iY
+			Y position of pixel from top of display client area.
+		Color
+			Ref. to Color that will receive color.
+	Return  : true if success otherwise false.
+*/
+	bool GetPixel(int iX, int iY, COLORREF & Color);
 
 /*
 	Funct.	: FillRectangle

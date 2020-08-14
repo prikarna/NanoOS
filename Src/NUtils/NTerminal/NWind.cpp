@@ -684,6 +684,9 @@ void NWind::_HandleOnConsPortError(const TCHAR *szErrMsg)
 void NWind::_HandleOnNanoOSPortDataReceived(char *pDat)
 {
 	PVDISP_OUT_DATA		pDisp = NULL;
+	bool				b = false;
+	COLORREF			cr;
+	VDISP_IN_DATA		InDat;
 
 	if (m_CurIoMode == NWind::UsbIoMod_SerialIo) 
 	{
@@ -698,19 +701,27 @@ void NWind::_HandleOnNanoOSPortDataReceived(char *pDat)
 			DBG_PRINTF(_T("%s: Got NONE data out.\r\n"), FUNCT_NAME_STR);
 			break;
 
-		case VDISP_OUT_TYPE__PIXEL:
-			DBG_PRINTF(_T("%s: Got PIXEL data out.\r\n"), FUNCT_NAME_STR);
-			m_VDisp.SetPixel(pDisp->u.Pixel.X, pDisp->u.Pixel.Y, pDisp->u.Pixel.Color);
+		case VDISP_OUT_TYPE__SET_PIXEL:
+			b = m_VDisp.SetPixel(pDisp->u.Pixel.X, pDisp->u.Pixel.Y, pDisp->u.Pixel.Color);
+			break;
+
+		case VDISP_OUT_TYPE__GET_PIXEL:
+			b = m_VDisp.GetPixel(pDisp->u.Pixel.X, pDisp->u.Pixel.Y, cr);
+			if (b) {
+				InDat.Type = VDISP_IN_TYPE__PIXEL;
+				InDat.X = pDisp->u.Pixel.X;
+				InDat.Y = pDisp->u.Pixel.Y;
+				InDat.Color = cr;
+				b = m_NanoOSPort.Write(reinterpret_cast<unsigned char *>(&InDat), sizeof(VDISP_IN_DATA));
+			}
 			break;
 
 		case VDISP_OUT_TYPE__FILL_RECT:
-			DBG_PRINTF(_T("%s: Got FILL_RECT data out.\r\n"), FUNCT_NAME_STR);
 			m_VDisp.FillRectangle((LPRECT) &(pDisp->u.FillRect.Rectangle), pDisp->u.FillRect.Color);
 			break;
 
 		case VDISP_OUT_TYPE__UPDATE:
 			DBG_PRINTF(_T("%s: Got UPDATE data out.\r\n"), FUNCT_NAME_STR);
-			//m_VDisp.Update();
 			break;
 
 		default:

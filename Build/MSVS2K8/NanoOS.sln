@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NanoStd", "NanoStd\NanoStd.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UsbIo", "UsbIo\UsbIo.vcproj", "{F27D97BE-06F3-4FC6-8056-B0231BA5B073}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NWinApp", "NWinApp\NWinApp.vcproj", "{E7560C42-6820-413F-BC42-9AF5915A7EC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -79,6 +81,10 @@ Global
 		{F27D97BE-06F3-4FC6-8056-B0231BA5B073}.Debug|Win32.Build.0 = Debug|Win32
 		{F27D97BE-06F3-4FC6-8056-B0231BA5B073}.Release|Win32.ActiveCfg = Release|Win32
 		{F27D97BE-06F3-4FC6-8056-B0231BA5B073}.Release|Win32.Build.0 = Release|Win32
+		{E7560C42-6820-413F-BC42-9AF5915A7EC7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E7560C42-6820-413F-BC42-9AF5915A7EC7}.Debug|Win32.Build.0 = Debug|Win32
+		{E7560C42-6820-413F-BC42-9AF5915A7EC7}.Release|Win32.ActiveCfg = Release|Win32
+		{E7560C42-6820-413F-BC42-9AF5915A7EC7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
