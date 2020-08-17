@@ -749,27 +749,36 @@ UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uN
 	// Assume unsinged int of uNumber has 32 bits long
 	//
 
-	unsigned int	uDiv = 0, uMod = 0, uRes = 0;
+	unsigned int	uDiv = 0, uMod = 0;
 	char			buf[128];
 	char *			pc;
 	int				iRes = 0;
+	BOOL			bIsNegative = FALSE;
 
 	if (!PrintChar) return 0;
 
+	if ((uNumber & BITHEX_31) == BITHEX_31) {
+		bIsNegative = TRUE;
+		uNumber = ~uNumber;
+		uNumber++;
+	}
+
 	buf[0] = 0;
 	pc = &buf[1];
-	uRes = uNumber;
 
 	do {
-		uDiv = uRes / 10;
-		uMod = uRes - (uDiv * 10);
+		uDiv = uNumber / 10;
+		uMod = uNumber - (uDiv * 10);
 		*pc++ = sHexCharsU[uMod];
-		uRes = uDiv;
+		uNumber = uDiv;
 	} while (uDiv >= 10);
 	if (uDiv != 0)
 		*pc = sHexCharsU[uDiv];
 	else
 		pc--;
+
+	if (bIsNegative) 
+		(* PrintChar)('-', pParm);
 
 	while (*pc != '\0') {
 		(* PrintChar)(*pc, pParm);
@@ -779,6 +788,52 @@ UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uN
 
 	return (UINT32_T) iRes;
 }
+
+//UINT32_T UtlWriteLongLongNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, long long llNumber)
+//{
+//	//
+//	// Assume unsinged int of llNumber has 64 bits long
+//	//
+//
+//	unsigned long long	uDiv = 0, uMod = 0;
+//	char			buf[128];
+//	char *			pc;
+//	int				iRes = 0;
+//	BOOL			bIsNegative = FALSE;
+//
+//	if (!PrintChar) return 0;
+//
+//	if ((llNumber & 0x8000000000000000) == 0x8000000000000000) {
+//		bIsNegative = TRUE;
+//		llNumber = ~llNumber;
+//		llNumber++;
+//	}
+//
+//	buf[0] = 0;
+//	pc = &buf[1];
+//
+//	do {
+//		uDiv = llNumber / 10;
+//		uMod = llNumber - (uDiv * 10);
+//		*pc++ = sHexCharsU[uMod];
+//		llNumber = uDiv;
+//	} while (uDiv >= 10);
+//	if (uDiv != 0)
+//		*pc = sHexCharsU[uDiv];
+//	else
+//		pc--;
+//
+//	if (bIsNegative) 
+//		(* PrintChar)('-', pParm);
+//
+//	while (*pc != '\0') {
+//		(* PrintChar)(*pc, pParm);
+//		pc--;
+//		iRes++;
+//	}
+//
+//	return (UINT32_T) iRes;
+//}
 
 UINT32_T UtlWriteHexa(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT8_T uIsHexCapital, UINT32_T uHex, UINT32_T uDigit)
 {
@@ -826,6 +881,7 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 	UINT32_T		uCount = 0;
 	UINT32_T		uDigit;
 	BOOL			fRes = FALSE;
+	//long long		ll;
 
 	if (pc == 0) return 0;
 	if (PrintChar == 0) return 0;
@@ -847,6 +903,13 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 			case 'D':
 				u = va_arg(argList, UINT32_T);
 				uRes = UtlWriteNumber(PrintChar, pPrintCharParam, u);
+				uCount += uRes;
+				break;
+
+			case 'l':
+				//ll = va_arg(argList, long long);
+				//uRes = UtlWriteLongLongNumber(PrintChar, pPrintCharParam, ll);
+				UtlWriteString(PrintChar, pPrintCharParam, "['long long' is not supported yet]");
 				uCount += uRes;
 				break;
 

@@ -65,6 +65,7 @@ private:
 	bool _Control(DWORD dwControl);
 	bool _QueryStatus(LPSERVICE_STATUS pStatus);
 	bool _GetFilePathFromFullPath(const TCHAR *szFullPathFileName, TCHAR *szBufer, int iBufferByteSize);
+	bool _GetFileNameFromFullPath(const TCHAR *szFullPathFileName, TCHAR *szBuffer, int iBufferByteSize);
 
 	void _HandleError(DWORD dwError);
 };

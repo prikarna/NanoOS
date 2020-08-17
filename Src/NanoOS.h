@@ -14,7 +14,7 @@
 #define NANOOS_H
 
 #define PROG_NAME_STR		"NanoOS"
-#define PROG_VER			0x0102
+#define PROG_VER			0x0103
 #define PROG_MJ_VER			((PROG_VER >> 8) & 0xFF)
 #define PROG_MN_VER			(PROG_VER & 0xFF)
 #define TGT_CHIP_STR		"Stm32f10XXX"
@@ -133,6 +133,7 @@ UINT32_T ThdGetLastError();
 BOOL ThdSaveCurrentThread(UINT32_PTR_T pCurStack);
 BOOL ThdRestoreCurrentThread();
 BOOL ThdReleaseCurrentSaveTID();
+PTHREAD ThdGetWaitingInterrupt(UINT32_T uiIntNumb, UINT32_T uiFlags);
 
 
 /*
@@ -141,7 +142,8 @@ BOOL ThdReleaseCurrentSaveTID();
 void UsbInitialize();
 UINT8_T UsbSend(UINT8_PTR_T pBuffer, UINT32_T uiBufferByteLength, BOOL fWait);
 BOOL UsbRequestReceive();
-UINT8_T UsbReceive(UINT8_PTR_T pBuffer, UINT32_T uiBuffLength, UINT32_PTR_T puiReceivedDataLength);
+//UINT8_T UsbReceive(UINT8_PTR_T pBuffer, UINT32_T uiBuffLength, UINT32_PTR_T puiReceivedDataLength);
+BOOL UsbCompleteReceive();
 void UsbCancelReceive();
 BOOL UsbIsReady();
 void UsbShutdown();

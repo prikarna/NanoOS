@@ -9,7 +9,7 @@
 #ifndef NPORTSVCVER_H
 #define NPORTSVCVER_H
 
-#define NPORTSVCVER			1,0,1,226
-#define NPORTSVCVER_STR		_T("1.0.1.226")
+#define NPORTSVCVER			1,0,1,227
+#define NPORTSVCVER_STR		_T("1.0.1.227")
 
 #endif		// End of NPORTSVCVER_H

@@ -19,7 +19,7 @@ NSvcControl::NSvcControl():
 
 	RtlZeroMemory(&m_ofn, sizeof(OPENFILENAME));
 	m_ofn.lStructSize	= sizeof(OPENFILENAME);
-	m_ofn.lpstrFilter	= _T("NPortSvc.exe\0\0");
+	m_ofn.lpstrFilter	= _T("Binary file\0*.exe\0\0");
 	m_ofn.lpstrFile		= &m_szFileName[0];
 	m_ofn.nMaxFile		= sizeof(m_szFileName)/sizeof(TCHAR);
 	m_ofn.lpstrTitle	= _T("Find NPortSvc file");
@@ -133,6 +133,30 @@ bool NSvcControl::_GetFilePathFromFullPath(const TCHAR *szFullPathFileName, TCHA
 	return true;
 }
 
+bool NSvcControl::_GetFileNameFromFullPath(const TCHAR *szFullPathFileName, TCHAR *szBuffer, int iBufferByteSize)
+{
+	bool bRes = false;
+
+	if ((szBuffer == NULL) || (iBufferByteSize <= 0)) return false;
+
+	int	iFullPathSize = lstrlen(szFullPathFileName) * sizeof(TCHAR);
+	if (iFullPathSize <= 0) return false;
+
+	RtlZeroMemory(szBuffer, iBufferByteSize);
+	PTCH pName = const_cast<PTCH>(szFullPathFileName);
+	pName += lstrlen(szFullPathFileName);
+	int iRes = 0;
+	for (int iRes = 0; iRes < iBufferByteSize; iRes++)
+	{
+		if (*pName == _T('\\')) break;
+		pName--;
+	}
+	if (*pName != _T('\\')) return false;
+	pName++;
+	StringCbCopy(szBuffer, iBufferByteSize, pName);
+	return true;
+}
+
 DWORD NSvcControl::GetError()
 {
 	return m_dwError;
@@ -142,6 +166,7 @@ bool NSvcControl::Install(HWND hWnd)
 {
 	bool	bRes = false;
 	BOOL	fRes = FALSE;
+	TCHAR	szFile[256];
 
 	do {
 		RtlZeroMemory(m_szFileName, sizeof(m_szFileName));
@@ -149,6 +174,14 @@ bool NSvcControl::Install(HWND hWnd)
 		fRes = GetOpenFileName(&m_ofn);
 		if (!fRes) {
 			m_dwError = CommDlgExtendedError();
+			break;
+		}
+
+		RtlZeroMemory(szFile, sizeof(szFile));
+		_GetFileNameFromFullPath(m_szFileName, szFile, sizeof(szFile));
+		if (lstrcmpi(szFile, _T("NPortSvc.exe")) != 0) {
+			m_dwError = ERROR_FILE_INVALID;
+			_HandleError(m_dwError);
 			break;
 		}
 

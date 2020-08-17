@@ -183,4 +183,6 @@ int UsbProgramFlash(UINT8_PTR_T pUsbRecvBuf);
 #define USB_RECV__CANCELLED		0x02
 #define USB_RECV__COMPLETE		0x04
 
+BOOL UsbCompleteReceive();
+
 #endif  // End of USBSERIAL_H

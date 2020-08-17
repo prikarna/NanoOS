@@ -44,6 +44,8 @@ int main(int , char *[])
 	COut << "Hello " << szBuf << '.' << EndLine;
 
 	COut << Decimal;	// Set to decimal mode
+	COut << "Press <Enter> to continue...";
+	CIn >> szBuf;
 
 	COut << "Creating queue" << EndLine;
 	Queue<int, 6>		IntQue;

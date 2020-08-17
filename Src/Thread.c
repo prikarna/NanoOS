@@ -38,7 +38,6 @@ static THREAD			sThreads[MAX_NUMB_OF_THREADS];
  */
 static PTHREAD			spCurThread;
 static PTHREAD			spNextThread;
-//static PTHREAD			spTmpThread;
 static UINT32_PTR_T		spCurStack;
 static UINT32_PTR_T		spCurFrame;
 static UINT32_T			suVar;
@@ -69,61 +68,6 @@ void ThdParkThread()
 
 	while (TRUE);
 }
-
-/*
-static void GetNextAndSaveCurrentThread()
-{
-	spNextThread = 0;
-	spTmpThread = spCurThread;
-
-	for (suVar = 0; suVar < MAX_NUMB_OF_THREADS; suVar++)
-	{
-		if (spTmpThread->State == THREAD_STATE__WAITING)
-		{
-			spNextThread = spTmpThread;
-			break;
-		}
-
-		if (spTmpThread == &(sThreads[0]))
-		{
-			spTmpThread = &(sThreads[MAX_NUMB_OF_THREADS  - 1]);
-		}
-		else
-		{
-			spTmpThread--;
-		}
-	}
-
-	switch (spCurThread->State)
-	{
-	case THREAD_STATE__RUNNING:
-		TRAP_EXEC(
-				(spCurStack > spCurThread->StartStackPtr),
-				TRAP__CUR_STACK_PTR_GT_START_STACK_PTR,
-				(UINT32_T) spCurStack,
-				(UINT32_T) spCurThread->StartStackPtr
-				);
-
-		if (spNextThread) {
-			spCurThread->LastStackPtr = spCurStack;
-			spCurThread->State = THREAD_STATE__WAITING;
-		}
-		break;
-
-	case THREAD_STATE__SLEEP:
-	case THREAD_STATE__WAIT_FOR_OBJECT:
-	case THREAD_STATE__SUSPENDED:
-		if (spNextThread == 0) {
-			spInitStack = (PINITIAL_THREAD_STACK) spCurThread->LastStackPtr;
-			spInitStack->ExcFrame.PC = (UINT32_T) ThdParkThread;
-		}
-		break;
-
-	default:
-		break;
-	}
-}
-*/
 
 static void GetNextAndSaveCurrentThread()
 {
@@ -165,55 +109,6 @@ static void GetNextAndSaveCurrentThread()
 		break;
 	}
 }
-
-/*
-__attribute__((naked))
-void ExcSystemTick()
-{
-	BEGIN_EXCEPTION();
-
-	GET_STACK_POINTER(spCurStack);
-	GET_FRAME_ADDRESS(spCurFrame);
-
-	if (spCurThread->State == THREAD_STATE__RUNNING)
-	{
-		if ((spCurStack <= spCurThread->LimitStackPtr) ||
-			(spCurFrame <= spCurThread->LimitStackPtr))
-		{
-			SET_TO_SYSTEM_STACK();
-
-			gpLastDbgStack = spCurStack;
-			gpLastDbgFrameAddr = spCurFrame;
-
-			CrSetFaultStatus(TERM__STACK_REACH_ITS_LIMIT_FAULT);
-			if (spCurThread->Flags & THREAD_FLAG__PROBING) {
-				CrReturnToSetProbe();
-			} else {
-				CrTerminateFaultyThread();
-			}
-		}
-	}
-
-	GetNextAndSaveCurrentThread();
-	if (spNextThread == 0) {
-		END_EXCEPTION();
-	}
-
-	spCurThread = spNextThread;
-	spCurThread->State = THREAD_STATE__RUNNING;
-
-	__asm volatile 
-		(
-		"MSR CONTROL, %0;"
-		"MOV.W SP, %1;"
-		: : 
-			"r" (spCurThread->Control), 
-			"r" (spCurThread->LastStackPtr)
-		);
-	
-	END_EXCEPTION();
-}
-*/
 
 __attribute__((naked))
 void ExcSystemTick()
@@ -266,39 +161,12 @@ void ExcSystemTick()
 	END_EXCEPTION();
 }
 
-/*
-void ThdInitialize()
-{
-	spNextThread = 0;
-	spCurThread = &(sThreads[MAX_NUMB_OF_THREADS - 1]);
-	spTmpThread = &(sThreads[0]);
-	for (suVar = 0; suVar < MAX_NUMB_OF_THREADS; suVar++)
-	{
-		NMemSet((UINT8_PTR_T) spTmpThread, 0, sizeof(THREAD));
-		spTmpThread->State = THREAD_STATE__EXIT;
-		spTmpThread++;
-	}
-
-	RCC_ENA_APB1_CTRL_CLK(TRUE, RCC_APB1_CTRL__TIM2);
-
-	TIM_SET_PRESCALER(TIM2, TIMER_PRESCALE);
-	TIM_SET_AUTO_RELOAD(TIM2, TIMER_AUTO_RELOAD);
-	TIM_ENA_OVER_OR_UNDERFLOW_UPDT_SRC(TIM2, TRUE);
-	TIM_ENA_UPDATE_INTERRUPT(TIM2, TRUE);
-	TIM_ENA_COUNTER(TIM2, TRUE);
-
-	STK_SET_RELOAD(THREAD_TICK_COUNT__LEVEL_0);
-	STK_ENABLE(STK_OPT__ENA_EXCEPTION);
-}
-*/
-
 void ThdInitialize()
 {
 	spNextThread = 0;
 	spCurThread = &(sThreads[MAX_NUMB_OF_THREADS - 1]);
 	for (suVar = 0; suVar < MAX_NUMB_OF_THREADS; suVar++)
 	{
-		//NMemSet((UINT8_PTR_T) &(sThreads[suVar]), 0, sizeof(THREAD));
 		sThreads[suVar].State = THREAD_STATE__EXIT;
 		if (suVar == 0) {
 			sThreads[suVar].BLink = &(sThreads[MAX_NUMB_OF_THREADS - 1]);
@@ -533,6 +401,11 @@ UINT8_T ThdTerminate(UINT32_T uThreadId)
 		return FALSE;
 	}
 
+	if ((pTh->Flags & THREAD_FLAG__IO_TXRX) == THREAD_FLAG__IO_TXRX)
+	{
+		pTh->Flags &= ~(THREAD_FLAG__IO_TXRX);
+	}
+
 	if (pTh->TermHandler == 0) {
 		pTh->State = THREAD_STATE__TERMINATED;
 	} else {
@@ -612,6 +485,83 @@ void ThdExit()
 	ThdParkThread();
 }
 
+//BOOL ThdWait(
+//			 UINT8_T uiWaitType, 
+//			 UINT8_T uiObjectType, 
+//			 UINT32_T uiObjectId, 
+//			 UINT32_T uiMilliSec
+//			 )
+//{
+//	BOOL		fRes = FALSE;
+//	UINT16_T	uEvtState = 0;
+//	UINT8_T		uThdState = 0;
+//
+//	if ((uiMilliSec < THREAD__MIN_MSEC_SLEEP) ||
+//		(uiMilliSec > THREAD__INFINITE_WAIT))
+//	{
+//		spCurThread->LastError = ERR__INVALID_MILISEC_VALUE;
+//		return FALSE;
+//	}
+//
+//	if (uiWaitType == THREAD_WAIT_TYPE__SLEEP) 
+//	{
+//		if (uiMilliSec >= THREAD__INFINITE_WAIT) {
+//			spCurThread->LastError = ERR__INVALID_MILISEC_VALUE;
+//			return FALSE;
+//		}
+//		spCurThread->Counter = uiMilliSec;
+//		spCurThread->State = THREAD_STATE__SLEEP;
+//	}
+//	else if (uiWaitType == THREAD_WAIT_TYPE__OBJECT)
+//	{
+//		if (uiObjectType == THREAD_WAIT_OBJ__EVENT) 
+//		{
+//			fRes = EvtGetState(uiObjectId, &uEvtState, 0);
+//			if (!fRes) {
+//				return FALSE;
+//			}
+//			if ((uEvtState & EVT__SET_BIT) == EVT__SET_BIT) {
+//				spCurThread->LastError = ERR__EVENT_ALREADY_BEEN_SET;
+//				return FALSE;
+//			}
+//
+//			spCurThread->WaitObjectType = THREAD_WAIT_OBJ__EVENT;
+//		} 
+//		else if (uiObjectType == THREAD_WAIT_OBJ__THREAD) 
+//		{
+//			fRes = ThdGetState(uiObjectId, &uThdState, 0);
+//			if (!fRes) 
+//				return FALSE;
+//			
+//			if ((uThdState == THREAD_STATE__EXIT) ||
+//				(uThdState == THREAD_STATE__TERMINATED))
+//			{
+//				spCurThread->LastError = ERR__INVALID_THREAD_STATE;
+//				return FALSE;
+//			}
+//
+//			spCurThread->WaitObjectType = THREAD_WAIT_OBJ__THREAD;
+//		} 
+//		else 
+//		{
+//			spCurThread->LastError = ERR__INVALID_THREAD_WAIT_OBJ_TYPE;
+//			return FALSE;
+//		}
+//
+//		spCurThread->Counter = uiMilliSec;
+//
+//		spCurThread->WaitObjectId = uiObjectId;
+//		spCurThread->State = THREAD_STATE__WAIT_FOR_OBJECT;
+//	}
+//	else
+//	{
+//		spCurThread->LastError = ERR__INVALID_THREAD_WAIT_TYPE;
+//		return FALSE;
+//	}
+//
+//	return TRUE;
+//}
+
 BOOL ThdWait(
 			 UINT8_T uiWaitType, 
 			 UINT8_T uiObjectType, 
@@ -630,19 +580,21 @@ BOOL ThdWait(
 		return FALSE;
 	}
 
-	if (uiWaitType == THREAD_WAIT_TYPE__SLEEP) 
+	switch (uiWaitType)
 	{
+	case THREAD_WAIT_TYPE__SLEEP:
 		if (uiMilliSec >= THREAD__INFINITE_WAIT) {
 			spCurThread->LastError = ERR__INVALID_MILISEC_VALUE;
 			return FALSE;
 		}
 		spCurThread->Counter = uiMilliSec;
 		spCurThread->State = THREAD_STATE__SLEEP;
-	}
-	else if (uiWaitType == THREAD_WAIT_TYPE__OBJECT)
-	{
-		if (uiObjectType == THREAD_WAIT_OBJ__EVENT) 
+		break;
+
+	case THREAD_WAIT_TYPE__OBJECT:
+		switch (uiObjectType)
 		{
+		case THREAD_WAIT_OBJ__EVENT:
 			fRes = EvtGetState(uiObjectId, &uEvtState, 0);
 			if (!fRes) {
 				return FALSE;
@@ -653,9 +605,9 @@ BOOL ThdWait(
 			}
 
 			spCurThread->WaitObjectType = THREAD_WAIT_OBJ__EVENT;
-		} 
-		else if (uiObjectType == THREAD_WAIT_OBJ__THREAD) 
-		{
+			break;
+
+		case THREAD_WAIT_OBJ__THREAD:
 			fRes = ThdGetState(uiObjectId, &uThdState, 0);
 			if (!fRes) 
 				return FALSE;
@@ -668,9 +620,9 @@ BOOL ThdWait(
 			}
 
 			spCurThread->WaitObjectType = THREAD_WAIT_OBJ__THREAD;
-		} 
-		else 
-		{
+			break;
+
+		default:
 			spCurThread->LastError = ERR__INVALID_THREAD_WAIT_OBJ_TYPE;
 			return FALSE;
 		}
@@ -679,9 +631,14 @@ BOOL ThdWait(
 
 		spCurThread->WaitObjectId = uiObjectId;
 		spCurThread->State = THREAD_STATE__WAIT_FOR_OBJECT;
-	}
-	else
-	{
+		break;
+
+	case THREAD_WAIT_TYPE__INTERRUPT:
+		spCurThread->State = THREAD_STATE__SLEEP;
+		spCurThread->Counter = THREAD__INFINITE_WAIT;
+		break;
+
+	default:
 		spCurThread->LastError = ERR__INVALID_THREAD_WAIT_TYPE;
 		return FALSE;
 	}
@@ -785,6 +742,23 @@ UINT32_T ThdGetLastError()
 	return spCurThread->LastError;
 }
 
+PTHREAD ThdGetWaitingInterrupt(UINT32_T uiIntNumb, UINT32_T uiFlags)
+{
+	PTHREAD pTh = &sThreads[MAX_NUMB_OF_THREADS - 1];
+
+	do {
+		if ((pTh->Flags & uiFlags) == uiFlags)
+			break;
+
+		pTh = pTh->BLink;
+	} while (pTh != &sThreads[MAX_NUMB_OF_THREADS - 1]);
+
+	if (pTh == &sThreads[MAX_NUMB_OF_THREADS - 1])
+		return 0;
+	
+	return pTh;
+}
+
 void IntTimer2()
 {
 	spTh = &sThreads[0];
@@ -804,17 +778,20 @@ void IntTimer2()
 		switch (spTh->State)
 		{
 		case THREAD_STATE__SLEEP:
-			if (spTh->Counter > 0) 
+			if (spTh->Counter != THREAD__INFINITE_WAIT)
 			{
-				spTh->Counter--;
-			} 
-			else 
-			{
-				// Completed
-				spInitStack = (PINITIAL_THREAD_STACK) spTh->LastStackPtr;
-				spInitStack->ExcFrame.PC = spTh->SleepPC;		// Restore PC
-				spTh->State = THREAD_STATE__WAITING;			// Change thread state
-				spTh->LastError = ERR__NONE;
+				if (spTh->Counter > 0) 
+				{
+					spTh->Counter--;
+				} 
+				else 
+				{
+					// Completed
+					spInitStack = (PINITIAL_THREAD_STACK) spTh->LastStackPtr;
+					spInitStack->ExcFrame.PC = spTh->SleepPC;		// Restore PC
+					spTh->State = THREAD_STATE__WAITING;			// Change thread state
+					spTh->LastError = ERR__NONE;
+				}
 			}
 			break;
 

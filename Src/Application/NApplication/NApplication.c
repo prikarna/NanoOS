@@ -10,6 +10,8 @@ int			giUnInitVar;
 int			giInitVar = 0xFEEDABEE;
 const int	gciConst = 0xBEBADA55;
 UINT32_T	guiTID = 0;
+UINT8_T		gBuf[512];
+UINT32_T	guiReadLen;
 
 int SimpleThread(void * pParam)
 {
@@ -92,6 +94,12 @@ int WakeUpThread(void * pParm)
 	return 0;
 }
 
+long long TestLongLong(long long llParm)
+{
+	long long llRet = llParm + 1024;
+	return llRet;
+}
+
 int main(int argc, char * argv[])
 {
 	UINT32_T	uiTID = 0;
@@ -152,6 +160,10 @@ int main(int argc, char * argv[])
 	Printf("OS Version        = %d.%d\r\n", ((uiVer >> 8) & 0xFF), (uiVer & 0xFF));
 	Printf("System clock      = %d Hz, (%d MHz)\r\n", uClk, (uClk / 1000000));
 	Printf("Current thread id = %d\r\n", uiTID);
+
+	Printf("\r\n*** TEST: Printf() for positive/negative number ***\r\n");
+	Printf("Positive number: %d, %d, %d, %d, %d\r\n", 3, 5, 100, 321, 1329);
+	Printf("Negative number: %d, %d, %d, %d, %d\r\n", -3, -5, -100, -321, -1329);
 
 	/*
 	 * Demonstrate simple thread
@@ -251,6 +263,29 @@ int main(int argc, char * argv[])
 	} else {
 		Printf("Wakeup from suspend.\r\n");
 	}
+
+	/*
+	 * Demonstrate ReadFromUsbSerial()
+	 */
+	Printf("\r\n*** TEST: Read from USB serial ***\r\n");
+	MemSet(&gBuf[0], 0, sizeof(gBuf));
+	if (!IsUsbSerialReady()) {
+		Printf("USB is not ready!\r\n");
+	} else {
+		Printf("USB is ready.\r\n");
+		Printf("Read from USB serial (console)... ");
+		fRes = ReadFromUsbSerial(&gBuf[0], sizeof(gBuf), &guiReadLen);
+		if (!fRes) {
+			Printf("Error (0x%X)!\r\n", GetLastError());
+		} else {
+			Printf("Success.\r\n");
+			Printf("Content = %s, length = %d\r\n", &gBuf[0], guiReadLen);
+		}
+	}
+
+	long long ll = 100;
+	ll = TestLongLong(ll);
+	Printf("i = %l\r\n", ll);
 
 Cleanup:
 	CloseEvent(uEvtId);

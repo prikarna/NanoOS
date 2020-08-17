@@ -12,6 +12,7 @@
 
 #include "NanoOS.h"
 #include "Thread.h"
+#include "Service.h"
 #include "Error.h"
 #include "UsbSerial.h"
 #include "UsbData.h"
@@ -461,6 +462,22 @@ static void HandleEpReg2Int()
 	}
 }
 
+//static void HandleEpReg3Int()
+//{
+//	UINT16_PTR_T	pInstSig;
+//	
+//	pInstSig = (UINT16_PTR_T) spRxBuf;
+//	if (*pInstSig == USB_DATA_TYPE__INSTALL) {
+//		UsbProgramFlash(spRxBuf);
+//	} else {
+//		if (suRecvFlags & USB_RECV__IN_PROGRESS) {
+//			suRecvFlags |= USB_RECV__COMPLETE;
+//		}
+//	}
+//	
+//	USB_EP_CTL_EX(USB_EP_REG_3, 3, USB_EP_CTL_EX__BULK_OUT_CLEAR_VALID);
+//}
+
 static void HandleEpReg3Int()
 {
 	UINT16_PTR_T	pInstSig;
@@ -469,9 +486,7 @@ static void HandleEpReg3Int()
 	if (*pInstSig == USB_DATA_TYPE__INSTALL) {
 		UsbProgramFlash(spRxBuf);
 	} else {
-		if (suRecvFlags & USB_RECV__IN_PROGRESS) {
-			suRecvFlags |= USB_RECV__COMPLETE;
-		}
+		UsbCompleteReceive();
 	}
 	
 	USB_EP_CTL_EX(USB_EP_REG_3, 3, USB_EP_CTL_EX__BULK_OUT_CLEAR_VALID);
@@ -681,47 +696,132 @@ BOOL UsbRequestReceive()
 	return TRUE;
 }
 
-UINT8_T UsbReceive(UINT8_PTR_T pBuffer, UINT32_T uiBuffLength, UINT32_PTR_T puiReceivedDataLength)
+BOOL UsbCompleteReceive()
 {
+	UINT32_PTR_T	pStack;
+	PSVC_PARAM		pSvcParms;
+	PTHREAD			pTh;
 	UINT32_T		uLen = 0;
 	UINT32_T		uRecvLen = 0;
+	PINITIAL_THREAD_STACK	pInitTh;
 
-	if (sControlLineState != 0x3) {
-		ThdSetLastError(ERR__USB_IO_IS_NOT_READY);
+	pTh = ThdGetWaitingInterrupt(0, THREAD_FLAG__IO_RECEIVE);
+	if (!pTh) {
 		return FALSE;
 	}
 
-	if ((pBuffer == 0) || (uiBuffLength == 0)) {
-		ThdSetLastError(ERR__INVALID_PARAMETER);
-		return FALSE;
-	}
+	pTh->Flags &= ~(THREAD_FLAG__IO_RECEIVE);
 
-	while (suRecvFlags == USB_RECV__IN_PROGRESS);
+	pStack = pTh->LastStackPtr;
+	pStack += 2;
+	pSvcParms = (PSVC_PARAM) pStack;
+	
+	pInitTh = (PINITIAL_THREAD_STACK) pTh->LastStackPtr;
+	pInitTh->ExcFrame.PC = pTh->SleepPC;
 
-	if (suRecvFlags != (USB_RECV__IN_PROGRESS | USB_RECV__COMPLETE)) {
+	/*
+	 * Remark to save space
+	 *
+	if (suRecvFlags != USB_RECV__IN_PROGRESS) {
+
+		pTh->LastError = ERR__USB_IO_STATE;
+		pSvcParms->ReturnValue = FALSE;
+	
+	} else {
+
+		uRecvLen = USB_GET_RX_BUFFER_COUNT(spUsbBuff->Ep3RxLength);
+		uLen = (((UINT32_T) pSvcParms->Params[1]) > uRecvLen) ? uRecvLen : ((UINT32_T) pSvcParms->Params[1]);
+
+		NMemCopyFromPaddedBuffer((UINT8_PTR_T) pSvcParms->Params[0], spRxBuf, uLen);
+		if (pSvcParms->Params[2] != 0) {
+			*((UINT32_PTR_T) pSvcParms->Params[2]) = uLen;
+		}
+
 		suRecvFlags = USB_RECV__NONE;
-		ThdSetLastError(ERR__USB_IO);
-		return FALSE;
+
+		pSvcParms->ReturnValue = TRUE;
 	}
+	*/
 
 	uRecvLen = USB_GET_RX_BUFFER_COUNT(spUsbBuff->Ep3RxLength);
-	uLen = (uiBuffLength > uRecvLen) ? uRecvLen : uiBuffLength;
+	uLen = (((UINT32_T) pSvcParms->Params[1]) > uRecvLen) ? uRecvLen : ((UINT32_T) pSvcParms->Params[1]);
 
-	NMemCopyFromPaddedBuffer(pBuffer, spRxBuf, uLen);
-
-	if (puiReceivedDataLength) {
-		*puiReceivedDataLength = uLen;
+	NMemCopyFromPaddedBuffer((UINT8_PTR_T) pSvcParms->Params[0], spRxBuf, uLen);
+	if (pSvcParms->Params[2] != 0) {
+		*((UINT32_PTR_T) pSvcParms->Params[2]) = uLen;
 	}
 
 	suRecvFlags = USB_RECV__NONE;
 
+	pSvcParms->ReturnValue = TRUE;
+
+	pTh->State = THREAD_STATE__WAITING;
+
 	return TRUE;
 }
 
+//UINT8_T UsbReceive(UINT8_PTR_T pBuffer, UINT32_T uiBuffLength, UINT32_PTR_T puiReceivedDataLength)
+//{
+//	UINT32_T		uLen = 0;
+//	UINT32_T		uRecvLen = 0;
+//
+//	if (sControlLineState != 0x3) {
+//		ThdSetLastError(ERR__USB_IO_IS_NOT_READY);
+//		return FALSE;
+//	}
+//
+//	if ((pBuffer == 0) || (uiBuffLength == 0)) {
+//		ThdSetLastError(ERR__INVALID_PARAMETER);
+//		return FALSE;
+//	}
+//
+//	while (suRecvFlags == USB_RECV__IN_PROGRESS);
+//
+//	if (suRecvFlags != (USB_RECV__IN_PROGRESS | USB_RECV__COMPLETE)) {
+//		suRecvFlags = USB_RECV__NONE;
+//		ThdSetLastError(ERR__USB_IO);
+//		return FALSE;
+//	}
+//
+//	uRecvLen = USB_GET_RX_BUFFER_COUNT(spUsbBuff->Ep3RxLength);
+//	uLen = (uiBuffLength > uRecvLen) ? uRecvLen : uiBuffLength;
+//
+//	NMemCopyFromPaddedBuffer(pBuffer, spRxBuf, uLen);
+//
+//	if (puiReceivedDataLength) {
+//		*puiReceivedDataLength = uLen;
+//	}
+//
+//	suRecvFlags = USB_RECV__NONE;
+//
+//	return TRUE;
+//}
+
+//void UsbCancelReceive()
+//{
+//	if (suRecvFlags & USB_RECV__IN_PROGRESS)
+//		suRecvFlags = USB_RECV__NONE;
+//}
+
 void UsbCancelReceive()
 {
-	if (suRecvFlags & USB_RECV__IN_PROGRESS)
-		suRecvFlags = USB_RECV__NONE;
+	PTHREAD			pTh;
+	PINITIAL_THREAD_STACK	pInitTh;
+
+	suRecvFlags = USB_RECV__NONE;
+
+	pTh = ThdGetWaitingInterrupt(0, THREAD_FLAG__IO_RECEIVE);
+	if (!pTh) return;
+
+	pTh->Flags &= ~(THREAD_FLAG__IO_RECEIVE);
+	if (pTh->State != THREAD_STATE__SLEEP) 
+		return;
+
+	pInitTh = (PINITIAL_THREAD_STACK) pTh->LastStackPtr;
+	pInitTh->ExcFrame.PC = pTh->SleepPC;
+
+	pTh->LastError = ERR__USB_IO_CANCELLED;
+	pTh->State = THREAD_STATE__WAITING;
 }
 
 BOOL UsbIsReady()
