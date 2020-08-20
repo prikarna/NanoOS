@@ -42,11 +42,20 @@ void Output::_WriteString(const char *szString)
 
 	if (m_fDbgMode) {
 		for (int i = 0; i < iLen; i++) {
-			DebugCharOut((UINT8_T) *p);
+			DebugCharOut(static_cast<UINT8_T>(*p));
 			p++;
 		}
 	} else {
-		WriteToUsbSerial((UINT8_PTR_T) szString, iLen);
+		while (iLen > 0) {
+			if (iLen <= 64) {
+				WriteToUsbSerial(reinterpret_cast<UINT8_PTR_T>(p), iLen);
+				iLen = 0;
+			} else {
+				WriteToUsbSerial(reinterpret_cast<UINT8_PTR_T>(p), 64);
+				p += 64;
+				iLen -= 64;
+			}
+		}
 	}
 }
 
@@ -59,11 +68,11 @@ void Output::_WriteString(Array<char, 64> &szBuffer)
 
 	if (m_fDbgMode) {
 		for (int i = 0; i < iLen; i++) {
-			DebugCharOut((UINT8_T) *p);
+			DebugCharOut(static_cast<UINT8_T>(*p));
 			p++;
 		}
 	} else {
-		WriteToUsbSerial((UINT8_PTR_T) &szBuffer[0], iLen);
+		WriteToUsbSerial(reinterpret_cast<UINT8_PTR_T>(&szBuffer[0]), iLen);
 	}
 }
 

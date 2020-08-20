@@ -46,7 +46,7 @@ void NMemCopyToPaddedBuffer(UINT8_PTR_T pDestination, UINT8_PTR_T pSource, UINT3
 	u = uSourceLength - (max * 2);
 	if (u > 0) {
 		*pDst = (UINT32_T) *pSrc;
-		*pDst = *pDst & 0xFF;
+		*pDst = (*pDst & 0xFF);
 	}
 }
 

@@ -293,19 +293,13 @@ NanoOS.h suitable for the application.
 =================================
 Writing NanoOS Application In C++
 ---------------------------------
-Now NanoOS support application that written in C++ but unfortunately it comes with some restrictions:
-1. Can't use compiler's exceptions (-fno-exceptions option)
-2. Can't use compiler's RTTI (run time type info) (-fno-rtti option) and in consiquence: type casting may not work 
-   as you expected.
 Writing application in C++ on NanoOS is basically the same as writing application in C on NanoOS (please see the 
 above section: 'Writing NanoOS Application'). In addition you need to copy g++.exe and cc1plus.exe file to GCC_BIN_DIR,
-in the above exmple GCC_BIN_DIR is D:\Dev\gcc, and then use Makefile in the source tree to compile C++ code.
+in the above example GCC_BIN_DIR is D:\Dev\gcc, and then use Makefile in the source tree to compile C++ code.
 For a start please take a look to NanoStd project included in NanoOS solution. This project demonstrate how to write 
 application in C++. It create some short of standard input and output using USB Serial IO, so user can 'communicate'
 with the program through it. Alternatively you can start a project by generate C++ solution and/or project of Visual
 Studio 2008 Express Edition.
-Note that eventhough NanoOS doesn't support C++ exception, C++ code can still use SetProbe()/ResetProbe() to handle 
-fault and/or simulate C++ exception in a modest manner.
 Since NanoOS don't provide dynamic memory allocation, application can't use 'new' and 'delete' operator 'blindly'. To 
 overcome that, use the class as some short variable in the global and/or local space, as the following example:
 In the header file define a class and state an object that already allocated in the other source file or in the 
@@ -432,6 +426,13 @@ void Test::operator delete(void *pObj)
 To be more clear, please take a look a project called UsbIo in NanoOS solution. This project purpose is
 to create some short of interface between PC application and the controllers available on chipset. This 
 project use that 'single instance object' model above.
+
+NanoOS has no direct support for C++ RTTI (Run Time Type Information) and exception. Those features need
+a specific implementation in a mechanism such as library. Since NanoOS currently has no concept of library
+the implementation can be written down in to the source code. TInfo and Exception project in this distribution
+show that kind of implementation. TInfo project implement RTTI and Exception project implement exception.
+Note that Exception implementation need RTTI implementation. They are very simple implementations and just
+satisfying the compiler rather than complying with standard ABI. Also may not work on some untested cases.
 
 
 ============================================================

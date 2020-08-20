@@ -14,11 +14,12 @@ SECTIONS
 	.text :
 	{
 		KEEP(*(.nanoos_application))
+		
+		__start_global_object_init = .;
+		KEEP(*(.text._GLOBAL__sub_I_*))
+		__end_global_object_init = .;
+		
 		*(.text .text.*)
-	} > APP_SRAM
-	
-	.rodata :
-	{
 		*(.rodata .rodata.*)
 	} > APP_SRAM
 	

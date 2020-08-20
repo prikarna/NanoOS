@@ -8,9 +8,9 @@
 
 extern unsigned int	_etext, _start_data, _end_data;
 extern unsigned int	_start_bss, _end_bss;
-unsigned char		_init_glob_obj_start, _init_glob_obj_end;
+unsigned char		__start_global_object_init, __end_global_object_init;
 
-typedef void (* GLOB_OBJ_INIT)();
+typedef void (* GLOB_OBJ_CTOR)();
 typedef void (* GLOB_OBJ_DTOR)();
 
 typedef struct _DTOR_ITEM
@@ -24,18 +24,16 @@ extern int main(int argc, char *argv[]);
 static const char	sHexCharsU[] = { "0123456789ABCDEF" };
 static const char	sHexCharsL[] = { "0123456789abcdef" };
 
-void * __dso_handle;	// Just to satisfy the linker.
-
-static PDTOR_ITEM sDTorList = 0;	// Must be initialized ?
+PDTOR_ITEM __dso_handle = 0;	// Use __dso_handle as a desctructor list pointer.
 
 void __aeabi_atexit(void * pObj, GLOB_OBJ_DTOR dTor, void * pEndAddr)
 {
-	if ((unsigned int) sDTorList > (APP_SRAM_LIMIT_ADDRESS - sizeof(DTOR_ITEM)))
+	if ((unsigned int) __dso_handle > (APP_SRAM_LIMIT_ADDRESS - sizeof(DTOR_ITEM)))
 		return;
 
-	sDTorList->ObjectPtr = pObj;
-	sDTorList->Destructor = dTor;
-	sDTorList++;
+	__dso_handle->ObjectPtr = pObj;
+	__dso_handle->Destructor = dTor;
+	__dso_handle++;
 }
 
 APP_SEGMENT_ATTR
@@ -61,18 +59,18 @@ int NanoEntry(void * pParm)
 		*puiDst++ = 0;
 	}
 
-	sDTorList = (PDTOR_ITEM) &_end_bss;
+	__dso_handle = (PDTOR_ITEM) &_end_bss;
 
 	/*
 	 * Initialize CPP global object if any
 	 */
-	unsigned char *p = &_init_glob_obj_start;
-	GLOB_OBJ_INIT	InitGlobalObj;
-	while (p < &_init_glob_obj_end) {
-		InitGlobalObj = (GLOB_OBJ_INIT) (p + 1);
+	unsigned char *p = &__start_global_object_init;
+	GLOB_OBJ_CTOR	GlobalObjCTor;
+	while (p < &__end_global_object_init) {
+		GlobalObjCTor = (GLOB_OBJ_CTOR) (p + 1);
 		p += 0x10;
 
-		(* InitGlobalObj)();
+		(* GlobalObjCTor)();
 	}
 
 	/*
@@ -83,15 +81,15 @@ int NanoEntry(void * pParm)
 	/*
 	 * De-initialize CPP global object if any
 	 */
-	while ((unsigned int) sDTorList > (unsigned int) &_end_bss)
+	while ((unsigned int) __dso_handle > (unsigned int) &_end_bss)
 	{
-		sDTorList--;
+		__dso_handle--;
 		__asm volatile
 			(
 			"MOV.W R1, %0;"
 			"MOV.W R0, %1;"
 			"BLX R1;"
-			: : "r" (sDTorList->Destructor), "r" (sDTorList->ObjectPtr)
+			: : "r" (__dso_handle->Destructor), "r" (__dso_handle->ObjectPtr)
 			);
 	}
 
@@ -789,52 +787,6 @@ UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uN
 	return (UINT32_T) iRes;
 }
 
-//UINT32_T UtlWriteLongLongNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, long long llNumber)
-//{
-//	//
-//	// Assume unsinged int of llNumber has 64 bits long
-//	//
-//
-//	unsigned long long	uDiv = 0, uMod = 0;
-//	char			buf[128];
-//	char *			pc;
-//	int				iRes = 0;
-//	BOOL			bIsNegative = FALSE;
-//
-//	if (!PrintChar) return 0;
-//
-//	if ((llNumber & 0x8000000000000000) == 0x8000000000000000) {
-//		bIsNegative = TRUE;
-//		llNumber = ~llNumber;
-//		llNumber++;
-//	}
-//
-//	buf[0] = 0;
-//	pc = &buf[1];
-//
-//	do {
-//		uDiv = llNumber / 10;
-//		uMod = llNumber - (uDiv * 10);
-//		*pc++ = sHexCharsU[uMod];
-//		llNumber = uDiv;
-//	} while (uDiv >= 10);
-//	if (uDiv != 0)
-//		*pc = sHexCharsU[uDiv];
-//	else
-//		pc--;
-//
-//	if (bIsNegative) 
-//		(* PrintChar)('-', pParm);
-//
-//	while (*pc != '\0') {
-//		(* PrintChar)(*pc, pParm);
-//		pc--;
-//		iRes++;
-//	}
-//
-//	return (UINT32_T) iRes;
-//}
-
 UINT32_T UtlWriteHexa(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT8_T uIsHexCapital, UINT32_T uHex, UINT32_T uDigit)
 {
 	//
@@ -881,7 +833,6 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 	UINT32_T		uCount = 0;
 	UINT32_T		uDigit;
 	BOOL			fRes = FALSE;
-	//long long		ll;
 
 	if (pc == 0) return 0;
 	if (PrintChar == 0) return 0;
@@ -907,10 +858,7 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 				break;
 
 			case 'l':
-				//ll = va_arg(argList, long long);
-				//uRes = UtlWriteLongLongNumber(PrintChar, pPrintCharParam, ll);
 				UtlWriteString(PrintChar, pPrintCharParam, "['long long' is not supported yet]");
-				uCount += uRes;
 				break;
 
 			case 'c':
@@ -1043,7 +991,7 @@ UINT32_T StreamPrintf(UINT8_PTR_T pBuffer, UINT32_T uBufferLength, const char * 
 
 /*
  * Not sure exactly when this function being called,
- * for now just outputing to debug iface and 'trap' it.
+ * for now just outputing to debug iface and exit.
  */
 void __cxa_pure_virtual()
 {

@@ -162,28 +162,6 @@ void SvcWriteUsbSer()
 		UsbSend((UINT8_PTR_T) spParm->Params[0], spParm->Params[1], TRUE);
 }
 
-//void SvcCompleteReadUsbSer(UINT32_PTR_T pFirstParam)
-//{
-//	UsbReceive((UINT8_PTR_T) pFirstParam[0], pFirstParam[1], (UINT32_PTR_T) pFirstParam[2]);
-//	__asm volatile ("MOV.W R1, R0");
-//}
-
-//void SvcReadUsbSer()
-//{
-//	BOOL	fRes = FALSE;
-//
-//	fRes = UsbRequestReceive();
-//	if (!fRes) {
-//		spParm->ReturnValue = FALSE;
-//		return;
-//	}
-//
-//	spParm->Index = (UINT32_T) &spParm->Params[0];
-//	spParm->LR = spParm->PC;
-//	spParm->LR++;
-//	spParm->PC = (UINT32_T) SvcCompleteReadUsbSer;
-//}
-
 void SvcReadUsbSer()
 {
 	BOOL	fRes = FALSE;
@@ -315,7 +293,6 @@ void SvcSleep()
 	spCurThread->LastStackPtr = spCurStack;
 	spParm->ReturnValue = TRUE;
 
-	//while (SCB_IS_PEND_SYSTICK() == FALSE);
 	SCB_SET_PEND_SYSTICK();
 }
 
@@ -334,7 +311,6 @@ void SvcSuspendThread()
 	if (spCurThread->Id == spParm->Params[0]) {
 		spCurThread->SleepPC = spParm->PC;
 		spCurThread->LastStackPtr = spCurStack;
-		//while (SCB_IS_PEND_SYSTICK() == FALSE);
 		SCB_SET_PEND_SYSTICK();
 	}
 }
@@ -363,13 +339,11 @@ void SvcWaitForObject()
 	
 	spCurThread->SleepPC = spParm->PC;
 	spCurThread->LastStackPtr = spCurStack;
-	//while (SCB_IS_PEND_SYSTICK() == FALSE);
 	SCB_SET_PEND_SYSTICK();
 }
 
 void SvcSwitchToNextThread()
 {
-	//while (SCB_IS_PEND_SYSTICK() == FALSE);
 	spParm->ReturnValue = TRUE;
 	SCB_SET_PEND_SYSTICK();
 }
@@ -452,14 +426,6 @@ void SvcSetIntHandler()
 	spParm->ReturnValue =
 		ExcSetInterrupt((INTERRUPT_HANDLER_TYPE) spParm->Params[0]);
 }
-
-/*
-void SvcSetUsbIntHandler()
-{
-	spParm->ReturnValue =
-		ExcSetUsbInterrupt((INTERRUPT_HANDLER_TYPE) spParm->Params[0]);
-}
-*/
 
 void SvcLoadConfig()
 {
@@ -562,7 +528,6 @@ void SvcReleaseSpinLock()
 {
 	*((UINT32_PTR_T) spParm->Params[0]) = 0;
 	spParm->ReturnValue = TRUE;
-	//while (SCB_IS_PEND_SYSTICK() == FALSE);
 	SCB_SET_PEND_SYSTICK();
 }
 
@@ -709,7 +674,6 @@ void ExcSupervisorCall()
 	if ((spCurStack <= spCurThread->LimitStackPtr) ||
 		(spCurFrame <= spCurThread->LimitStackPtr))
 	{
-		//while (SCB_IS_PEND_SYSTICK() == FALSE);
 		SCB_SET_PEND_SYSTICK();
 		END_EXCEPTION();
 	}

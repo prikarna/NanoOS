@@ -1,3 +1,9 @@
+August, 20 2020
+- Adding support for C++ RTTI and Exception
+
+August, 16 2020
+- Add a simple windowing system to support GUI application developement
+
 May, 20 2020
 - Add facility to generate simple C++ project on NTerminal.
 

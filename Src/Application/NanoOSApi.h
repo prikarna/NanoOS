@@ -102,15 +102,14 @@ void DebugCharOut(_IN UINT8_T uiData);
  
  Desc.:
      Write data or buffer pointed by puiBuffer to USB Serial with length of uiBufferLength. The max. data
-	 length to write to is USB_DATA_SIZE - 2 (62 bytes). If data length is higher than that the result may 
-	 unpredictable. Note that to the receiving side point of view, this is a serial (COM) port, and PC 
-	 application should treat this as serial (COM) port.
+	 length to write to is USB_DATA_SIZE (64 bytes). Note that to the receiving side point of view, 
+	 this is a serial (COM) port, and PC application should treat this as serial (COM) port.
 	 This operation is synchronous and almost always success when USB Serial is ready.
  Params. :
      puiBuffer
          Pointer to data or buffer to be written to.
      uiBufferLength
-         The length of data or buffer (puiBuffer). Max. data length is USB_DATA_SIZE - 2 (62 bytes).
+         The length of data or buffer (puiBuffer). Max. data length is USB_DATA_SIZE (64 bytes).
  Return value : 
      TRUE if success or FALSE if fail.
  Error code : 

@@ -10,7 +10,7 @@ int			giUnInitVar;
 int			giInitVar = 0xFEEDABEE;
 const int	gciConst = 0xBEBADA55;
 UINT32_T	guiTID = 0;
-UINT8_T		gBuf[512];
+UINT8_T		gBuf[32];
 UINT32_T	guiReadLen;
 
 int SimpleThread(void * pParam)
@@ -157,7 +157,7 @@ int main(int argc, char * argv[])
 
 	Printf("\r\n", 0);
 	Printf("OS Name           = %s\r\n", szOSName);
-	Printf("OS Version        = %d.%d\r\n", ((uiVer >> 8) & 0xFF), (uiVer & 0xFF));
+	Printf("OS Version        = %d.%d\r\n", OS_MAJOR_VER(uiVer), OS_MINOR_VER(uiVer));
 	Printf("System clock      = %d Hz, (%d MHz)\r\n", uClk, (uClk / 1000000));
 	Printf("Current thread id = %d\r\n", uiTID);
 
@@ -282,10 +282,6 @@ int main(int argc, char * argv[])
 			Printf("Content = %s, length = %d\r\n", &gBuf[0], guiReadLen);
 		}
 	}
-
-	long long ll = 100;
-	ll = TestLongLong(ll);
-	Printf("i = %l\r\n", ll);
 
 Cleanup:
 	CloseEvent(uEvtId);

@@ -15,20 +15,13 @@ SECTIONS
 	{
 		KEEP(*(.nanoos_application))
 		
-		_init_glob_obj_start = .;
+		__start_global_object_init = .;
 		KEEP(*(.text._GLOBAL__sub_I_*))
-		_init_glob_obj_end = .;
+		__end_global_object_init = .;
 		
 		*(.text .text.*)
 		*(.rodata .rodata.*)
 	} > APP_FLASH
-	
-	/*
-	.rodata :
-	{
-		*(.rodata .rodata.*)
-	} > APP_FLASH
-	*/
 	
 	.ARM.extab :
 	{
@@ -37,7 +30,9 @@ SECTIONS
 	
 	.ARM.exidx :
 	{
+		__start_exidx = .;
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+		__end_exidx = .;
 	} > APP_FLASH
 	
 	_etext = .;
