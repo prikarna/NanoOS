@@ -1,5 +1,5 @@
 /*
- * File    : Flash.h
+ * File    : Gpio.h
  * Remark  : Macro to access General Purpose Input Output controller on chip.
  *           Fow now this is STM32F10XXX chipset.
  *

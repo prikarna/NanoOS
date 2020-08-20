@@ -233,6 +233,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Src\Sys\Stm\ExtInt.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Src\Sys\Stm\Flash.h"
 					>
 				</File>

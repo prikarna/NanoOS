@@ -74,12 +74,20 @@ BOOL EvtClose(UINT32_T uiEventId, PTHREAD pRequestingThread)
 BOOL EvtSet(UINT32_T uiEventId, PTHREAD pRequestingThread)
 {
 	if (uiEventId >= EVT__MAX_EVENTS) {
-		ThdSetLastError(ERR__INVALID_EVENT_ID);
+		if (pRequestingThread) {
+			pRequestingThread->LastError = ERR__INVALID_EVENT_ID;
+		} else {
+			ThdSetLastError(ERR__INVALID_EVENT_ID);
+		}
 		return FALSE;
 	}
 
 	if ((sEvents[uiEventId] & EVT__CREATE_BIT) == 0) {
-		ThdSetLastError(ERR__INVALID_EVENT_STATE);
+		if (pRequestingThread) {
+			pRequestingThread->LastError = ERR__INVALID_EVENT_STATE;
+		} else {
+			ThdSetLastError(ERR__INVALID_EVENT_STATE);
+		}
 		return FALSE;
 	}
 

@@ -956,6 +956,7 @@ static BOOL StreamChar(UINT8_T Char, void * pParm)
 
 	*(pStrParm->Buffer) = Char;
 	pStrParm->Buffer++;
+	*(pStrParm->Buffer) = '\0';
 	pStrParm->Counter++;
 
 	return TRUE;
@@ -971,8 +972,6 @@ UINT32_T StreamPrintf(UINT8_PTR_T pBuffer, UINT32_T uBufferLength, const char * 
 	{
 		return 0;
 	}
-
-	MemSet(pBuffer, 0, uBufferLength);
 
 	StrParm.Buffer = pBuffer;
 	StrParm.BufferLength = (uBufferLength - 1);	// Make sure reserve one byte for null terminated string.

@@ -492,10 +492,6 @@ BOOL ThdWait(
 			 UINT32_T uiMilliSec
 			 )
 {
-	BOOL		fRes = FALSE;
-	UINT16_T	uEvtState = 0;
-	UINT8_T		uThdState = 0;
-
 	if ((uiMilliSec < THREAD__MIN_MSEC_SLEEP) ||
 		(uiMilliSec > THREAD__INFINITE_WAIT))
 	{
@@ -518,30 +514,10 @@ BOOL ThdWait(
 		switch (uiObjectType)
 		{
 		case THREAD_WAIT_OBJ__EVENT:
-			fRes = EvtGetState(uiObjectId, &uEvtState, 0);
-			if (!fRes) {
-				return FALSE;
-			}
-			if ((uEvtState & EVT__SET_BIT) == EVT__SET_BIT) {
-				spCurThread->LastError = ERR__EVENT_ALREADY_BEEN_SET;
-				return FALSE;
-			}
-
 			spCurThread->WaitObjectType = THREAD_WAIT_OBJ__EVENT;
 			break;
 
 		case THREAD_WAIT_OBJ__THREAD:
-			fRes = ThdGetState(uiObjectId, &uThdState, 0);
-			if (!fRes) 
-				return FALSE;
-			
-			if ((uThdState == THREAD_STATE__EXIT) ||
-				(uThdState == THREAD_STATE__TERMINATED))
-			{
-				spCurThread->LastError = ERR__INVALID_THREAD_STATE;
-				return FALSE;
-			}
-
 			spCurThread->WaitObjectType = THREAD_WAIT_OBJ__THREAD;
 			break;
 
