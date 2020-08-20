@@ -1,0 +1,23 @@
+/*
+ * File   : typeinfo
+ * Remark : Minimum description of type_info class
+ */
+namespace std
+{
+	class type_info
+	{
+		const char* m_name;
+
+	public:
+		type_info(const char* name): m_name(name)
+		{
+		}
+
+		virtual ~type_info();
+
+		const char* name() const;
+		bool operator ==(const type_info& ti) const;
+		bool operator !=(const type_info& ti) const;
+		bool before(const type_info& ti) const;
+	};
+};
