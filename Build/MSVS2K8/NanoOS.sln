@@ -32,6 +32,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exception", "Exception\Exception.vcproj", "{C52FE441-2736-4104-B175-C947A5267190}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interrupt", "Interrupt\Interrupt.vcproj", "{E4D9A589-C3DE-4227-80DE-1544219B7F8F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F730CC53-565F-48E7-8101-0D0EBE49400F} = {F730CC53-565F-48E7-8101-0D0EBE49400F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

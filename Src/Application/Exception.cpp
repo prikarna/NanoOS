@@ -669,7 +669,7 @@ void RaiseException()
 				"mov r8, pc;"
 				"add r8, #9;"		// Set 'branch back' address from SRAM epilogue code.
 				"mov.w r9, %1;"
-				"bx r9;"			// Execute epilogue
+				"bx r9;"			// Branch to epilogue
 				"nop;"
 				"nop;"
 				"mov %0, lr;"

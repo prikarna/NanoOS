@@ -951,6 +951,8 @@ public:
 	Output& operator<<(OutMode OutM);
 	Output& operator<<(unsigned int uiNumber);
 	Output& operator<<(int iNumber);
+	Output& operator<<(long long llNumber);
+	Output& operator<<(unsigned long long llNumber);
 };
 
 class Input

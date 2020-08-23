@@ -551,7 +551,7 @@ bool NAppGen::_CreateSourceFile(bool fOverwrite, const char *szFileName, WORD wR
 
 INT_PTR CALLBACK NAppGen::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM lParm)
 {
-	HWND	hCh;
+	HWND	hCh, hCh2;
 	LRESULT	lRes;
 	BOOL	fRes = FALSE;
 	static	NAppGen *		pThis = NULL;
@@ -579,10 +579,13 @@ INT_PTR CALLBACK NAppGen::_DlgProc(HWND hDlg, UINT uMsg, WPARAM wParm, LPARAM lP
 		}
 		SendMessage(hCh, BM_SETCHECK, static_cast<WPARAM>(BST_CHECKED), 0);
 		hCh = GetDlgItem(hDlg, DKGC_SLN_CHECK);
+		hCh2 = GetDlgItem(hDlg, DKGC_SLN_NAME);
 		if (pThis->m_bIncSolution) {
 			SendMessage(hCh, BM_SETCHECK, static_cast<WPARAM>(BST_CHECKED), 0);
+			SendMessage(hCh2, EM_SETREADONLY, static_cast<WPARAM>(FALSE), 0);
 		} else {
 			SendMessage(hCh, BM_SETCHECK, static_cast<WPARAM>(BST_UNCHECKED), 0);
+			SendMessage(hCh2, EM_SETREADONLY, static_cast<WPARAM>(TRUE), 0);
 		}
 
 		hCh = GetDlgItem(hDlg, DKGC_PROJ_NAME);

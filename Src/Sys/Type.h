@@ -5,18 +5,22 @@
 extern "C" {
 #endif
 
-typedef unsigned int		UINT32_T;
-typedef int					INT32_T;
-typedef unsigned int *		UINT32_PTR_T;
-typedef int *				INT32_PTR_T;
-typedef unsigned short		UINT16_T;
-typedef short				INT16_T;
-typedef unsigned short *	UINT16_PTR_T;
-typedef short *				INT16_PTR_T;
-typedef unsigned char		UINT8_T;
-typedef char				INT8_T;
-typedef unsigned char *		UINT8_PTR_T;
-typedef char *				INT8_PTR_T;
+typedef unsigned int			UINT32_T;
+typedef int						INT32_T;
+typedef unsigned int *			UINT32_PTR_T;
+typedef int *					INT32_PTR_T;
+typedef unsigned short			UINT16_T;
+typedef short					INT16_T;
+typedef unsigned short *		UINT16_PTR_T;
+typedef short *					INT16_PTR_T;
+typedef unsigned char			UINT8_T;
+typedef char					INT8_T;
+typedef unsigned char *			UINT8_PTR_T;
+typedef char *					INT8_PTR_T;
+typedef long long				INT64_T;
+typedef long long *				INT64_PTR_T;
+typedef unsigned long long		UINT64_T;
+typedef unsigned long long *	UINT64_PTR_T;
 
 #define BOOL				UINT8_T
 #define WORD				UINT32_T

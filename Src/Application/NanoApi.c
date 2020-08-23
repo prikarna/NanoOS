@@ -24,10 +24,17 @@ extern int main(int argc, char *argv[]);
 static const char	sHexCharsU[] = { "0123456789ABCDEF" };
 static const char	sHexCharsL[] = { "0123456789abcdef" };
 
-PDTOR_ITEM __dso_handle = 0;	// Use __dso_handle as a desctructor list pointer.
+/*
+ * Use __dso_handle as a desctructor list pointer.
+ */
+PDTOR_ITEM __dso_handle;
 
 void __aeabi_atexit(void * pObj, GLOB_OBJ_DTOR dTor, void * pEndAddr)
 {
+	/*
+	 * If we're running out of memory (SRAM) then no more destructor
+	 * will be saved.
+	 */
 	if ((unsigned int) __dso_handle > (APP_SRAM_LIMIT_ADDRESS - sizeof(DTOR_ITEM)))
 		return;
 
@@ -42,6 +49,7 @@ int NanoEntry(void * pParm)
 	unsigned int *		puiDst = 0;
 	unsigned int *		puiSrc = 0;
 	int					iRet = 0;
+	unsigned char *		p = 0;
 
 	/*
 	 * Copy initialization value data from FLASH to data segment at RAM
@@ -63,11 +71,18 @@ int NanoEntry(void * pParm)
 
 	/*
 	 * Initialize CPP global object if any
+	 * (run the objects constructor entry).
 	 */
-	unsigned char *p = &__start_global_object_init;
+	p = &__start_global_object_init;
 	GLOB_OBJ_CTOR	GlobalObjCTor;
 	while (p < &__end_global_object_init) {
 		GlobalObjCTor = (GLOB_OBJ_CTOR) (p + 1);
+
+		/*
+		 * 0x10 is the size of constructor function entry
+		 * (_GLOBAL__sub_I_* symbols) and maybe wrong in 
+		 * the newer version of GCC.
+		 */
 		p += 0x10;
 
 		(* GlobalObjCTor)();
@@ -79,7 +94,11 @@ int NanoEntry(void * pParm)
 	iRet = main(0, 0);
 
 	/*
-	 * De-initialize CPP global object if any
+	 * De-initialize CPP global object if any.
+	 * (run objects destructor).
+	 * Note:
+	 *     Another thread may still using the object, this may 
+	 *     cause unpredictable behaviour of another thread.
 	 */
 	while ((unsigned int) __dso_handle > (unsigned int) &_end_bss)
 	{
@@ -741,24 +760,26 @@ UINT32_T UtlWriteString(PRINT_CHAR_CALLBACK PrintChar, void * pParam, const char
 	return i;
 }
 
-UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uNumber)
+UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uNumber, BOOL fIncSignBit)
 {
 	//
 	// Assume unsinged int of uNumber has 32 bits long
 	//
 
 	unsigned int	uDiv = 0, uMod = 0;
-	char			buf[128];
+	char			buf[16];
 	char *			pc;
 	int				iRes = 0;
 	BOOL			bIsNegative = FALSE;
 
 	if (!PrintChar) return 0;
 
-	if ((uNumber & BITHEX_31) == BITHEX_31) {
-		bIsNegative = TRUE;
-		uNumber = ~uNumber;
-		uNumber++;
+	if (fIncSignBit) {
+		if ((uNumber & BITHEX_31) == BITHEX_31) {
+			bIsNegative = TRUE;
+			uNumber = ~uNumber;
+			uNumber++;
+		}
 	}
 
 	buf[0] = 0;
@@ -766,7 +787,8 @@ UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uN
 
 	do {
 		uDiv = uNumber / 10;
-		uMod = uNumber - (uDiv * 10);
+		//uMod = uNumber - (uDiv * 10);
+		uMod = uNumber % 10;
 		*pc++ = sHexCharsU[uMod];
 		uNumber = uDiv;
 	} while (uDiv >= 10);
@@ -775,8 +797,9 @@ UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uN
 	else
 		pc--;
 
-	if (bIsNegative) 
-		(* PrintChar)('-', pParm);
+	if (bIsNegative) {
+			(* PrintChar)('-', pParm);
+	}
 
 	while (*pc != '\0') {
 		(* PrintChar)(*pc, pParm);
@@ -786,6 +809,17 @@ UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uN
 
 	return (UINT32_T) iRes;
 }
+
+//UINT32_T UtlWriteLongNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT64_T uNumber, BOOL fIncSignBit)
+//{
+//	UINT32_T	uH, uL;
+//	UINT32_T	uRes;
+//
+//	uH = (uNumber >> 32) & 0xffffffff;
+//	uL = uNumber & 0xffffffff;
+//
+//	return (UINT32_T) iRes;
+//}
 
 UINT32_T UtlWriteHexa(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT8_T uIsHexCapital, UINT32_T uHex, UINT32_T uDigit)
 {
@@ -833,6 +867,7 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 	UINT32_T		uCount = 0;
 	UINT32_T		uDigit;
 	BOOL			fRes = FALSE;
+	//UINT64_T		ul;
 
 	if (pc == 0) return 0;
 	if (PrintChar == 0) return 0;
@@ -853,12 +888,15 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 			case 'd':
 			case 'D':
 				u = va_arg(argList, UINT32_T);
-				uRes = UtlWriteNumber(PrintChar, pPrintCharParam, u);
+				uRes = UtlWriteNumber(PrintChar, pPrintCharParam, u, TRUE);
 				uCount += uRes;
 				break;
 
 			case 'l':
-				UtlWriteString(PrintChar, pPrintCharParam, "['long long' is not supported yet]");
+				UtlWriteString(PrintChar, pPrintCharParam, "['long long' is not supported]");
+				//ul = va_arg(argList, UINT64_T);
+				//uRes = UtlWriteLongNumber(PrintChar, pPrintCharParam, ul);
+				//uCount += uRes;
 				break;
 
 			case 'c':

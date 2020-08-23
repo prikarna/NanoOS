@@ -202,7 +202,8 @@ Writing NanoOS application
 In NanoOS you can safely think that you are in a single process with one or more thread. A thread can run on 
 privileged or unprivileged mode, on privileged mode you can can access Cortex-M processor peripheral like SCB, 
 SYSTICK and so on. Note that when you change those peripherals you may change NanoOS characteristic thus NanoOS 
-may not run correctly. On unprivileged mode you don't have that access.
+may not run correctly. On unprivileged mode you don't have that access. Note that NanoOS currently doesn't 
+support float variable type and variable type that has size larger than 32 bits such as long long and double.
 
 This manual using Visual Studio 2008 Express Edition to write a simple application and here's step by step
 how to start a simple Hello world program in NanoOS;
@@ -293,6 +294,15 @@ NanoOS.h suitable for the application.
 =================================
 Writing NanoOS Application In C++
 ---------------------------------
+Although NanoOS support C++ but does has some notes:
+1. NanoOS doesn't support dynamic memory allocation.
+2. NanoOS initialize and de-initialize global object (call constructor and destructor of global objects) 
+   in the main thread only.
+3. NanoOS may not initialize and/or de-initialize global object because of resource limitation, in this case SRAM,
+   and there is no warning about this.
+4. NanoOS currently doesn't support float variable type and variable type that longer 32 bits such as long long 
+   and double.
+
 Writing application in C++ on NanoOS is basically the same as writing application in C on NanoOS (please see the 
 above section: 'Writing NanoOS Application'). In addition you need to copy g++.exe and cc1plus.exe file to GCC_BIN_DIR,
 in the above example GCC_BIN_DIR is D:\Dev\gcc, and then use Makefile in the source tree to compile C++ code.
@@ -426,6 +436,16 @@ void Test::operator delete(void *pObj)
 To be more clear, please take a look a project called UsbIo in NanoOS solution. This project purpose is
 to create some short of interface between PC application and the controllers available on chipset. This 
 project use that 'single instance object' model above.
+
+NanoOS only call global objects constructor and destructor in main thread only. This mean if main thread 
+exits the object may not valid anymore, because the main thread calls destructor when exit eventhough the 
+object still exist in the memory (SRAM) as the Test class in the example above. This may become trouble 
+when another thread is still using them. There are some ways to overcome this. One is try not to exit the 
+main thread while another thread is still using it, this must done in the codes. Way two is if you write 
+a class and you instantiate as global variable ensure you does nothing in the constructor and/or destructor 
+and, if required, write additional functions to initialize and deinitialize the object as replacement of 
+contructor and destructor respectively so threads can optionally call them. Note that NanoOS is currently 
+thread oriented system rather than process oriented system and C++ seems to aim to process oriented system.
 
 NanoOS has no direct support for C++ RTTI (Run Time Type Information) and exception. Those features need
 a specific implementation in a mechanism such as library. Since NanoOS currently has no concept of library

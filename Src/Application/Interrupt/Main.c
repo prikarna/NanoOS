@@ -4,7 +4,7 @@
  *           Ensure -R<path_to_NanoOS_elf> option for linker object be specified
  *           in the Makefile, because this will use NanoOS functions directly.
  *           In this program we generate interrupt via EXTI controller which available
- *           on the chipset and use event object to synchronize execution between 
+ *           on the chipset and use event object to 'synchronize execution' between 
  *           thread and interrupt handler. 
  *
  */
@@ -80,7 +80,7 @@ int main(int argc, char * argv[])
 		uiLineTrig = ((UINT32_T) 0x1) << u;
 		Printf("Trigger line %d interrupt...\r\n", u);
 
-		EXTI_TRIG_INT(uiLineTrig);	// Trigger line 0~3 one by one via software
+		EXTI_TRIG_INT(uiLineTrig);	// Trigger line 0~3 interrupt one by one via software
 
 		fRes = WaitForObject(THREAD_WAIT_OBJ__EVENT, gEvtId, THREAD__INFINITE_WAIT);
 		if (!fRes) {

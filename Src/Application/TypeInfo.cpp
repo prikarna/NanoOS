@@ -1,7 +1,7 @@
 /*
  * File   : TypeInfo.cpp
  * Remark : Minimum implementation of RTTI (Run Time Type Information).
- *          This implementation is 'satisfying the compiler', in this case GCC, rather
+ *          This implementation is just 'satisfying the compiler', in this case GCC, rather
  *          than complying with standard ABI and may not work for untested cases.
  */
 
@@ -107,7 +107,7 @@ typedef long ptrdiff_t;
 
 /*
  * The compiler can generate almost all dynamic casting operations codes, but in some cases 
- * it require external function like __dynamic_cast() at run time to decide how dynamic cast 
+ * it requires external function like __dynamic_cast() at run time to decide how dynamic cast 
  * operation being performed. A case like this one, in pseudo code, need __dynamic_cast():
  *
  * ...
@@ -173,7 +173,7 @@ void* __dynamic_cast(
 	 * vtable is the address of one of __cxxabiv1::xxx type info class
 	 * such as __class_type_info class (see _VTABLE structure above). 
 	 * If this address is the same as __dst_type then __src_ptr should 
-	 * point to the original object minus __src2dst.
+	 * point to the original object plus __src2dst.
 	 * In this case __src2dat is interpreted as an offset from __src_ptr
 	 * to the original object pointer. __src2dst maybe bigger than 0 
 	 * whenever user use multiple class inheritance.
