@@ -787,7 +787,6 @@ UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uN
 
 	do {
 		uDiv = uNumber / 10;
-		//uMod = uNumber - (uDiv * 10);
 		uMod = uNumber % 10;
 		*pc++ = sHexCharsU[uMod];
 		uNumber = uDiv;
@@ -810,16 +809,46 @@ UINT32_T UtlWriteNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT32_T uN
 	return (UINT32_T) iRes;
 }
 
-//UINT32_T UtlWriteLongNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT64_T uNumber, BOOL fIncSignBit)
-//{
-//	UINT32_T	uH, uL;
-//	UINT32_T	uRes;
-//
-//	uH = (uNumber >> 32) & 0xffffffff;
-//	uL = uNumber & 0xffffffff;
-//
-//	return (UINT32_T) iRes;
-//}
+// Maybe slow
+UINT64_T LongLongDivMod(UINT64_T uVal, UINT64_T uDiv, UINT64_PTR_T puModRes)
+{
+	UINT64_T ulAcc, ulMin, ulMulp;
+	BOOL fFound = FALSE;
+
+	ulMin = 0;
+	ulMulp = 0;
+
+	while (!fFound) {
+		for (int i = 0; i < 63; i++)
+		{
+			ulAcc = ((((UINT64_T) 0x1) << i) * uDiv) + ulMin;
+			if (ulAcc > uVal) {
+				if (i > 0) {
+					ulMulp += (((UINT64_T) 0x1) << (i - 1));
+					ulMin += ((((UINT64_T) 0x1) << (i - 1)) * uDiv);
+				} else {
+					if (puModRes) {
+						ulAcc = ulMulp * uDiv;
+						(*puModRes) = uVal - ulAcc;
+					}
+					fFound = TRUE;
+				}
+				break;
+			} else if (ulAcc == uVal) {
+				ulMulp += (((UINT64_T) 0x1) << i);
+				fFound = TRUE;
+				if (puModRes) {
+					*puModRes = 0;
+				}
+				break;
+			} else {
+				// Do nothing
+			}
+		}
+	}
+
+	return ulMulp;
+}
 
 UINT32_T UtlWriteHexa(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT8_T uIsHexCapital, UINT32_T uHex, UINT32_T uDigit)
 {
@@ -857,6 +886,54 @@ UINT32_T UtlWriteHexa(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT8_T uIsHe
 	return i;
 }
 
+UINT32_T UtlWriteLongNumber(PRINT_CHAR_CALLBACK PrintChar, void * pParm, UINT64_T uNumber, BOOL fIncSignBit)
+{
+	//
+	// Assume unsinged long long of uNumber has 64 bits long
+	//
+
+	UINT64_T	uDiv = 0, uMod = 0;
+	char		buf[32];
+	char *		pc;
+	int			iRes = 0;
+	BOOL		fIsNegative = FALSE;
+
+	if (!PrintChar) return 0;
+
+	if (fIncSignBit) {
+		if ((uNumber & 0x8000000000000000) == 0x8000000000000000) {
+			fIsNegative = TRUE;
+			uNumber = ~uNumber;
+			uNumber++;
+		}
+	}
+
+	buf[0] = 0;
+	pc = &buf[1];
+
+	do {
+		uDiv = LongLongDivMod(uNumber, 10, &uMod);
+		*pc++ = sHexCharsU[uMod];
+		uNumber = uDiv;
+	} while (uDiv >= 10);
+	if (uDiv != 0)
+		*pc = sHexCharsU[uDiv];
+	else
+		pc--;
+
+	if (fIsNegative) {
+		(* PrintChar)('-', pParm);
+	}
+
+	while (*pc != '\0') {
+		(* PrintChar)(*pc, pParm);
+		pc--;
+		iRes++;
+	}
+
+	return (UINT32_T) iRes;
+}
+
 UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const char *szFormat, va_list argList)
 {
 	char *			pc = (char *) szFormat;
@@ -892,10 +969,12 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 				uCount += uRes;
 				break;
 
+			case 'L':
 			case 'l':
-				UtlWriteString(PrintChar, pPrintCharParam, "['long long' is not supported]");
+				UtlWriteString(PrintChar, pPrintCharParam, "[long long is not supported]");
+				// va_arg() for unsigned long long seems buggy
 				//ul = va_arg(argList, UINT64_T);
-				//uRes = UtlWriteLongNumber(PrintChar, pPrintCharParam, ul);
+				//uRes = UtlWriteLongNumber(PrintChar, pPrintCharParam, ul, TRUE);
 				//uCount += uRes;
 				break;
 
@@ -936,7 +1015,17 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 				break;
 
 			case 'x':
+				asm(
+					"nop;"
+					"nop;"
+					"nop;"
+					);
 				u = (UINT32_T) va_arg(argList, UINT32_T);
+				asm(
+					"nop;"
+					"nop;"
+					"nop;"
+					);
 				uRes = UtlWriteHexa(PrintChar, pPrintCharParam, FALSE, u, 8);
 				uCount += uRes;
 				break;

@@ -142,7 +142,6 @@ PTHREAD ThdGetWaitingInterrupt(UINT32_T uiIntNumb, UINT32_T uiFlags);
 void UsbInitialize();
 UINT8_T UsbSend(UINT8_PTR_T pBuffer, UINT32_T uiBufferByteLength, BOOL fWait);
 BOOL UsbRequestReceive();
-//UINT8_T UsbReceive(UINT8_PTR_T pBuffer, UINT32_T uiBuffLength, UINT32_PTR_T puiReceivedDataLength);
 BOOL UsbCompleteReceive();
 void UsbCancelReceive();
 BOOL UsbIsReady();
@@ -196,11 +195,12 @@ BOOL CrIsAppRunning();
  * Event
  */
 void EvtInitialize();
-BOOL EvtCreate(UINT32_PTR_T puiEventId, PTHREAD pRequestingThread);
-BOOL EvtClose(UINT32_T uiEventId, PTHREAD pRequestingThread);
-BOOL EvtSet(UINT32_T uiEventId, PTHREAD pRequestingThread);
-BOOL EvtReset(UINT32_T uiEventId, PTHREAD pRequestingThread);
-BOOL EvtGetState(UINT32_T uiEventId, UINT16_PTR_T puiState, PTHREAD pRequestingThread);
+BOOL EvtCreate(UINT32_PTR_T puiEventId);
+BOOL EvtClose(UINT32_T uiEventId);
+BOOL EvtSet(UINT32_T uiEventId);
+BOOL EvtReset(UINT32_T uiEventId);
+BOOL EvtGetState(UINT32_T uiEventId, UINT8_PTR_T puiState);
+UINT32_T EvtGetError();
 
 
 

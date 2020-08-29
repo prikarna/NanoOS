@@ -351,22 +351,37 @@ void SvcSwitchToNextThread()
 void SvcCreateEvent()
 {
 	spParm->ReturnValue = 
-		EvtCreate((UINT32_PTR_T) spParm->Params[0], 0);
+		EvtCreate((UINT32_PTR_T) spParm->Params[0]);
+	
+	if (spParm->ReturnValue == 0) {
+		spCurThread->LastError = EvtGetError();
+	}
 }
 
 void SvcSetEvent()
 {
-	spParm->ReturnValue = EvtSet(spParm->Params[0], 0);
+	spParm->ReturnValue = EvtSet(spParm->Params[0]);
+
+	if (spParm->ReturnValue == 0) {
+		spCurThread->LastError = EvtGetError();
+	}
 }
 
 void SvcResetEvent()
 {
-	spParm->ReturnValue = EvtReset(spParm->Params[0], 0);
+	spParm->ReturnValue = EvtReset(spParm->Params[0]);
+	
+	if (spParm->ReturnValue == 0) {
+		spCurThread->LastError = EvtGetError();
+	}
 }
 
 void SvcCloseEvent()
 {
-	spParm->ReturnValue = EvtClose(spParm->Params[0], 0);
+	spParm->ReturnValue = EvtClose(spParm->Params[0]);
+	if (spParm->ReturnValue == 0) {
+		spCurThread->LastError = EvtGetError();
+	}
 }
 
 void SvcSetTerminationHandler()

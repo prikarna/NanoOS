@@ -208,6 +208,8 @@ extern "C" {
 #define RCC_ENA_APB1_CTRL_CLK(Ena, Apb1Ctrl)			\
 	(Ena) ? (IO_MEM32(RCC_APB1ENR) |= Apb1Ctrl) : (IO_MEM32(RCC_APB1ENR) &= ~(Apb1Ctrl))
 
+#define RCC_GET_APB1_CTRL_CLK()			IO_MEM32(RCC_APB1ENR)
+
 #define RCC_RESET_BACK_DOM()			SET_IO_BIT(RCC_BDCR), BIT_16)
 
 #define RCC_CLR_RST_BACK_DOM()			CLR_IO_BIT(RCC_BDCR, BIT_16)

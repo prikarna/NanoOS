@@ -44,7 +44,7 @@ static UINT32_T			suVar;
 static PINITIAL_THREAD_STACK	spInitStack;
 
 static PTHREAD		spTh;
-static UINT16_T		suEvtState;
+static UINT8_T		suEvtState;
 static UINT8_T		suThState;
 static BOOL			sfRes;
 
@@ -698,7 +698,7 @@ void IntTimer2()
 		case THREAD_STATE__WAIT_FOR_OBJECT:
 			if (spTh->WaitObjectType == THREAD_WAIT_OBJ__EVENT)
 			{
-				sfRes = EvtGetState(spTh->WaitObjectId, &suEvtState, spTh);
+				sfRes = EvtGetState(spTh->WaitObjectId, &suEvtState);
 				if (sfRes) 
 				{
 					if (suEvtState & EVT__SET_BIT) 
@@ -733,6 +733,7 @@ void IntTimer2()
 					spInitStack->ExcFrame.PC = spTh->SleepPC;		// Restore PC
 					spInitStack->ExcFrame.R1 = FALSE;				// Set return value
 					spTh->State = THREAD_STATE__WAITING;			// Change the state
+					spTh->LastError = EvtGetError();
 				}
 			}
 			else if (spTh->WaitObjectType == THREAD_WAIT_OBJ__THREAD)

@@ -39,336 +39,241 @@ extern "C" {
 #define ADC_JDR4_OFFSET			0x48
 #define ADC_DR_OFFSET			0x4C
 
-#define ADC_REG_CHAN_START_FLAG				BITHEX_4
-#define ADC_INJ_CHAN_START_FLAG				BITHEX_3
-#define ADC_INJ_CHAN_END_OF_CONV			BITHEX_2
-#define ADC_END_OF_CONV						BITHEX_1
-#define ADC_ANALOG_WATCHDOG_FLAG			BITHEX_0
+#define ADC_CHAN__0				0
+#define ADC_CHAN__1				1
+#define ADC_CHAN__2				2
+#define ADC_CHAN__3				3
+#define ADC_CHAN__4				4
+#define ADC_CHAN__5				5
+#define ADC_CHAN__6				6
+#define ADC_CHAN__7				7
+#define ADC_CHAN__8				8
+#define ADC_CHAN__9				9
+#define ADC_CHAN__10			10
+#define ADC_CHAN__11			11
+#define ADC_CHAN__12			12
+#define ADC_CHAN__13			13
+#define ADC_CHAN__14			14
+#define ADC_CHAN__15			15
+#define ADC_CHAN__16			16
+#define ADC_CHAN__17			17
+#define ADC_CHAN__INT_TEMP_SENS	ADC_CHAN__16
+#define ADC_CHAN__INT_VREFIN	ADC_CHAN__17
 
-#define ADC_GET_REG_CHAN_START_FL(AdcNo)		\
-	(IO_MEM32((AdcNo + ADC_SR_OFFSET)) & ADC_REG_CHAN_START_FLAG) ? 1 : 0
+#define ADC_ADDR(AdcNo, RegOffset)						(AdcNo + RegOffset)
 
-#define ADC_CLR_REG_CHAN_START_FL(AdcNo)		\
-	IO_MEM32((AdcNo + ADC_SR_OFFSET)) &= ~ADC_REG_CHAN_START_FLAG
+#define ADC_GET_REG_GRP_START_FLAG(AdcNo)				GET_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_4)
+#define ADC_CLR_REG_GRP_START_FLAG(AdcNo)				CLR_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_4)
 
-#define ADC_GET_INJ_CHAN_START_FL(AdcNo)		\
-	(IO_MEM32((AdcNo + ADC_SR_OFFSET)) & ADC_INJ_CHAN_START_FLAG) ? 1 : 0
+#define ADC_GET_INJ_GRP_START_FLAG(AdcNo)				GET_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_3)
+#define ADC_CLR_INJ_GRP_START_FLAG(AdcNo)				CLR_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_3)
 
-#define ADC_CLR_INJ_CHAN_START_FL(AdcNo)		\
-	IO_MEM32((AdcNo + ADC_SR_OFFSET)) &= ~ADC_INJ_CHAN_START_FLAG
+#define ADC_GET_INJ_GRP_END_OF_CONV(AdcNo)				GET_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_2)
+#define ADC_CLR_INJ_GRP_END_OF_CONV(AdcNo)				CLR_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_2)
 
-#define ADC_GET_INJ_CHAN_END_OF_CONV(AdcNo)		\
-	(IO_MEM32((AdcNo + ADC_SR_OFFSET)) & ADC_INJ_CHAN_END_OF_CONV) ? 1 : 0
+#define ADC_GET_END_OF_CONV(AdcNo)						GET_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_1)
+#define ADC_CLR_END_OF_CONV(AdcNo)						CLR_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_1)
 
-#define ADC_CLR_INJ_CHAN_END_OF_CONV(AdcNo)		\
-	IO_MEM32((AdcNo + ADC_SR_OFFSET)) &= ~ADC_INJ_CHAN_END_OF_CONV
+#define ADC_GET_ANALOG_WATCHDOG_FLAG(AdcNo)				GET_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_0)
+#define ADC_CLR_ANALOG_WATCHDOG_FLAG(AdcNo)				CLR_IO_BIT(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_0)
 
-#define ADC_GET_END_OF_CONV(AdcNo)				\
-	(IO_MEM32((AdcNo + ADC_SR_OFFSET)) & ADC_END_OF_CONV) ? 1 : 0
+#define ADC_CLR_ALL_CONV_FLAGS(AdcNo)					SET_IO_BITS(ADC_ADDR(AdcNo, ADC_SR_OFFSET), BIT_0, BITMASK_4, 0)
 
-#define ADC_CLR_END_OF_CONV(AdcNo)				\
-	IO_MEM32((AdcNo + ADC_SR_OFFSET)) &= ~ADC_END_OF_CONV
+#define ADC_DUAL_MODE__INDEPENDENT								0x00
+#define ADC_DUAL_MODE__REG_SIMULTANEOUS_AND_INJ_SIMULTANEOUS	0x01
+#define ADC_DUAL_MODE__REG_SIMULTANEOUS_AND_ALT_TRIGGER			0x02
+#define ADC_DUAL_MODE__INJ_SIMULTANEOUS_AND_FAST_INTERLEAVED	0x03
+#define ADC_DUAL_MODE__INJ_SIMULTANEOUS_AND_SLOW_INTERLEAVED	0x04
+#define ADC_DUAL_MODE__INJ_SIMULTANEOUS_ONLY					0x05
+#define ADC_DUAL_MODE__REG_SIMULTANEOUS_ONLY					0x06
+#define ADC_DUAL_MODE__FAST_INTERLEAVED_ONLY					0x07
+#define ADC_DUAL_MODE__SLOW_INTERLEAVED_ONLY					0x08
+#define ADC_DUAL_MODE__ALT_TRIGGER_ONLY							0x09
 
-#define ADC_GET_ANALOG_WATCHDOG_FL(AdcNo)		\
-	(IO_MEM32((AdcNo + ADC_SR_OFFSET)) & ADC_ANALOG_WATCHDOG_FLAG) ? 1 : 0
+#define ADC_SET_DUAL_MODE_SEL(AdcNo, AdcMode)			SET_IO_BITS(ADC_ADDR(AdcNo, ADC_CR1_OFFSET), BIT_16, BITMASK_4, AdcMode)
 
-#define ADC_CLR_ANALOG_WATCHDOG_FL(AdcNo)		\
-	IO_MEM32((AdcNo + ADC_SR_OFFSET)) &= ~ADC_ANALOG_WATCHDOG_FLAG
+#define ADC_DISC_COUNT__1_CHAN			0x00
+#define ADC_DISC_COUNT__2_CHANS			0x01
+#define ADC_DISC_COUNT__3_CHANS			0x02
+#define ADC_DISC_COUNT__4_CHANS			0x03
+#define ADC_DISC_COUNT__5_CHANS			0x04
+#define ADC_DISC_COUNT__6_CHANS			0x05
+#define ADC_DISC_COUNT__7_CHANS			0x06
+#define ADC_DISC_COUNT__8_CHANS			0x07
 
-#define ADC_ANALOG_WATCHDOG_ON_REG_CHAN_EN					BITHEX_23
-#define ADC_ANALOG_WATCHDOG_ON_INJ_CHAN_EN					BITHEX_22
-#define ADC_DISC_MOD_ON_INJ_CHAN_EN							BITHEX_12
-#define ADC_DISC_MOD_ON_REG_CHAN_EN							BITHEX_11
-#define ADC_AUTO_INJ_GRP_CONV_EN							BITHEX_10
-#define ADC_WATCHDOG_ON_SINGLE_CHAN_EN						BITHEX_9
-#define ADC_SCAN_MODE_EN									BITHEX_8
-#define ADC_INJ_CHAN_INT_EN									BITHEX_7
-#define ADC_ANALOG_WATCHDOG_INT_EN							BITHEX_6
-#define ADC_END_OF_CONV_INT_EN								BITHEX_5
+#define ADC_SET_DISC_CHAN_COUNT(AdcNo, AdcDiscCount)	SET_IO_BITS(ADC_ADDR(AdcNo, ADC_CR1_OFFSET), BIT_13, BITMASK_3, AdcDiscCount)
 
-#define ADC_ENA_ANALOG_WATCHDOG_ON_REG_CHAN(AdcNo, Ena)								\
-	(Ena) ?																			\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) |= ADC_ANALOG_WATCHDOG_ON_REG_CHAN_EN) :		\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ADC_ANALOG_WATCHDOG_ON_REG_CHAN_EN)
+#define ADC_ENA_INJ_GRP_DISC_MOD(AdcNo, Ena)			ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR1_OFFSET), BIT_12, Ena)
 
-#define ADC_ENA_ANALOG_WATCHDOG_ON_INJ_CHAN(AdcNo, Ena)								\
-	(Ena) ?																			\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) |= ADC_ANALOG_WATCHDOG_ON_INJ_CHAN_EN) :		\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ADC_ANALOG_WATCHDOG_ON_INJ_CHAN_EN)
+#define ADC_ENA_REG_GRP_DISC_MOD(AdcNo, Ena)			ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR1_OFFSET), BIT_11, Ena)
 
-#define ADC_MODE__INDEPENDENT								0x00
-#define ADC_MODE__REG_SIMULTANEOUS_AND_INJ_SIMULTANEOUS		0x01
-#define ADC_MODE__REG_SIMULTANEOUS_AND_ALT_TRIGGER			0x02
-#define ADC_MODE__INJ_SIMULTANEOUS_AND_FAST_INTERLEAVED		0x03
-#define ADC_MODE__INJ_SIMULTANEOUS_AND_SLOW_INTERLEAVED		0x04
-#define ADC_MODE__INJ_SIMULTANEOUS_ONLY						0x05
-#define ADC_MODE__REG_SIMULTANEOUS_ONLY						0x06
-#define ADC_MODE__FAST_INTERLEAVED_ONLY						0x07
-#define ADC_MODE__SLOW_INTERLEAVED_ONLY						0x08
-#define ADC_MODE__ALT_TRIGGER_ONLY							0x09
+#define ADC_ENA_INJ_GRP_AUTO_CONV(AdcNo, Ena)			ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR1_OFFSET), BIT_10, Ena)
 
-#define ADC_SET_DUAL_MODE(AdcNo, AdcMode)					SET_IO_BITS((AdcNo + ADC_CR1_OFFSET), 16, BITMASK_4, AdcMode)
+#define ADC_ENA_SCAN_MOD(AdcNo, Ena)					ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR1_OFFSET), BIT_8, Ena)
 
-#define ADC_COUNT__1_CHAN			0x00
-#define ADC_COUNT__2_CHANS			0x01
-#define ADC_COUNT__3_CHANS			0x02
-#define ADC_COUNT__4_CHANS			0x03
-#define ADC_COUNT__5_CHANS			0x04
-#define ADC_COUNT__6_CHANS			0x05
-#define ADC_COUNT__7_CHANS			0x06
-#define ADC_COUNT__8_CHANS			0x07
+#define ADC_ENA_INJ_GRP_INT(AdcNo, Ena)					ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR1_OFFSET), BIT_7, Ena)
 
-#define ADC_SET_DISC_CHAN_COUNT(AdcNo, AdcCount)		SET_IO_BITS((AdcNo + ADC_CR1_OFFSET), 13, BITMASK_3, AdcCount)
+#define ADC_ENA_END_OF_CONV_INT(AdcNo, Ena)				ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR1_OFFSET), BIT_5, Ena)
 
-#define ADC_ENA_DISC_MODE_ON_INJ_CHAN(AdcNo, Ena)							\
-	(Ena) ?																	\
-	(IO_MEM32((AdcMo + ADC_CR1_OFFSET)) |= ADC_DISC_MOD_ON_INJ_CHAN_EN) :	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ ADC_DISC_MOD_ON_INJ_CHAN_EN)
+#define ADC_ENA_TEMP_SENS_AND_VREFIN(Ena)				ENABLE_IO_BIT((ADC1_BASE + ADC_CR2_OFFSET), BIT_23, Ena)
 
-#define ADC_ENA_DISC_MODE_ON_REG_CHAN(AdcNo, Ena)							\
-	(Ena) ?																	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) |= ADC_DISC_MOD_ON_REG_CHAN_EN) :	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ADC_DISC_MOD_ON_INJ_CHAN_EN)
+#define ADC_START_REG_GRP_CONV(AdcNo)					SET_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_22)
+#define ADC_GET_REG_GRP_START_CONV_STATUS(AdcNo)		GET_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_22)
 
-#define ADC_ENA_AUTO_INJ_GRP_CONV(AdcNo, Ena)								\
-	(Ena) ?																	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) |= ADC_AUTO_INJ_GRP_CONV_EN) :		\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ADC_AUTO_INJ_GRP_CONV_EN)
+#define ADC_START_INJ_GRP_CONV(AdcNo)					SET_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_21)
 
-#define ADC_ENA_WATCHDOG_ON_SINGLE_CHAN_IN_SCAN_MODE(AdcNo, Ena)			\
-	(Ena) ?																	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) |= ADC_WATCHDOG_ON_SINGLE_CHAN_EN) :	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ADC_WATCHDOG_ON_SINGLE_CHAN_EN)
+#define ADC_ENA_REG_GRP_EXT_TRIG(AdcNo, Ena)			ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_20, Ena)
 
-#define ADC_ENA_SCAN_MODE(AdcNo, Ena)										\
-	(Ena) ?																	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) |= ADC_SCAN_MODE_EN) :				\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ADC_SCAN_MODE_EN)
+#define ADC12_REG_GRP_EXT_TRIG__TIMER1_CC1		0x00	// 000: Timer 1 CC1 event
+#define ADC12_REG_GRP_EXT_TRIG__TIMER1_CC2		0x01	// 001: Timer 1 CC2 event
+#define ADC12_REG_GRP_EXT_TRIG__TIMER1_CC3		0x02	// 010: Timer 1 CC3 event
+#define ADC12_REG_GRP_EXT_TRIG__TIMER2_CC2		0x03	// 011: Timer 2 CC2 event
+#define ADC12_REG_GRP_EXT_TRIG__TIMER3_TRGO		0x04	// 100: Timer 3 TRGO event
+#define ADC12_REG_GRP_EXT_TRIG__TIMER4_CC4		0x05	// 101: Timer 4 CC4 event
+#define ADC12_REG_GRP_EXT_TRIG__EXT_LINE11		0x06	// 110: EXTI line 11/TIM8_TRGO event
+#define ADC12_REG_GRP_EXT_TRIG__SWSTART			0x07	// 111: SWSTART
 
-#define ADC_ENA_INJ_CHAN_INT(AdcNo, Ena)									\
-	(Ena) ?																	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) |= ADC_INJ_CHAN_INT_EN) :			\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ADC_INJ_CHAN_INT_EN)
+#define ADC12_SET_REG_GRP_EXT_TRIG(AdcNo, Adc12RegGrpExtTrig)					\
+	SET_IO_BITS(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_17, BITMASK_3, Adc12RegGrpExtTrig)
 
-#define ADC_ENA_ANALOG_WATCHDOG_INT(AdcNo, Ena)								\
-	(Ena) ?																	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) |= ADC_ANALOG_WATCHDOG_INT_EN) :	\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~ADC_ANALOG_WATCHDOG_INT_EN)
+#define ADC3_REG_GRP_EXT_TRIG__TIMER3_CC1		0x00	// 000: Timer 3 CC1 event
+#define ADC3_REG_GRP_EXT_TRIG__TIMER2_CC3		0x01	// 001: Timer 2 CC3 event
+#define ADC3_REG_GRP_EXT_TRIG__TIMER1_CC3		0x02	// 010: Timer 1 CC3 event
+#define ADC3_REG_GRP_EXT_TRIG__TIMER8_CC1		0x03	// 011: Timer 8 CC1 event
+#define ADC3_REG_GRP_EXT_TRIG__TIMER8_TRGO		0x04	// 100: Timer 8 TRGO event
+#define ADC3_REG_GRP_EXT_TRIG__TIMER5_CC1		0x05	// 101: Timer 5 CC1 event
+#define ADC3_REG_GRP_EXT_TRIG__TIMER5_CC3		0x06	// 110: Timer 5 CC3 event
+#define ADC3_REG_GRP_EXT_TRIG__SWSTART			0x07	// 111: SWSTART
 
-#define ADC_CHAN__0					0x00
-#define ADC_CHAN__1					0x01
-#define ADC_CHAN__2					0x02
-#define ADC_CHAN__3					0x03
-#define ADC_CHAN__4					0x04
-#define ADC_CHAN__5					0x05
-#define ADC_CHAN__6					0x06
-#define ADC_CHAN__7					0x07
-#define ADC_CHAN__8					0x08
-#define ADC_CHAN__9					0x09
-#define ADC_CHAN__10				0x0A
-#define ADC_CHAN__11				0x0B
-#define ADC_CHAN__12				0x0C
-#define ADC_CHAN__13				0x0E
-#define ADC_CHAN__14				0x0F
-#define ADC_CHAN__15				0x10
-#define ADC_CHAN__16				0x11
-#define ADC_CHAN__17				0x12
+#define ADC3_SET_REG_GRP_EXT_TRIG(Adc3RegGrpExtTrig)							\
+	SET_IO_BITS(ADC_ADDR(ADC3_BASE + ADC_CR2_OFFSET), BIT_17, BITMASK_3, Adc3RegGrpExtTrig)
 
-#define ADC_SELECT_WATCHDOG_CHAN(AdcNo, AdcChan)							\
-	IO_MEM32((AdcNo + ADC_CR1_OFFSET)) =									\
-	(IO_MEM32((AdcNo + ADC_CR1_OFFSET)) &= ~(0x1F)) | (AdcChan & 0x1F)
+#define ADC_ENA_INJ_GRP_EXT_TRIG(AdcNo, Ena)			ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_15, Ena)
 
-#define ADC_ENA_TEMP_SENS_AND_VERIFINT(Ena)									\
-	(Ena) ?																	\
-	(IO_MEM32((ADC1_BASE + ADC_CR2_OFFSET)) |= (BITHEX_23 | BITHEX_0)) :	\
-	(IO_MEM32((ADC1_BASE + ADC_CR2_OFFSET)) &= ~(BITHEX_23 | BITHEX_0))
+#define ADC12_INJ_GRP_EXT_TRIG__TIMER1_TRGO		0x00	// 000: Timer 1 TRGO event
+#define ADC12_INJ_GRP_EXT_TRIG__TIMER1_CC4		0x01	// 001: Timer 1 CC4 event
+#define ADC12_INJ_GRP_EXT_TRIG__TIMER2_TRGO		0x02	// 010: Timer 2 TRGO event
+#define ADC12_INJ_GRP_EXT_TRIG__TIMER2_CC1		0x03	// 011: Timer 2 CC1 event
+#define ADC12_INJ_GRP_EXT_TRIG__TIMER3_CC4		0x04	// 100: Timer 3 CC4 event
+#define ADC12_INJ_GRP_EXT_TRIG__TIMER4_TRGO		0x05	// 101: Timer 4 TRGO event
+#define ADC12_INJ_GRP_EXT_TRIG__EXTI_LINE15		0x06	// 110: EXTI line15/TIM8_CC4 event
+#define ADC12_INJ_GRP_EXT_TRIG__JSWSTART		0x07	// 111: JSWSTART
 
-#define ADC_START_REG_CHAN_CONV(AdcNo)			IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_22
+#define ADC12_SET_INJ_GRP_EXT_TRIG(AdcNo, Adc12InjExtTrig)					\
+	SET_IO_BITS(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_12, BITMASK_3, Adc12InjExtTrig)
 
-#define ADC_START_INJ_CHAN_CONV(AdcNo)			IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_21
+#define ADC3_INJ_GRP_EXT_TRIG__TIMER1_TRGO		0x00	// 000: Timer 1 TRGO event
+#define ADC3_INJ_GRP_EXT_TRIG__TIMER1_CC4		0x01	// 001: Timer 1 CC4 event
+#define ADC3_INJ_GRP_EXT_TRIG__TIMER4_CC3		0x02	// 010: Timer 4 CC3 event
+#define ADC3_INJ_GRP_EXT_TRIG__TIMER8_CC2		0x03	// 011: Timer 8 CC2 event
+#define ADC3_INJ_GRP_EXT_TRIG__TIMER8_CC4		0x04	// 100: Timer 8 CC4 event
+#define ADC3_INJ_GRP_EXT_TRIG__TIMER5_TRGO		0x05	// 101: Timer 5 TRGO event
+#define ADC3_INJ_GRP_EXT_TRIG__TIMER5_CC4		0x06	// 110: Timer 5 CC4 event
+#define ADC3_INJ_GRP_EXT_TRIG__JSWSTART			0x07	// 111: JSWSTART
 
-#define ADC_ENA_EXT_TRIG_ON_REG_CHAN(AdcNo, Ena)							\
-	(Ena) ?																	\
-	(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_20) :						\
-	(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) &= ~BITHEX_20)
+#define ADC3_SET_INJ_GRP_EXT_TRIG(Adc3InjGrpExtTrig)						\
+	SET_IO_BITS((ADC3_BASE + ADC_CR2_OFFSET), BIT_12, BITMASK_3, Adc3InjGrpExtTrig)
 
-#define ADC12_REG_CHAN_EXT_TRIG__TMR1_CC1		0x00	//	000: Timer 1 CC1 event
-#define ADC12_REG_CHAN_EXT_TRIG__TMR1_CC2		0x01	//	001: Timer 1 CC2 event
-#define ADC12_REG_CHAN_EXT_TRIG__TMR1_CC3		0x02	//	010: Timer 1 CC3 event
-#define ADC12_REG_CHAN_EXT_TRIG__TMR2_CC2		0x03	//	011: Timer 2 CC2 event
-#define ADC12_REG_CHAN_EXT_TRIG__TMR3_TRGO		0x04	//	100: Timer 3 TRGO event
-#define ADC12_REG_CHAN_EXT_TRIG__TMR4_CC4		0x05	//	101: Timer 4 CC4 event
-#define ADC12_REG_CHAN_EXT_TRIG__EXTI_LINE_11	0x06	//	110: EXTI line 11/TIM8_TRGO event (TIM8_TRGO is available only in high-density and XLdensity devices)
-#define ADC12_REG_CHAN_EXT_TRIG__SWSTART		0x07	//	111: SWSTART
+#define ADC_ENA_LEFT_ALIGN_DAT(AdcNo, Ena)			ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_11, Ena)
 
-#define ADC12_SET_REG_CHAN_EXT_TRIGGER(AdcNo, Adc12RegExtTrig)		\
-	IO_MEM32((AdcNo + ADC_CR2_OFFSET)) = (IO_MEM32((AdcNo + ADC_CR2_OFFSET)) & ~(0x7 << 17)) | ((Adc12RegExtTrig & 0x7) << 17)
+#define ADC_ENA_DMA(AdcNo, Ena)						ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_8, Ena)
 
-#define ADC3_REG_CHAN_EXT_TRIG__TMR3_CC1		0x00	//	000: Timer 3 CC1 event
-#define ADC3_REG_CHAN_EXT_TRIG__TMR2_CC3		0x01	//	001: Timer 2 CC3 event
-#define ADC3_REG_CHAN_EXT_TRIG__TMR1_CC3		0x02	//	010: Timer 1 CC3 event
-#define ADC3_REG_CHAN_EXT_TRIG__TMR8_CC1		0x03	//	011: Timer 8 CC1 event
-#define ADC3_REG_CHAN_EXT_TRIG__TMR8_TRGO		0x04	//	100: Timer 8 TRGO event
-#define ADC3_REG_CHAN_EXT_TRIG__TMR5_CC1		0x05	//	101: Timer 5 CC1 event
-#define ADC3_REG_CHAN_EXT_TRIG__TMR5_CC3		0x06	//	110: Timer 5 CC3 event
-#define ADC3_REG_CHAN_EXT_TRIG__SWSTART			0x07	//	111: SWSTART
+#define ADC_INIT_CALIB(AdcNo)						SET_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_3)
+#define ADC_IS_INIT_CALIB_COMPLETE(AdcNo)			(GET_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_3)) ? 0 : 1
 
-#define ADC3_SET_REG_CHAN_EXT_TRIGGER(Adc3RegExtTrig)		\
-	IO_MEM32((ADC3 + ADC_CR2_OFFSET)) = (IO_MEM32((ADC3 + ADC_CR2_OFFSET)) & ~(0x7 << 17)) | ((Adc3RegExtTrig & 0x7) << 17)
+#define ADC_CALIBRATE(AdcNo)						SET_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_2)
+#define ADC_IS_CALIB_DONE(AdcNo)					(GET_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_2)) ? 0 : 1
 
-#define ADC_ENA_EXT_TRIG_ON_INJ_CHAN(AdcNo, Ena)			\
-	(Ena) ?													\
-	(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_15) :		\
-	(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) &= ~BITHEX_15)
+#define ADC_ENA_CONT_MOD(AdcNo, Ena)				ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_1, Ena)
 
-#define ADC12_INJ_CHAN_EXT_TRIG__TMR1_TRGO		0x00	//	000: Timer 1 TRGO event
-#define ADC12_INJ_CHAN_EXT_TRIG__TMR1_CC4		0x01	//	001: Timer 1 CC4 event
-#define ADC12_INJ_CHAN_EXT_TRIG__TMR2_TRGO		0x02	//	010: Timer 2 TRGO event
-#define ADC12_INJ_CHAN_EXT_TRIG__TMR2_CC1		0x03	//	011: Timer 2 CC1 event
-#define ADC12_INJ_CHAN_EXT_TRIG__TMR3_CC4		0x04	//	100: Timer 3 CC4 event
-#define ADC12_INJ_CHAN_EXT_TRIG__TMR4_TRGO		0x05	//	101: Timer 4 TRGO event
-#define ADC12_INJ_CHAN_EXT_TRIG__EXTI_LINE_15	0x06	//	110: EXTI line15/TIM8_CC4 event (TIM8_CC4 is available only in high-density and XLdensity devices)
-#define ADC12_INJ_CHAN_EXT_TRIG__SWSTART		0x07	//	111: JSWSTART
+#define ADC_ENABLE(AdcNo, Ena)						ENABLE_IO_BIT(ADC_ADDR(AdcNo, ADC_CR2_OFFSET), BIT_0, Ena)
 
-#define ADC12_SET_INJ_CHAN_EXT_TRIGGER(AdcNo, Adc12InjExtTrig)		\
-	IO_MEM32((AdcNo + ADC_CR2_OFFSET)) = (IO_MMAP((AdcNo + ADC_CR2_OFFSET)) & ~(0x7 << 12)) | ((Adc12InjExtTrig & 0x7) << 12)
+#define ADC_SAMPLE__1_PT_5_CYCLES			0x00
+#define ADC_SAMPLE__7_PT_5_CYCLES			0x01
+#define ADC_SAMPLE__13_PT_5_CYCLES			0x02
+#define ADC_SAMPLE__28_PT_5_CYCLES			0x03
+#define ADC_SAMPLE__41_PT_5_CYCLES			0x04
+#define ADC_SAMPLE__55_PT_5_CYCLES			0x05
+#define ADC_SAMPLE__71_PT_5_CYCLES			0x06
+#define ADC_SAMPLE__239_PT_5_CYCLES			0x07
 
-#define ADC3_INJ_CHAN_EXT_TRIG__TMR1_TRGO		0x00	//	000: Timer 1 TRGO event
-#define ADC3_INJ_CHAN_EXT_TRIG__TMR1_CC4		0x01	//	001: Timer 1 CC4 event
-#define ADC3_INJ_CHAN_EXT_TRIG__TMR4_CC3		0x02	//	010: Timer 4 CC3 event
-#define ADC3_INJ_CHAN_EXT_TRIG__TMR8_CC2		0x03	//	011: Timer 8 CC2 event
-#define ADC3_INJ_CHAN_EXT_TRIG__TMR8_CC4		0x04	//	100: Timer 8 CC4 event
-#define ADC3_INJ_CHAN_EXT_TRIG__TMR5_TRGO		0x05	//	101: Timer 5 TRGO event
-#define ADC3_INJ_CHAN_EXT_TRIG__TMR5_CC4		0x06	//	110: Timer 5 CC4 event
-#define ADC3_INJ_CHAN_EXT_TRIG__SWSTART			0x07	//	111: JSWSTART
+#define ADC_SAMPL_REG(AdcNo, AdcChan)		((AdcNo + ADC_SMPR2_OFFSET) - ((AdcChan / 10) * 0x04))
 
-#define ADC3_SET_INJ_CHAN_EXT_TRIGGER(Adc3InjExtTrig)		\
-	IO_MEM32((ADC3 + ADC_CR2_OFFSET)) = (IO_MMAP((ADC3 + ADC_CR2_OFFSET)) & ~(0x7 << 12)) | ((Adc3InjExtTrig & 0x7) << 12)
+#define ADC_SAMPL_NTH_PIN(AdcChan)			((AdcChan * 3) - ((AdcChan / 10) * 30))
 
-#define ADC_DAT_ALIGN_RIGHT				0x00
-#define ADC_DAT_ALIGN_LEFT				0x01
+#define ADC_SET_SAMPLE(AdcNo, AdcChan, AdcSample)		\
+	SET_IO_BITS(ADC_SAMPL_REG(AdcNo, AdcChan), ADC_SAMPL_NTH_PIN(AdcChan), BITMASK_3, AdcSample)
 
-#define ADC_SET_DATA_ALIGN(AdcNo, AdcDatAlign)								\
-	(AdcDatAlign) ?															\
-	(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_11) :						\
-	(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) &= ~BITHEX_11)
+#define ADC_SET_INJ_GRP_DATA_OFFSET(AdcNo, AdcChan, DatOffset)						\
+	IO_MEM32(ADC_ADDR(AdcNo, (ADC_JOFR1_OFFSET + (AdcChan * 0x4)))) =				\
+	(IO_MEM32(ADC_ADDR(AdcNo, (ADC_JOFR1_OFFSET + (AdcChan * 0x4)))) &= ~(0xFFF)) |	\
+	(DatOffset & 0xFFF)
 
-#define ADC_ENA_DMA(AdcNo, Ena)												\
-	(Ena) ?																	\
-	(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_8) :						\
-	(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) &= ~BITHEX_8)
+#define ADC_REG_GRP_SEQ_LEN__1						0x00
+#define ADC_REG_GRP_SEQ_LEN__2						0x01
+#define ADC_REG_GRP_SEQ_LEN__3						0x02
+#define ADC_REG_GRP_SEQ_LEN__4						0x03
+#define ADC_REG_GRP_SEQ_LEN__5						0x04
+#define ADC_REG_GRP_SEQ_LEN__6						0x05
+#define ADC_REG_GRP_SEQ_LEN__7						0x06
+#define ADC_REG_GRP_SEQ_LEN__8						0x07
+#define ADC_REG_GRP_SEQ_LEN__9						0x08
+#define ADC_REG_GRP_SEQ_LEN__10						0x09
+#define ADC_REG_GRP_SEQ_LEN__11						0x0A
+#define ADC_REG_GRP_SEQ_LEN__12						0x0B
+#define ADC_REG_GRP_SEQ_LEN__13						0x0C
+#define ADC_REG_GRP_SEQ_LEN__14						0x0D
+#define ADC_REG_GRP_SEQ_LEN__15						0x0E
+#define ADC_REG_GRP_SEQ_LEN__16						0x0F
 
-#define ADC_RESET_CALIB(AdcNo)				IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_3
+#define ADC_SET_REG_GRP_SEQ_LEN(AdcNo, AdcRegGrpSeqLen)			\
+	SET_IO_BITS(ADC_ADDR(AdcNo, ADC_SQR1_OFFSET), BIT_20, BITMASK_4, AdcRegGrpSeqLen)
 
-#define ADC_ENA_CALIB(AdcNo)				IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_2
+#define ADC_REG_GRP_CHAN_SEQ__1ST					0x00
+#define ADC_REG_GRP_CHAN_SEQ__2ND					0x01
+#define ADC_REG_GRP_CHAN_SEQ__3TH					0x02
+#define ADC_REG_GRP_CHAN_SEQ__4TH					0x03
+#define ADC_REG_GRP_CHAN_SEQ__5TH					0x04
+#define ADC_REG_GRP_CHAN_SEQ__6TH					0x05
+#define ADC_REG_GRP_CHAN_SEQ__7TH					0x06
+#define ADC_REG_GRP_CHAN_SEQ__8TH					0x07
+#define ADC_REG_GRP_CHAN_SEQ__9TH					0x08
+#define ADC_REG_GRP_CHAN_SEQ__10TH					0x09
+#define ADC_REG_GRP_CHAN_SEQ__11TH					0x0A
+#define ADC_REG_GRP_CHAN_SEQ__12TH					0x0B
+#define ADC_REG_GRP_CHAN_SEQ__13TH					0x0C
+#define ADC_REG_GRP_CHAN_SEQ__14TH					0x0D
+#define ADC_REG_GRP_CHAN_SEQ__15TH					0x0E
+#define ADC_REG_GRP_CHAN_SEQ__16TH					0x0F
 
-#define ADC_GET_CALIB_STATUS(AdcNo)			(IO_MEM32((AdcNo + ADC_CR2_OFFSET)) & BITHEX_2) ? 1 : 0
+#define ADC_REG_GRP_SEQ_REG(AdcNo, AdcRegGrpSeq)			((AdcNo + ADC_SQR3_OFFSET) - ((AdcRegGrpSeq / 6) * 0x04))
 
-#define ADC_ENABLE(AdcNo)					IO_MEM32((AdcNo + ADC_CR2_OFFSET)) |= BITHEX_0
+#define ADC_REG_GRP_SEQ_NTH_BIT(AdcRegGrpSeq)				((AdcRegGrpSeq * 5) - ((AdcRegGrpSeq / 6) * 30))
 
-#define ADC_DISABLE(AdcNo)					IO_MEM32((AdcNo + ADC_CR2_OFFSET)) &= ~BITHEX_0
+#define ADC_SET_REG_GRP_CHAN_SEQ(AdcNo, AdcChan, AdcRegGrpChanSeq)		\
+	SET_IO_BITS(ADC_REG_GRP_SEQ_REG(AdcNo, AdcRegGrpChanSeq), ADC_REG_GRP_SEQ_NTH_BIT(AdcRegGrpChanSeq), BITMASK_5, AdcChan)
 
-#define ADC_SAMPL__1_PT_5_CYCLES			0x00
-#define ADC_SAMPL__7_PT_5_CYCLES			0x01
-#define ADC_SAMPL__13_PT_5_CYCLES			0x02
-#define ADC_SAMPL__28_PT_5_CYCLES			0x03
-#define ADC_SAMPL__41_PT_5_CYCLES			0x04
-#define ADC_SAMPL__55_PT_5_CYCLES			0x05
-#define ADC_SAMPL__71_PT_5_CYCLES			0x06
-#define ADC_SAMPL__239_PT_5_CYCLES			0x07
+#define ADC_INJ_GRP_SEQ_LEN__1						0x00
+#define ADC_INJ_GRP_SEQ_LEN__2						0x01
+#define ADC_INJ_GRP_SEQ_LEN__3						0x02
+#define ADC_INJ_GRP_SEQ_LEN__4						0x03
 
-/*
-#define ADC_SET_SAMPLE(AdcNo, AdcChan, AdcSampl)										\
-	if ((AdcChan >= ADC_CHAN__0) && (AdcChan <= ADC_CHAN__9))								\
-	{																					\
-	SET_IO_BITS((AdcNo + ADC_SMPR2_OFFSET), (AdcChan * 3), BITMASK_3, AdcSampl);		\
-	}																					\
-	else if ((AdcChan >= ADC_CHAN__10) && (AdcChan <= ADC_CHAN__17))						\
-	{																					\
-	SET_IO_BITS((AdcNo + ADC_SMPR1_OFFSET), ((AdcChan - 10) * 3), BITMASK_3, AdcSampl);	\
-	}																					\
-	else																				\
-	{																					\
-	}
-	*/
+#define ADC_SET_INJ_GRP_SEQ_LEN(AdcNo, AdcInjGrpSeqLen)				\
+	SET_IO_BITS(ADC_ADDR(AdcNo, ADC_JSQR_OFFSET), BIT_20, BITMASK_2, AdcInjGrpSeqLen)
 
-#define ADC_SEQ_LEN__1						0x00
-#define ADC_SEQ_LEN__2						0x01
-#define ADC_SEQ_LEN__3						0x02
-#define ADC_SEQ_LEN__4						0x03
-#define ADC_SEQ_LEN__5						0x04
-#define ADC_SEQ_LEN__6						0x05
-#define ADC_SEQ_LEN__7						0x06
-#define ADC_SEQ_LEN__8						0x07
-#define ADC_SEQ_LEN__9						0x08
-#define ADC_SEQ_LEN__10						0x09
-#define ADC_SEQ_LEN__11						0x0A
-#define ADC_SEQ_LEN__12						0x0B
-#define ADC_SEQ_LEN__13						0x0C
-#define ADC_SEQ_LEN__14						0x0D
-#define ADC_SEQ_LEN__15						0x0E
-#define ADC_SEQ_LEN__16						0x0F
+#define ADC_INJ_GRP_CHAN_SEQ__1ST						0x00
+#define ADC_INJ_GRP_CHAN_SEQ__2ND						0x01
+#define ADC_INJ_GRP_CHAN_SEQ__3TH						0x02
+#define ADC_INJ_GRP_CHAN_SEQ__4TH						0x03
 
-#define ADC_SET_SEQ_LEN(AdcNo, AdcSeqLen)		SET_IO_BITS((AdcNo + ADC_SQR1_OFFSET), 20, BITMASK_4, AdcSeqLen)
+#define ADC_SET_INJ_GRP_CHAN_SEQ(AdcNo, AdcChan, AdcInjGrpChanSeq)		\
+	SET_IO_BITS(ADC_ADDR(AdcNo, ADC_JSQR_OFFSET), (AdcChan * 0x4), BITMASK_5, AdcInjGrpChanSeq)
 
-#define ADC_SEQ__1ST			0x00
-#define ADC_SEQ__2ND			0x01
-#define ADC_SEQ__3TH			0x02
-#define ADC_SEQ__4TH			0x03
-#define ADC_SEQ__5TH			0x04
-#define ADC_SEQ__6TH			0x05
-#define ADC_SEQ__7TH			0x06
-#define ADC_SEQ__8TH			0x07
-#define ADC_SEQ__9TH			0x08
-#define ADC_SEQ__10TH			0x09
-#define ADC_SEQ__11TH			0x0A
-#define ADC_SEQ__12TH			0x0B
-#define ADC_SEQ__13TH			0x0C
-#define ADC_SEQ__14TH			0x0D
-#define ADC_SEQ__15TH			0x0E
-#define ADC_SEQ__16TH			0x0F
+#define ADC_GET_INJ_GRP_DATA(AdcNo, AdcChan)						\
+	GET_IO_BITS(ADC_ADDR(AdcNo, (ADC_JDR1_OFFSET + (AdcChan * 0x4))), 0, BITMASK_16)
 
-/*
-#define ADC_SET_SEQ(AdcNo, AdcChan, AdcSeq)														\
-	if ((AdcSeq <= ADC_SEQ__16TH) && (AdcSeq >= ADC_SEQ__13TH))									\
-	{																							\
-	SET_IO_BITS((AdcNo + ADC_SQR1_OFFSET), ((AdcSeq - ADC_SEQ__13TH) * 5), BITMASK_5, AdcChan);	\
-	}																							\
-	else if ((AdcSeq <= ADC_SEQ__12TH) && (AdcSeq >= ADC_SEQ__7TH))								\
-	{																							\
-	SET_IO_BITS((AdcNo + ADC_SQR2_OFFSET), ((AdcSeq - ADC_SEQ__7TH) * 5), BITMASK_5, AdcChan);	\
-	}																							\
-	else if ((AdcSeq <= ADC_SEQ__6TH) && (AdcSeq >= ADC_SEQ__1ST))								\
-	{																							\
-	SET_IO_BITS((AdcNo + ADC_SQR3_OFFSET), (AdcSeq * 5), BITMASK_5, AdcChan);					\
-	}																							\
-	else																						\
-	{																							\
-	}
-	*/
-
-/*
-#define ADC_SET_SEQ(AdcNo, AdcChan, AdcSeq)														\
-	if ((AdcSeq <= ADC_SEQ__6TH) && (AdcSeq >= ADC_SEQ__1ST))									\
-	{																							\
-	SET_IO_BITS((AdcNo + ADC_SQR3_OFFSET), (AdcSeq * 5), BITMASK_5, AdcChan);					\
-	}																							\
-	else if ((AdcSeq <= ADC_SEQ__12TH) && (AdcSeq >= ADC_SEQ__7TH))								\
-	{																							\
-	SET_IO_BITS((AdcNo + ADC_SQR2_OFFSET), ((AdcSeq - ADC_SEQ__7TH) * 5), BITMASK_5, AdcChan);	\
-	}																							\
-	else if ((AdcSeq <= ADC_SEQ__16TH) && (AdcSeq >= ADC_SEQ__13TH))							\
-	{																							\
-	SET_IO_BITS((AdcNo + ADC_SQR1_OFFSET), ((AdcSeq - ADC_SEQ__13TH) * 5), BITMASK_5, AdcChan);	\
-	}																							\
-	else																						\
-	{																							\
-	}
-	*/
-
-#define ADC_GET_DUAL_MODE_DATA(AdcNo)				((IO_MEM32((AdcNo + ADC_DR_OFFSET)) >> 16) & 0xFFFF)
-
-#define ADC_GET_DATA(AdcNo)							IO_MEM32((AdcNo + ADC_DR_OFFSET))
+#define ADC_GET_REG_GRP_DATA(AdcNo)									\
+	GET_IO_BITS(ADC_ADDR(AdcNo, ADC_DR_OFFSET), 0, BITMASK_16)
 
 #ifdef __cplusplus
 }

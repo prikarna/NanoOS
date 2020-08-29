@@ -56,6 +56,8 @@ extern "C" {
 #define USB_SET_CTL(Set, UsbCtls)					\
 	(Set) ? (IO_MEM32(USB_CNTR) |= (UsbCtls)) : (IO_MEM32(USB_CNTR) &= ~(UsbCtls))
 
+#define USB_GET_CTL()							IO_MEM32(USB_CNTR)
+
 #define USB_ENA_REQ_RESUME(Ena)						ENABLE_IO_BIT(USB_CNTR, BIT_4, Ena);
 
 #define USB_SET_FORCE_SUSPEND(Set)					ENABLE_IO_BIT(USB_CNTR, BIT_3, Set)

@@ -11,7 +11,7 @@
 
 #define EVT__MAX_EVENTS			64
 
-#define EVT__CREATE_BIT			0x0100
-#define EVT__SET_BIT			0x0001
+#define EVT__CREATE_BIT			0x01
+#define EVT__SET_BIT			0x02
 
 #endif  // End of EVENT_H

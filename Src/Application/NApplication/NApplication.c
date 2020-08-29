@@ -273,14 +273,22 @@ int main(int argc, char * argv[])
 		Printf("USB is not ready!\r\n");
 	} else {
 		Printf("USB is ready.\r\n");
-		Printf("Read from USB serial (console)... ");
-		fRes = ReadFromUsbSerial(&gBuf[0], sizeof(gBuf), &guiReadLen);
-		if (!fRes) {
-			Printf("Error (0x%X)!\r\n", GetLastError());
-		} else {
-			Printf("Success.\r\n");
-			Printf("Content = %s, length = %d\r\n", &gBuf[0], guiReadLen);
+		Printf("Read 32 bytes max. from USB serial (console).\r\n");
+		Printf("Your name: ");
+		for (int i = 0; i < 32; i++) {
+			fRes = ReadFromUsbSerial(&gBuf[i], 1, &guiReadLen);
+			if (!fRes) {
+				Printf("Error (0x%X)!\r\n", GetLastError());
+				break;
+			} else {
+				if (gBuf[i] == '\r') {
+					break;
+				} else {
+					Printf("%c", gBuf[i]);
+				}
+			}
 		}
+		Printf("\r\nHello %s\r\n", gBuf);
 	}
 
 Cleanup:

@@ -54,6 +54,9 @@ void UsbShutdown()
 	USB_SET_CTL(SET, USB_CTL__FORCE_SUSPEND);
 	USB_CLR_ALL_INTS();
 	USB_SET_CTL(SET, USB_CTL__POWER_DOWN);
+
+	UsbCancelReceive();
+
 	u = 8;
 	while (u-- > 0);	// Simulate approx. 1 micro sec. delay (maybe far from acurrate)
 
@@ -579,7 +582,7 @@ void IntUSBLowPriorityOrCAN1_RX0()
 UINT8_T UsbSend(UINT8_PTR_T pBuffer, UINT32_T uiBufferByteLength, BOOL fWait)
 {
 	UINT32_T		uLen;
-	UINT32_T		uInts;
+	UINT32_T		ui;
 	BOOL			fRes = FALSE;
 
 	if (sControlLineState != 0x3) {
@@ -604,14 +607,20 @@ UINT8_T UsbSend(UINT8_PTR_T pBuffer, UINT32_T uiBufferByteLength, BOOL fWait)
 	}
 
 	while (TRUE) {
-		uInts = USB_GET_ALL_INTS();
-		if (uInts & USB_IO_INT_ERRORS) {
+		ui = USB_GET_ALL_INTS();
+		if (ui & USB_IO_INT_ERRORS) {
 			ThdSetLastError(ERR__USB_IO);
 			break;
 		}
 
 		if (USB_EP_GET_TX_CTR(USB_EP_REG_2) == 1) {
 			fRes = TRUE;
+			break;
+		}
+
+		ui = RCC_GET_APB1_CTRL_CLK();
+		if ((ui & RCC_APB1_CTRL__USB) == 0) {
+			ThdSetLastError(ERR__USB_IO);
 			break;
 		}
 	}

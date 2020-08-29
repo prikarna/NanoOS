@@ -981,7 +981,7 @@ typedef BOOL (* PRINT_CHAR_CALLBACK)(UINT8_T Char, void * Parameter);
 	     Pointer to user defined parameter to passed to PrintChar when called by UtlVPrintf.
 	 szFormat
          Formated string with prefix % (percent) sign. This is very limited format and currently supported format:
-         d   = to format or display an integer variable in number format e.g., 2345.
+         d   = to format or display an 32 bits integer variable in number format e.g., 2345.
          D   = same as d.
          c   = to format or display a byte variable in single character. Note that character being displayed depends 
                on terminal type, for example ASCI terminal will display character in ASCI.
@@ -1019,6 +1019,10 @@ UINT32_T UtlVPrintf(
      None.
  */
 UINT32_T DbgPrintf(const char *szFormat, ...);
+
+#ifdef DBG_PRINTF
+# undef DBG_PRINTF
+#endif
 
 #ifdef _DEBUG
 # define DBG_PRINTF(szFmt, ...)					DbgPrintf(szFmt, __VA_ARGS__)

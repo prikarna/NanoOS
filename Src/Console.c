@@ -267,6 +267,15 @@ static BOOL ConSetTermHandler(TERMINATION_HANDLER_TYPE TermHandler)
 	return fRes;
 }
 
+static BOOL ConResetSystem()
+{
+	BOOL	fRes = FALSE;
+
+	CALL_SVC_WITH_ZERO_PARAM(SVC__RESET_SYSTEM, fRes);
+
+	return fRes;
+}
+
 static void ConConsoleTermHandler(UINT32_T uReason)
 {
 	sfConAct = FALSE;
@@ -674,7 +683,7 @@ int Console(void * pParameter)
 		case CONS_CMD__RESET:
 			UsbShutdown();
 			UaWriteString("System reset...\r\n");
-			SCB_RESET_SYSTEM();
+			ConResetSystem();
 			break;
 
 		case CONS_CMD__CONFIG:
