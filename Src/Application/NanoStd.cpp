@@ -110,7 +110,7 @@ void Output::_WriteChar(char Char)
 void Output::_WriteDecimal(unsigned int uiNumber)
 {
 	unsigned int	uDiv = 0, uMod = 0, uRes = 0;
-	char			buf[128];
+	char			buf[16];
 	char *			pc;
 	int				iRes = 0;
 
@@ -120,7 +120,7 @@ void Output::_WriteDecimal(unsigned int uiNumber)
 
 	do {
 		uDiv = uRes / 10;
-		uMod = uRes - (uDiv * 10);
+		uMod = uRes % 10;
 		*pc++ = sHexCharsU[uMod];
 		uRes = uDiv;
 	} while (uDiv >= 10);

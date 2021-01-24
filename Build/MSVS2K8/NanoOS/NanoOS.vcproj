@@ -229,6 +229,10 @@
 				Name="Stm"
 				>
 				<File
+					RelativePath="..\..\..\Src\Sys\Stm\ADC.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Src\Sys\Stm\ChipAddr.h"
 					>
 				</File>

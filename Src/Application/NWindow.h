@@ -120,7 +120,7 @@ public:
 	/*
 	 Since GCC doesn't support friend typename ..., we must provide
 	 access to 'dispatch' the event publicly and this is bad! 
-	 This will allow non owner of the event can generate the event.
+	 This will allow non owner of the event generate the event.
 	 */
 	Event<Owner, ArgType> operator ()(ArgType Arg)
 	{

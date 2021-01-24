@@ -237,6 +237,7 @@ extern "C" {
 
 #define RCC_REMOVE_RESET_FLAG()			SET_IO_BIT(RCC_CSR, BIT_24)
 
+#define RCC_IS_LSI_READY()				GET_IO_BIT(RCC_CSR, BIT_1)
 #define RCC_ENA_LSI(Ena)				ENABLE_IO_BIT(RCC_CSR, BIT_0, Ena)
 
 #ifdef __cplusplus

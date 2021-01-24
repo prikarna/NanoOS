@@ -40,7 +40,7 @@ void HandleSoftInt(UINT32_T uiIntType)
 		guiPendInt = EXTI_GET_PEND_INT();
 		EXTI_CLR_PEND_INT(guiPendInt);	// Must clear this pending interrupt.
 
-		EvtSet(gEvtId, 0);
+		EvtSet(gEvtId);
 	}
 	else
 	{

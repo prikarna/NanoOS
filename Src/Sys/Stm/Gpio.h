@@ -54,7 +54,6 @@ extern "C" {
 	
 #define GPIO_ADDR(Port, RegOffset)		((GPIO_PORT_A_BASE + (Port * GPIO_PORT_OFFSET)) + RegOffset)
 
-#define GPIO_CNF_INPUT__ANALOG				0x00
 #define GPIO_CNF_INPUT__FLOATING			0x04
 #define GPIO_CNF_INPUT__PULL_UP_PULL_DOWN	0x08
 #define GPIO_CNF_INPUT__RESVD				0x0C
@@ -75,14 +74,20 @@ extern "C" {
 #define GPIO_SET_MODE_INPUT(Port, Pin, CnfInp)				\
 	SET_IO_BITS(GPIO_MODE_REG(Port, Pin), GPIO_MODE_NTH_PIN(Pin), BITMASK_4, (GPIO_MODE__INPUT | CnfInp))
 
-#define GPIO_SET_MODE_INPUT4(Port, Pin, CnfInp)				\
-	SET_IO_BITS(GPIO_MODE_REG(Port, Pin), GPIO_MODE_NTH_PIN(Pin), BITMASK_16, ((GPIO_MODE__INPUT | CnfInp) * 0x1111))
+#define GPIO_SET_MODE_INPUT4(Port, StartPin, CnfInp)				\
+	SET_IO_BITS(GPIO_MODE_REG(Port, StartPin), GPIO_MODE_NTH_PIN(StartPin), BITMASK_16, ((GPIO_MODE__INPUT | CnfInp) * 0x1111))
 
 #define GPIO_SET_MODE_OUTPUT(Port, Pin, CnfOut, ModeOut)					\
 	SET_IO_BITS(GPIO_MODE_REG(Port, Pin), GPIO_MODE_NTH_PIN(Pin), BITMASK_4, (CnfOut | ModeOut))
 
-#define GPIO_SET_MODE_OUTPUT4(Port, Pin, CnfOut, ModeOut)					\
-	SET_IO_BITS(GPIO_MODE_REG(Port, Pin), GPIO_MODE_NTH_PIN(Pin), BITMASK_16, ((CnfOut | ModeOut) * 0x1111))
+#define GPIO_SET_MODE_OUTPUT4(Port, StartPin, CnfOut, ModeOut)					\
+	SET_IO_BITS(GPIO_MODE_REG(Port, StartPin), GPIO_MODE_NTH_PIN(StartPin), BITMASK_16, ((CnfOut | ModeOut) * 0x1111))
+
+#define GPIO_SET_MODE_ANALOG(Port, Pin)						\
+	SET_IO_BITS(GPIO_MODE_REG(Port, Pin), GPIO_MODE_NTH_PIN(Pin), BITMASK_4, 0x0)
+
+#define GPIO_SET_MODE_ANALOG4(Port, StartPin)				\
+	SET_IO_BITS(GPIO_MODE_REG(Port, StartPin), GPIO_MODE_NTH_PIN(StartPin), BITMASK_16, 0x0)
 
 #define GPIO_READ(Port, Pin)				GET_IO_BIT(GPIO_ADDR(Port, GPIO_IDR_OFFSET), Pin)
 #define GPIO_READ4(Port, StartPin)			GET_IO_BITS(GPIO_ADDR(Port, GPIO_IDR_OFFSET), StartPin, BITMASK_4)

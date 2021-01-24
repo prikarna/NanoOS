@@ -54,7 +54,7 @@
 #define SPI3_OR_I2S_ADDRESS		0x40003C00    // APB1 - SPI3/I2S
 #define SPI2_OR_I2S_ADDRESS		0x40003800    // APB1 - SPI2/I2S
 #define IWDG_ADDRESS			0x40003000    // APB1 - Independent watchdog (IWDG)
-#define WINDOW_WATCHDOG_ADDRESS	0x40002C00    // APB1 - Window watchdog (WWDG)
+#define WWDG_ADDRESS			0x40002C00    // APB1 - Window watchdog (WWDG)
 #define RTC_ADDRESS				0x40002800    // APB1 - RTC
 #define TIM14_ADDRESS			0x40002000    // APB1 - TIM14
 #define TIM13_ADDRESS			0x40001C00    // APB1 - TIM13

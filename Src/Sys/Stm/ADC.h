@@ -1,3 +1,10 @@
+/*
+ * File    : ADC.h
+ * Remark  : Macro to access Analog To Digital Converter controller on chip.
+ *           Fow now this is STM32F10XXX chipset.
+ *
+ */
+
 #ifndef ADC_H
 #define ADC_H
 

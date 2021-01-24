@@ -122,8 +122,20 @@ extern "C" {
 #define TIM_TRIG_SEL__FILT_TIM_INP2					0x6
 #define TIM_TRIG_SEL__EXTER_TRIG_INP				0x7
 
-#define TIM_SET_TRIG_SELECTION(TimNo, TimTrigSel)					\
+#define TIM_SET_TRIG_SELECTION(TimNo, TimTrigSel)	\
 	SET_IO_BITS((TimNo + TIM_SMCR_OFFSET), BIT_4, BITMASK_3, TimTrigSel)
+
+#define TIM_SLAVE_MOD__DISABLED			0x0
+#define TIM_SLAVE_MOD__1				0x1
+#define TIM_SLAVE_MOD__2				0x2
+#define TIM_SLAVE_MOD__3				0x3
+#define TIM_SLAVE_MOD__RESET			0x4
+#define TIM_SLAVE_MOD__GATED			0x5
+#define TIM_SLAVE_MOD__TRIGGER			0x6
+#define TIM_SLAVE_MOD__EXTERNAL_CLOCK	0x7
+
+#define TIM_SET_SLAVE_MOD_SEL(TimNo, TimSlaveMod)	\
+	SET_IO_BITS((TimNo + TIM_SMCR_OFFSET), BIT_0, BITMASK_3, TimSlaveMod)
 
 #define TIM_CHAN1						0x1
 #define TIM_CHAN2						0x2
@@ -152,6 +164,7 @@ extern "C" {
 #define TIM_CLR_CAPT_COMP_INT_FLAG(TimNo, TimChanNo)		CLR_IO_BIT((TimNo + TIM_SR_OFFSET), (BIT_0 + TimChanNo))
 #define TIM_GET_UPDATE_INT_FLAG(TimNo)						GET_IO_BIT((TimNo + TIM_SR_OFFSET), BIT_0)
 #define TIM_CLR_UPDATE_INT_FLAG(TimNo)						CLR_IO_BIT((TimNo + TIM_SR_OFFSET), BIT_0)
+#define TIM_GET_STATUS(TimNo)								IO_MEM32((TimNo + TIM_SR_OFFSET))
 
 #define TIM_SET_TRIG_GEN(TimNo)								SET_IO_BIT((TimNo + TIM_EGR_OFFSET), BIT_6)
 #define TIM_SET_CAPT_COMP_GEN(TimNo, TimChanNo)				SET_IO_BIT((TimNo + TIM_EGR_OFFSET), (BIT_0 + TimChanNo))

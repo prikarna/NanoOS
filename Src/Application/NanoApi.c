@@ -980,7 +980,7 @@ UINT32_T UtlVPrintf(PRINT_CHAR_CALLBACK PrintChar, void * pPrintCharParam, const
 
 			case 'c':
 			case 'C':
-				c = (UINT8_T) va_arg(argList, UINT32_T);
+				c = (UINT8_T) va_arg(argList, INT32_T);
 				(* PrintChar)(c, pPrintCharParam);
 				uCount++;
 				break;
